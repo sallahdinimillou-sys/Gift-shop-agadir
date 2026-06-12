@@ -1,7 +1,5 @@
-
 import { Navbar } from '@/components/layout/Navbar';
 import { Hero } from '@/components/home/Hero';
-import { CategoryShowcase } from '@/components/home/CategoryShowcase';
 import { ShopSection } from '@/components/home/ShopSection';
 import { Footer } from '@/components/layout/Footer';
 import { WhatsAppButton } from '@/components/layout/WhatsAppButton';
@@ -21,7 +19,6 @@ export default function Home() {
     <main className="min-h-screen">
       <Navbar />
       <Hero />
-      <CategoryShowcase />
       <ShopSection />
 
       {/* Why Choose Us */}

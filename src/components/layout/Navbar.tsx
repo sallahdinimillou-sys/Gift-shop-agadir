@@ -1,4 +1,3 @@
-
 "use client"
 
 import Link from 'next/link';
@@ -24,7 +23,6 @@ export function Navbar() {
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'Shop', href: '/#shop' },
-    { name: 'Categories', href: '/#categories' },
     { name: 'About', href: '/about' },
     { name: 'Contact', href: '/contact' },
   ];
