@@ -1,89 +1,296 @@
 
 "use client"
 
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Package, ShoppingCart, MessageSquare, TrendingUp, DollarSign, Users } from 'lucide-react';
-import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import { useState, useMemo } from 'react';
+import { useFirestore, useCollection } from '@/firebase';
+import { collection, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogFooter
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
+import { Plus, Pencil, Trash2, Search, ImageIcon, Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import { Product } from '@/types';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function AdminDashboardPage() {
-  const stats = [
-    { label: "Total Revenue", value: "45,231.89 MAD", icon: <DollarSign className="text-primary" />, trend: "+20.1% from last month" },
-    { label: "Total Orders", value: "142", icon: <ShoppingCart className="text-primary" />, trend: "+12.5% from last month" },
-    { label: "Total Products", value: "84", icon: <Package className="text-primary" />, trend: "4 new this week" },
-    { label: "New Inquiries", value: "12", icon: <MessageSquare className="text-primary" />, trend: "Requires attention" }
-  ];
+  const firestore = useFirestore();
+  const { toast } = useToast();
+  
+  const productsQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'products'), orderBy('createdAt', 'desc'));
+  }, [firestore]);
+
+  const { data: products, loading } = useCollection<Product>(productsQuery);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    price: '',
+    imageUrl: '',
+  });
+
+  const filteredProducts = useMemo(() => {
+    if (!products) return [];
+    return products.filter(p => 
+      p.title?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [products, searchQuery]);
+
+  const handleOpenAdd = () => {
+    setEditingProduct(null);
+    setFormData({
+      title: '',
+      description: '',
+      price: '',
+      imageUrl: '',
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleOpenEdit = (product: Product) => {
+    setEditingProduct(product);
+    setFormData({
+      title: product.title,
+      description: product.description,
+      price: product.price.toString(),
+      imageUrl: product.images?.[0] || '',
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!firestore) return;
+
+    setIsSubmitting(true);
+    const productData = {
+      title: formData.title,
+      description: formData.description,
+      price: parseFloat(formData.price),
+      images: [formData.imageUrl],
+      updatedAt: serverTimestamp(),
+    };
+
+    try {
+      if (editingProduct) {
+        const docRef = doc(firestore, 'products', editingProduct.id);
+        updateDoc(docRef, productData).catch(async () => {
+          const permissionError = new FirestorePermissionError({
+            path: docRef.path,
+            operation: 'update',
+            requestResourceData: productData
+          });
+          errorEmitter.emit('permission-error', permissionError);
+        });
+        toast({ title: "Success", description: "Product updated successfully." });
+      } else {
+        const colRef = collection(firestore, 'products');
+        const newProduct = {
+          ...productData,
+          createdAt: serverTimestamp(),
+          slug: formData.title.toLowerCase().replace(/\s+/g, '-'),
+          categoryId: 'general',
+          stockStatus: 'in-stock',
+          featured: false,
+          bestSeller: false
+        };
+        addDoc(colRef, newProduct).catch(async () => {
+          const permissionError = new FirestorePermissionError({
+            path: colRef.path,
+            operation: 'create',
+            requestResourceData: newProduct
+          });
+          errorEmitter.emit('permission-error', permissionError);
+        });
+        toast({ title: "Success", description: "Product added successfully." });
+      }
+      setIsDialogOpen(false);
+    } catch (error: any) {
+      // Handled globally
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!firestore || !confirm("Are you sure you want to delete this product?")) return;
+
+    const docRef = doc(firestore, 'products', id);
+    deleteDoc(docRef).catch(async () => {
+      const permissionError = new FirestorePermissionError({
+        path: docRef.path,
+        operation: 'delete'
+      });
+      errorEmitter.emit('permission-error', permissionError);
+    });
+    toast({ title: "Deleted", description: "Product removed." });
+  };
 
   return (
     <div className="p-8 space-y-8">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard Overview</h1>
-          <p className="text-muted-foreground">Real-time performance of Gift Shop Agadir.</p>
+          <h1 className="text-3xl font-bold tracking-tight">Products</h1>
+          <p className="text-muted-foreground">Manage your store catalog easily.</p>
         </div>
+        <Button onClick={handleOpenAdd} className="rounded-xl h-12 px-6">
+          <Plus className="w-5 h-5 mr-2" />
+          Add Product
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, i) => (
-          <Card key={i} className="border-white/5 bg-white/5">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{stat.label}</CardTitle>
-              {stat.icon}
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground mt-1">{stat.trend}</p>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input 
+          placeholder="Search products..." 
+          className="pl-10 h-11 bg-white/5 rounded-xl border-white/10"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card className="border-white/5 bg-white/5">
-          <CardHeader>
-            <CardTitle>Recent Orders</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="flex items-center justify-between border-b border-white/5 pb-4 last:border-0 last:pb-0">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
-                      {String.fromCharCode(64 + i)}
+      <div className="rounded-2xl border border-white/5 overflow-hidden bg-card/30">
+        <Table>
+          <TableHeader className="bg-white/5">
+            <TableRow>
+              <TableHead className="w-[100px]">Image</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Price (MAD)</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={4} className="h-48 text-center">
+                  <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
+                </TableCell>
+              </TableRow>
+            ) : filteredProducts.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="h-48 text-center text-muted-foreground">
+                  No products found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredProducts.map((product) => (
+                <TableRow key={product.id} className="hover:bg-white/5 transition-colors border-white/5">
+                  <TableCell>
+                    <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-white/10">
+                      {product.images?.[0] ? (
+                        <Image src={product.images[0]} alt={product.title} fill className="object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-muted">
+                          <ImageIcon className="w-4 h-4 text-muted-foreground" />
+                        </div>
+                      )}
                     </div>
-                    <div>
-                      <p className="font-medium">Customer {i}</p>
-                      <p className="text-xs text-muted-foreground">2 items • 1,200 MAD</p>
-                    </div>
-                  </div>
-                  <span className="text-xs px-2 py-1 rounded-full bg-blue-500/10 text-blue-500 font-medium">Processing</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-white/5 bg-white/5">
-          <CardHeader>
-            <CardTitle>Recent Inquiries</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="space-y-2 border-b border-white/5 pb-4 last:border-0 last:pb-0">
-                  <div className="flex justify-between">
-                    <p className="font-medium text-sm">Custom Crystal Award Inquiry</p>
-                    <span className="text-xs text-muted-foreground">2h ago</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground line-clamp-1">"I would like to know if you can engrave a specific logo on the large trophy..."</p>
-                  <div className="flex gap-2">
-                     <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-yellow-500/10 text-yellow-500 font-medium">Pending</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                  </TableCell>
+                  <TableCell className="font-medium">{product.title}</TableCell>
+                  <TableCell>{product.price?.toFixed(2)}</TableCell>
+                  <TableCell className="text-right space-x-2">
+                    <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(product)} className="hover:text-primary rounded-full">
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(product.id)} className="hover:text-destructive rounded-full">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-xl rounded-[2rem] border-white/10">
+          <DialogHeader>
+            <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-6 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Product Name</Label>
+              <Input 
+                id="title" 
+                value={formData.title} 
+                onChange={e => setFormData({...formData, title: e.target.value})}
+                required
+                className="rounded-xl h-12 bg-white/5 border-white/10"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="price">Price (MAD)</Label>
+              <Input 
+                id="price" 
+                type="number" 
+                step="0.01"
+                value={formData.price} 
+                onChange={e => setFormData({...formData, price: e.target.value})}
+                required
+                className="rounded-xl h-12 bg-white/5 border-white/10"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="imageUrl">Image URL</Label>
+              <Input 
+                id="imageUrl" 
+                value={formData.imageUrl} 
+                onChange={e => setFormData({...formData, imageUrl: e.target.value})}
+                placeholder="https://..."
+                required
+                className="rounded-xl h-12 bg-white/5 border-white/10"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea 
+                id="description" 
+                value={formData.description} 
+                onChange={e => setFormData({...formData, description: e.target.value})}
+                required
+                className="rounded-xl min-h-[120px] bg-white/5 border-white/10 resize-none"
+              />
+            </div>
+
+            <DialogFooter className="gap-2">
+              <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} disabled={isSubmitting}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting} className="px-8 h-12 rounded-xl">
+                {isSubmitting ? <Loader2 className="animate-spin" /> : editingProduct ? 'Save Changes' : 'Add Product'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

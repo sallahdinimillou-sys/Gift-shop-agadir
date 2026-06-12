@@ -2,7 +2,7 @@
 "use client"
 
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
-import { LayoutDashboard, Package, Tag, ShoppingCart, MessageSquare, Settings, LogOut, Loader2, ArrowLeft, User as UserIcon } from 'lucide-react';
+import { Package, LogOut, Loader2, ArrowLeft, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useUser, useAuth } from '@/firebase';
@@ -52,7 +52,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-10 h-10 animate-spin text-primary" />
-          <p className="text-sm font-medium text-muted-foreground animate-pulse">Verifying secure session...</p>
+          <p className="text-sm font-medium text-muted-foreground animate-pulse">Verifying session...</p>
         </div>
       </div>
     );
@@ -69,14 +69,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   };
 
-  const menuItems = [
-    { icon: <LayoutDashboard className="w-4 h-4" />, label: 'Overview', href: '/admin' },
-    { icon: <Package className="w-4 h-4" />, label: 'Products', href: '/admin/products' },
-    { icon: <Tag className="w-4 h-4" />, label: 'Categories', href: '/admin/categories' },
-    { icon: <ShoppingCart className="w-4 h-4" />, label: 'Orders', href: '/admin/orders' },
-    { icon: <MessageSquare className="w-4 h-4" />, label: 'Inquiries', href: '/admin/inquiries' },
-  ];
-
   return (
     <SidebarProvider>
       <div className="flex min-h-screen bg-background w-full">
@@ -84,26 +76,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <SidebarHeader className="p-6">
             <Link href="/" className="flex items-center space-x-2">
               <span className="text-xl font-bold text-gradient-primary uppercase tracking-tighter">
-                GS Agadir
+                Admin Panel
               </span>
             </Link>
           </SidebarHeader>
           <SidebarContent>
             <SidebarMenu className="px-4">
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton 
-                    asChild 
-                    isActive={pathname === item.href}
-                    className="h-11 rounded-xl transition-all"
-                  >
-                    <Link href={item.href}>
-                      {item.icon}
-                      <span>{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  asChild 
+                  isActive={pathname === '/admin'}
+                  className="h-11 rounded-xl transition-all"
+                >
+                  <Link href="/admin">
+                    <Package className="w-4 h-4" />
+                    <span>Manage Products</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter className="p-6">
@@ -133,10 +123,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </Button>
             </div>
             <div className="flex items-center gap-4">
-               <div className="text-right hidden sm:block">
-                  <p className="text-sm font-medium">{user?.displayName || 'Administrator'}</p>
-                  <p className="text-xs text-muted-foreground">{user?.email}</p>
-               </div>
                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary border border-primary/20">
                  {user?.email?.[0].toUpperCase() || <UserIcon className="w-5 h-5" />}
                </div>
