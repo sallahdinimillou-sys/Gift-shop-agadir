@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Lock, Mail, Loader2, ShieldCheck } from 'lucide-react';
+import { Lock, Mail, Loader2, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { useAuth, useUser } from '@/firebase';
 import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from 'firebase/auth';
 
@@ -23,8 +24,8 @@ export default function AdminLoginPage() {
   const { user, isLoading: userLoading } = useUser();
 
   useEffect(() => {
-    // If user is already logged in and authorized, redirect to dashboard
-    // Using router.push as requested to preserve navigation history
+    // If user is already logged in and authorized, navigate to dashboard
+    // We use router.push to preserve navigation history as requested
     if (!userLoading && user && user.email === AUTHORIZED_ADMIN_EMAIL) {
       router.push('/admin');
     }
@@ -39,13 +40,14 @@ export default function AdminLoginPage() {
 
     setLoading(true);
     try {
-      // Ensure the session persists across restarts
+      // Ensure the session persists across restarts/refreshes
       await setPersistence(auth, browserLocalPersistence);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const loggedUser = userCredential.user;
       
       if (loggedUser.email === AUTHORIZED_ADMIN_EMAIL) {
         toast({ title: "Access Granted", description: "Welcome to the administration panel." });
+        // Use router.push to ensure the back button works correctly
         router.push('/admin');
       } else {
         toast({ 
