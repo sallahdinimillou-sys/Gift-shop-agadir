@@ -1,6 +1,7 @@
+
 "use client"
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ProductCard } from '@/components/shop/ProductCard';
 import { useFirestore, useCollection } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
@@ -26,6 +27,9 @@ import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 import { cn } from '@/lib/utils';
 import { Product } from '@/types';
+import { ProductSkeleton } from '@/components/shop/ProductSkeleton';
+
+const CACHE_KEY = 'gift_shop_products_cache';
 
 export function ShopSection() {
   const firestore = useFirestore();
@@ -33,7 +37,20 @@ export function ShopSection() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [cachedData, setCachedData] = useState<Product[]>([]);
   const { addToCart } = useCart();
+
+  // Load from localStorage on mount for instant visual feedback
+  useEffect(() => {
+    const saved = localStorage.getItem(CACHE_KEY);
+    if (saved) {
+      try {
+        setCachedData(JSON.parse(saved));
+      } catch (e) {
+        console.error("Cache parsing error", e);
+      }
+    }
+  }, []);
 
   const productsQuery = useMemo(() => {
     if (!firestore) return null;
@@ -42,18 +59,27 @@ export function ShopSection() {
 
   const { data: products, loading } = useCollection<Product>(productsQuery);
 
+  // Update cache whenever fresh data arrives
+  useEffect(() => {
+    if (products && products.length > 0) {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(products));
+      setCachedData(products);
+    }
+  }, [products]);
+
+  // Use fresh products if available, otherwise use cache
+  const displayData = (products && products.length > 0) ? products : cachedData;
+
   const filteredProducts = useMemo(() => {
-    if (!products) return [];
-    
     const keywords = searchQuery.toLowerCase().trim().split(/\s+/).filter(Boolean);
 
-    return products.filter(product => {
+    return displayData.filter(product => {
       const title = product.title?.toLowerCase() || '';
       const matchesSearch = keywords.length === 0 || keywords.every(keyword => title.includes(keyword));
       const matchesCategory = selectedCategory ? product.categoryId === selectedCategory : true;
       return matchesSearch && matchesCategory;
     });
-  }, [searchQuery, selectedCategory, products]);
+  }, [searchQuery, selectedCategory, displayData]);
 
   const handleBuyNowWhatsApp = (product: Product) => {
     const message = encodeURIComponent(
@@ -76,7 +102,7 @@ export function ShopSection() {
             <p className="text-muted-foreground max-w-lg">Discover high-end trophies, awards, and personalized gifts crafted for your special moments.</p>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            {loading ? "Loading products..." : `Showing ${filteredProducts.length} results`}
+            {loading && displayData.length === 0 ? "Loading products..." : `Showing ${filteredProducts.length} results`}
           </div>
         </div>
 
@@ -116,18 +142,16 @@ export function ShopSection() {
           </div>
         </div>
 
-        {loading ? (
-          <div className="py-24 flex flex-col items-center justify-center gap-4">
-            <Loader2 className="w-10 h-10 animate-spin text-primary" />
-            <p className="text-muted-foreground">Fetching latest collection...</p>
-          </div>
+        {loading && displayData.length === 0 ? (
+          <ProductSkeleton />
         ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {filteredProducts.map((product) => (
+            {filteredProducts.map((product, index) => (
               <ProductCard 
                 key={product.id} 
                 product={product} 
                 onViewDetails={openProductModal}
+                priority={index < 4} // Priority for top products
               />
             ))}
           </div>
@@ -151,10 +175,12 @@ export function ShopSection() {
             <div className="flex flex-col lg:flex-row h-full max-h-[90vh] overflow-y-auto">
               <div className="lg:w-1/2 bg-card p-6 flex flex-col gap-4">
                 <div className="relative aspect-square rounded-2xl overflow-hidden bg-background border border-white/5">
-                  <img 
+                  <Image 
                     src={selectedProduct.images?.[activeImageIndex] || 'https://placehold.co/800x800?text=No+Image'} 
                     alt={selectedProduct.title} 
-                    className="w-full h-full object-cover animate-in fade-in duration-500"
+                    fill
+                    className="object-cover animate-in fade-in duration-500"
+                    sizes="(max-width: 768px) 100vw, 50vw"
                   />
                 </div>
                 {selectedProduct.images && selectedProduct.images.length > 1 && (
@@ -168,7 +194,7 @@ export function ShopSection() {
                           activeImageIndex === i ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"
                         )}
                       >
-                        <img src={img} alt="" className="w-full h-full object-cover" />
+                        <Image src={img} alt="" fill className="object-cover" sizes="80px" />
                       </button>
                     ))}
                   </div>

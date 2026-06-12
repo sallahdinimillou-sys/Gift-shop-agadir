@@ -13,9 +13,10 @@ import { useCart } from '@/context/CartContext';
 interface ProductCardProps {
   product: Product;
   onViewDetails: (product: Product) => void;
+  priority?: boolean;
 }
 
-export function ProductCard({ product, onViewDetails }: ProductCardProps) {
+export function ProductCard({ product, onViewDetails, priority = false }: ProductCardProps) {
   const { addToCart } = useCart();
 
   return (
@@ -23,28 +24,34 @@ export function ProductCard({ product, onViewDetails }: ProductCardProps) {
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="overflow-hidden group border-white/5 bg-card/50 backdrop-blur-sm rounded-3xl cursor-pointer" onClick={() => onViewDetails(product)}>
+      <Card 
+        className="overflow-hidden group border-white/5 bg-card/50 backdrop-blur-sm rounded-3xl cursor-pointer" 
+        onClick={() => onViewDetails(product)}
+      >
         <div className="relative aspect-square overflow-hidden bg-muted">
           <Image
-            src={product.images[0]}
+            src={product.images[0] || 'https://placehold.co/600x600?text=No+Image'}
             alt={product.title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-110"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            priority={priority}
+            loading={priority ? 'eager' : 'lazy'}
           />
-          <div className="absolute top-4 left-4 flex flex-col gap-2">
+          <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
             {product.featured && (
               <Badge className="bg-primary hover:bg-primary border-none text-white font-bold">Featured</Badge>
             )}
             {product.bestSeller && (
-              <Badge className="bg-accent hover:bg-accent border-none text-navy-black font-bold">Best Seller</Badge>
+              <Badge className="bg-accent hover:bg-accent border-none text-black font-bold">Best Seller</Badge>
             )}
           </div>
           
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity z-20">
             <Button 
               size="icon" 
               variant="secondary" 
-              className="rounded-full h-12 w-12 bg-white text-navy-black"
+              className="rounded-full h-12 w-12 bg-white text-black hover:bg-white/90"
               onClick={(e) => {
                 e.stopPropagation();
                 onViewDetails(product);
@@ -55,7 +62,7 @@ export function ProductCard({ product, onViewDetails }: ProductCardProps) {
             <Button 
               size="icon" 
               variant="secondary" 
-              className="rounded-full h-12 w-12 bg-primary text-white border-none"
+              className="rounded-full h-12 w-12 bg-primary text-white border-none hover:bg-primary/90"
               onClick={(e) => {
                 e.stopPropagation();
                 addToCart(product);
@@ -66,7 +73,7 @@ export function ProductCard({ product, onViewDetails }: ProductCardProps) {
           </div>
         </div>
         <CardContent className="p-6">
-          <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Gift Selection</p>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2 font-bold">Gift Selection</p>
           <h3 className="text-lg font-bold group-hover:text-primary transition-colors line-clamp-1">{product.title}</h3>
           <div className="mt-4 flex items-center justify-between">
             <div className="flex flex-col">
