@@ -23,7 +23,7 @@ export function Navbar() {
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'Shop', href: '/shop' },
-    { name: 'Categories', href: '/shop#categories' },
+    { name: 'Categories', href: '/#categories' },
     { name: 'About', href: '/about' },
     { name: 'Contact', href: '/contact' },
   ];
@@ -54,13 +54,15 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="icon" className="hidden sm:flex">
-            <Search className="w-5 h-5" />
-          </Button>
+          <Link href="/shop">
+            <Button variant="ghost" size="icon" className="hidden sm:flex">
+              <Search className="w-5 h-5" />
+            </Button>
+          </Link>
           <Link href="/cart">
-            <Button variant="ghost" size="icon" className="relative">
-              <ShoppingBag className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
+            <Button variant="ghost" size="icon" className="relative group">
+              <ShoppingBag className="w-5 h-5 transition-transform group-hover:scale-110" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full ring-2 ring-background" />
             </Button>
           </Link>
           <Link href="/admin/login" className="hidden sm:block">
@@ -82,19 +84,27 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 top-[72px] bg-background/95 backdrop-blur-md z-40 p-8 flex flex-col space-y-6">
+        <div className="md:hidden fixed inset-0 top-0 bg-background/95 backdrop-blur-md z-[60] p-8 flex flex-col space-y-6 pt-24">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="absolute top-4 right-4"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <X className="w-8 h-8" />
+          </Button>
           {navLinks.map((link) => (
             <Link 
               key={link.name} 
               href={link.href}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="text-2xl font-semibold hover:text-primary transition-colors"
+              className="text-2xl font-semibold hover:text-primary transition-colors border-b border-white/5 pb-2"
             >
               {link.name}
             </Link>
           ))}
-          <Link href="/admin/login">
-             <Button className="w-full bg-primary hover:bg-primary/90">Admin Dashboard</Button>
+          <Link href="/admin/login" onClick={() => setIsMobileMenuOpen(false)}>
+             <Button className="w-full bg-primary hover:bg-primary/90 h-12 rounded-xl">Admin Dashboard</Button>
           </Link>
         </div>
       )}
