@@ -9,9 +9,13 @@ import { Input } from '@/components/ui/input';
 import { Plus, Search, Loader2, PackageSearch } from 'lucide-react';
 import { Product } from '@/types';
 import { EditableProductCard } from '@/components/admin/EditableProductCard';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AdminDashboardPage() {
   const firestore = useFirestore();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [isAdding, setIsAdding] = useState(false);
 
@@ -29,38 +33,51 @@ export default function AdminDashboardPage() {
     );
   }, [products, searchQuery]);
 
-  const handleAddNewProduct = async () => {
+  const handleAddNewProduct = () => {
     if (!firestore) return;
     setIsAdding(true);
-    try {
-      const colRef = collection(firestore, 'products');
-      const newProduct = {
-        title: 'New Product Title',
-        description: 'Click here to add a description...',
-        price: 0,
-        images: ['https://picsum.photos/seed/new/800/800'],
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        slug: `new-product-${Date.now()}`,
-        categoryId: 'general',
-        stockStatus: 'in-stock',
-        featured: false,
-        bestSeller: false
-      };
-      await addDoc(colRef, newProduct);
-    } catch (error) {
-      console.error("Error adding product:", error);
-    } finally {
-      setIsAdding(false);
-    }
+
+    const colRef = collection(firestore, 'products');
+    const newProduct = {
+      title: 'منتج جديد',
+      description: 'اضغط هنا لإضافة وصف للمنتج...',
+      price: 0,
+      images: ['https://picsum.photos/seed/new/800/800'],
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      slug: `new-product-${Date.now()}`,
+      categoryId: 'trophies',
+      stockStatus: 'in-stock',
+      featured: false,
+      bestSeller: false
+    };
+
+    // No await here for immediate UI responsiveness
+    addDoc(colRef, newProduct)
+      .then(() => {
+        setIsAdding(false);
+        toast({
+          title: "✅ تمت الإضافة",
+          description: "تمت إضافة مسودة منتج جديد بنجاح."
+        });
+      })
+      .catch(async (error) => {
+        setIsAdding(false);
+        const permissionError = new FirestorePermissionError({
+          path: colRef.path,
+          operation: 'create',
+          requestResourceData: newProduct
+        });
+        errorEmitter.emit('permission-error', permissionError);
+      });
   };
 
   return (
     <div className="p-8 space-y-10 min-h-screen bg-background/50">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h1 className="text-4xl font-bold tracking-tighter text-gradient-primary">Storefront Editor</h1>
-          <p className="text-muted-foreground mt-2">Click on any element in the cards below to edit your products in real-time.</p>
+          <h1 className="text-4xl font-bold tracking-tighter text-gradient-primary">لوحة التحكم</h1>
+          <p className="text-muted-foreground mt-2">إدارة مخزون المتجر وتعديل المنتجات في الوقت الفعلي.</p>
         </div>
         <Button 
           onClick={handleAddNewProduct} 
@@ -68,14 +85,14 @@ export default function AdminDashboardPage() {
           className="rounded-2xl h-14 px-8 bg-primary hover:bg-primary/90 text-lg font-bold shadow-xl shadow-primary/20 transition-all active:scale-95"
         >
           {isAdding ? <Loader2 className="animate-spin mr-2" /> : <Plus className="w-6 h-6 mr-2" />}
-          Add New Product
+          إضافة منتج جديد
         </Button>
       </div>
 
       <div className="relative group max-w-2xl">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
         <Input 
-          placeholder="Search your inventory..." 
+          placeholder="ابحث في المخزون..." 
           className="pl-12 h-14 bg-white/5 rounded-2xl border-white/10 text-lg focus:ring-primary focus:border-primary"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -85,7 +102,7 @@ export default function AdminDashboardPage() {
       {loading ? (
         <div className="py-32 flex flex-col items-center justify-center gap-4">
           <Loader2 className="w-12 h-12 animate-spin text-primary" />
-          <p className="text-muted-foreground font-medium animate-pulse">Syncing with Firestore...</p>
+          <p className="text-muted-foreground font-medium animate-pulse">جاري جلب البيانات من Firestore...</p>
         </div>
       ) : filteredProducts.length === 0 ? (
         <div className="py-32 text-center space-y-4 bg-white/5 rounded-[3rem] border-2 border-dashed border-white/10">
@@ -93,8 +110,8 @@ export default function AdminDashboardPage() {
             <PackageSearch className="w-10 h-10 text-primary" />
           </div>
           <div className="space-y-1">
-            <h3 className="text-2xl font-bold">No products found</h3>
-            <p className="text-muted-foreground">Start by adding a new product or adjust your search.</p>
+            <h3 className="text-2xl font-bold">لا توجد منتجات</h3>
+            <p className="text-muted-foreground">ابدأ بإضافة منتج جديد أو قم بتغيير كلمة البحث.</p>
           </div>
         </div>
       ) : (

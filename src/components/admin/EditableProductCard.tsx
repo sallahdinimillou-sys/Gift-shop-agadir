@@ -73,9 +73,9 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
     updateDoc(docRef, updatedData)
       .then(() => {
         setIsSaving(false);
-        setIsEditing(false); // عودة المنتج لحالته الطبيعية فوراً
+        setIsEditing(false);
         toast({ 
-          title: "✅ تم حفظ التغييرات", 
+          title: "✅ تم الحفظ", 
           description: "تم تحديث بيانات المنتج بنجاح." 
         });
       })
@@ -116,10 +116,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
         const response = JSON.parse(xhr.responseText);
         const downloadURL = response.secure_url;
         
-        // تحديث الصورة في الواجهة فوراً
         setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
-        
-        // إخفاء شريط التحميل فوراً بمجرد استلام الرابط بنجاح
         setIsUploading(false);
         setUploadProgress(0);
 
@@ -129,19 +126,20 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
           updatedAt: serverTimestamp(),
         };
 
-        try {
-          await updateDoc(docRef, updateData);
-          toast({ title: "✅ تم تحديث الصورة" });
-        } catch (err) {
-          const permissionError = new FirestorePermissionError({
-            path: docRef.path,
-            operation: 'update',
-            requestResourceData: updateData
+        updateDoc(docRef, updateData)
+          .then(() => {
+            toast({ title: "✅ تم تحديث الصورة" });
+          })
+          .catch(async (err) => {
+            const permissionError = new FirestorePermissionError({
+              path: docRef.path,
+              operation: 'update',
+              requestResourceData: updateData
+            });
+            errorEmitter.emit('permission-error', permissionError);
           });
-          errorEmitter.emit('permission-error', permissionError);
-        } finally {
-          if (fileInputRef.current) fileInputRef.current.value = '';
-        }
+          
+        if (fileInputRef.current) fileInputRef.current.value = '';
       } else {
         toast({ 
           title: "❌ فشل الرفع", 
@@ -229,7 +227,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
                   <div className="w-full space-y-1">
                     <Progress value={uploadProgress} className="h-1 bg-white/20" />
                     <p className="text-white text-[10px] text-center font-bold animate-pulse">
-                      {uploadProgress < 100 ? "جاري الرفع..." : "اكتمل الرفع!"}
+                      جاري الرفع...
                     </p>
                   </div>
                 </div>
