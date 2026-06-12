@@ -9,9 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Lock, Mail, Loader2, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { Lock, Mail, Loader2, ShieldCheck, ArrowLeft, LogOut } from 'lucide-react';
 import { useAuth, useUser } from '@/firebase';
-import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from 'firebase/auth';
+import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence, signOut } from 'firebase/auth';
 
 const AUTHORIZED_ADMIN_EMAIL = 'sallahdinimillou@gmail.com';
 
@@ -24,6 +24,7 @@ export default function AdminLoginPage() {
   const auth = useAuth();
   const { user, isLoading: userLoading } = useUser();
 
+  // Redirect if already logged in as admin
   useEffect(() => {
     if (!userLoading && user && user.email?.toLowerCase() === AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
       router.push('/admin');
@@ -39,7 +40,9 @@ export default function AdminLoginPage() {
 
     setLoading(true);
     try {
+      // Force local persistence so session survives refreshes
       await setPersistence(auth, browserLocalPersistence);
+      
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const loggedUser = userCredential.user;
       
@@ -47,6 +50,8 @@ export default function AdminLoginPage() {
         toast({ title: "Access Granted", description: "Welcome to the administration panel." });
         router.push('/admin');
       } else {
+        // If logged in as non-admin, sign them out immediately
+        await signOut(auth);
         toast({ 
           title: "Unauthorized", 
           description: "This account is not permitted to access this area.", 
@@ -54,6 +59,7 @@ export default function AdminLoginPage() {
         });
       }
     } catch (error: any) {
+      console.error("Login Error:", error);
       let message = "An error occurred during authentication.";
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-email') {
         message = "The email or password you entered is incorrect.";
@@ -65,6 +71,13 @@ export default function AdminLoginPage() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleForceLogout = async () => {
+    if (auth) {
+      await signOut(auth);
+      toast({ title: "Logged Out", description: "You have been signed out. Please log in again." });
     }
   };
 
@@ -95,7 +108,7 @@ export default function AdminLoginPage() {
               Admin Portal
             </CardTitle>
             <CardDescription className="text-sm font-medium">
-              Please sign in to manage your shop
+              Sign in with sallahdinimillou@gmail.com
             </CardDescription>
           </div>
         </CardHeader>
@@ -134,14 +147,28 @@ export default function AdminLoginPage() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 h-14 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20 transition-all active:scale-95" disabled={loading}>
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="animate-spin w-5 h-5" />
-                  Authenticating...
-                </span>
-              ) : "Sign In"}
-            </Button>
+            <div className="space-y-3">
+              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 h-14 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20 transition-all active:scale-95" disabled={loading}>
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="animate-spin w-5 h-5" />
+                    Authenticating...
+                  </span>
+                ) : "Sign In"}
+              </Button>
+
+              {user && (
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full h-14 rounded-2xl border-destructive/20 text-destructive hover:bg-destructive/10"
+                  onClick={handleForceLogout}
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout Current Session
+                </Button>
+              )}
+            </div>
 
             <Button variant="ghost" className="w-full h-10 rounded-xl text-muted-foreground" asChild>
               <Link href="/">

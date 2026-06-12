@@ -2,7 +2,7 @@
 "use client"
 
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
-import { LayoutDashboard, Package, Tag, ShoppingCart, MessageSquare, Settings, LogOut, Loader2, ArrowLeft } from 'lucide-react';
+import { LayoutDashboard, Package, Tag, ShoppingCart, MessageSquare, Settings, LogOut, Loader2, ArrowLeft, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useUser, useAuth } from '@/firebase';
@@ -23,14 +23,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     if (!isLoading) {
-      const authorized = user && user.email?.toLowerCase() === AUTHORIZED_ADMIN_EMAIL.toLowerCase();
-      setIsAuthorized(!!authorized);
+      const authorized = !!(user && user.email?.toLowerCase() === AUTHORIZED_ADMIN_EMAIL.toLowerCase());
+      setIsAuthorized(authorized);
 
       const isLoginPage = pathname === '/admin/login';
       
       if (!user && !isLoginPage) {
+        // Not logged in and not on login page -> redirect to login
         router.push('/admin/login');
       } else if (user && !authorized && !isLoginPage) {
+        // Logged in but not admin -> show error and sign out
         toast({
           variant: "destructive",
           title: "Access Denied",
@@ -39,25 +41,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         if (auth) {
           signOut(auth).then(() => router.push('/admin/login'));
         }
+      } else if (user && authorized && isLoginPage) {
+        // Logged in as admin and on login page -> go to dashboard
+        router.push('/admin');
       }
     }
   }, [user, isLoading, pathname, router, toast, auth]);
 
+  // Special case for login page: allow it to render its own content
   if (pathname === '/admin/login') {
     return <>{children}</>;
   }
 
+  // Show loading screen while checking auth
   if (isLoading || isAuthorized === null) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-10 h-10 animate-spin text-primary" />
-          <p className="text-sm font-medium text-muted-foreground animate-pulse">Verifying access...</p>
+          <p className="text-sm font-medium text-muted-foreground animate-pulse">Verifying secure session...</p>
         </div>
       </div>
     );
   }
 
+  // Final protection: if not authorized, render nothing (the useEffect will handle redirect)
   if (!isAuthorized) {
     return null;
   }
@@ -96,7 +104,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <SidebarMenuButton 
                     asChild 
                     isActive={pathname === item.href}
-                    className="h-11 rounded-xl"
+                    className="h-11 rounded-xl transition-all"
                   >
                     <Link href={item.href}>
                       {item.icon}
@@ -112,7 +120,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <SidebarMenuItem>
                 <SidebarMenuButton 
                   onClick={handleLogout}
-                  className="h-11 rounded-xl text-destructive hover:text-destructive hover:bg-destructive/10"
+                  className="h-11 rounded-xl text-destructive hover:text-destructive hover:bg-destructive/10 transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Logout</span>
@@ -139,7 +147,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <p className="text-xs text-muted-foreground">{user?.email}</p>
                </div>
                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary border border-primary/20">
-                 {user?.email?.[0].toUpperCase()}
+                 {user?.email?.[0].toUpperCase() || <UserIcon className="w-5 h-5" />}
                </div>
             </div>
           </header>
