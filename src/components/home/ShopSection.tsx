@@ -35,8 +35,15 @@ export function ShopSection() {
   const { addToCart } = useCart();
 
   const filteredProducts = useMemo(() => {
+    // Split search query into lowercase keywords, removing empty strings
+    const keywords = searchQuery.toLowerCase().trim().split(/\s+/).filter(Boolean);
+
     return MOCK_PRODUCTS.filter(product => {
-      const matchesSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase());
+      const title = product.title.toLowerCase();
+      
+      // Match if EVERY keyword entered is present anywhere in the title
+      const matchesSearch = keywords.every(keyword => title.includes(keyword));
+      
       const matchesCategory = selectedCategory ? product.categoryId === selectedCategory : true;
       return matchesSearch && matchesCategory;
     });
@@ -73,7 +80,7 @@ export function ShopSection() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input 
-              placeholder="Search products..." 
+              placeholder="Search by title (e.g. 'Crystal Award')..." 
               className="pl-10 h-11 bg-background/50 rounded-xl"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -118,7 +125,7 @@ export function ShopSection() {
           </div>
         ) : (
           <div className="py-24 text-center">
-            <p className="text-xl text-muted-foreground">No products found matching your criteria.</p>
+            <p className="text-xl text-muted-foreground">No products found matching your keywords.</p>
             <Button 
               variant="link" 
               className="text-primary mt-2"
