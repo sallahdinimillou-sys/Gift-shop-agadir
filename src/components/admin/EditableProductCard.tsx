@@ -70,10 +70,11 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
       updatedAt: serverTimestamp(),
     };
 
+    // تنفيذ التحديث وإغلاق وضع التعديل فوراً عند النجاح لإخفاء الزر
     updateDoc(docRef, updatedData)
       .then(() => {
         setIsSaving(false);
-        setIsEditing(false);
+        setIsEditing(false); // إغلاق وضع التعديل سيؤدي لاختفاء زر الحفظ فوراً
         toast({ 
           title: "✅ تم الحفظ", 
           description: "تم تحديث بيانات المنتج بنجاح." 
