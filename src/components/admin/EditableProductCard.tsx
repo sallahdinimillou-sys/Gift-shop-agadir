@@ -107,12 +107,13 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable) {
         const percent = Math.round((event.loaded / event.total) * 100);
-        setUploadProgress(Math.floor(percent * 0.9));
+        setUploadProgress(percent);
       }
     };
 
     xhr.onload = async () => {
       if (xhr.status === 200) {
+        setUploadProgress(100);
         const response = JSON.parse(xhr.responseText);
         const downloadURL = response.secure_url;
         
@@ -126,32 +127,26 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
 
         try {
           await updateDoc(docRef, updateData);
-          setUploadProgress(100);
-          
-          // تأخير بسيط ليرى المستخدم اكتمال الرفع قبل ظهور الإشعار
-          setTimeout(() => {
-            setIsUploading(false);
-            setUploadProgress(0);
-            toast({ 
-              title: "✅ تم تحديث الصورة", 
-              description: "تم رفع وحفظ صورة المنتج الجديدة بنجاح." 
-            });
-            if (fileInputRef.current) fileInputRef.current.value = '';
-          }, 600);
+          toast({ 
+            title: "✅ تم تحديث الصورة", 
+            description: "تم رفع وحفظ صورة المنتج الجديدة بنجاح." 
+          });
         } catch (err) {
-          setIsUploading(false);
-          setUploadProgress(0);
           const permissionError = new FirestorePermissionError({
             path: docRef.path,
             operation: 'update',
             requestResourceData: updateData
           });
           errorEmitter.emit('permission-error', permissionError);
+        } finally {
+          setIsUploading(false);
+          setUploadProgress(0);
+          if (fileInputRef.current) fileInputRef.current.value = '';
         }
       } else {
         toast({ 
           title: "❌ فشل الرفع", 
-          description: "حدث خطأ أثناء الرفع إلى Cloudinary.", 
+          description: "حدث خطأ أثناء الرفع إلى Cloudinary. يرجى التأكد من اتصال الإنترنت.", 
           variant: "destructive" 
         });
         setIsUploading(false);
@@ -162,7 +157,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
     xhr.onerror = () => {
       toast({ 
         title: "⚠️ خطأ في الاتصال", 
-        description: "تعذر الاتصال بخوادم Cloudinary.", 
+        description: "تعذر الاتصال بخوادم الرفع. يرجى المحاولة لاحقاً.", 
         variant: "destructive" 
       });
       setIsUploading(false);
@@ -236,7 +231,9 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
                   </div>
                   <div className="w-full space-y-1">
                     <Progress value={uploadProgress} className="h-1 bg-white/20" />
-                    <p className="text-white text-[10px] text-center font-bold animate-pulse">جاري الرفع والحفظ...</p>
+                    <p className="text-white text-[10px] text-center font-bold animate-pulse">
+                      {uploadProgress < 100 ? "جاري الرفع..." : "جاري الحفظ في المتجر..."}
+                    </p>
                   </div>
                 </div>
               ) : (
