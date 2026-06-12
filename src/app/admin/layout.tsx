@@ -1,7 +1,7 @@
 "use client"
 
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
-import { LayoutDashboard, Package, Tag, ShoppingCart, MessageSquare, Settings, LogOut, ShieldAlert, Loader2 } from 'lucide-react';
+import { LayoutDashboard, Package, Tag, ShoppingCart, MessageSquare, Settings, LogOut, Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useUser, useAuth } from '@/firebase';
@@ -40,7 +40,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-10 h-10 animate-spin text-primary" />
+          <p className="text-sm font-medium text-muted-foreground animate-pulse">Verifying Authorization...</p>
+        </div>
       </div>
     );
   }
@@ -111,7 +114,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         
         <SidebarInset className="bg-background flex flex-col">
           <header className="h-16 border-b border-white/5 flex items-center px-8 justify-between glass sticky top-0 z-20">
-            <SidebarTrigger />
+            <div className="flex items-center gap-4">
+              <SidebarTrigger />
+              <Button variant="ghost" size="sm" asChild className="hidden sm:flex text-muted-foreground hover:text-primary rounded-full">
+                <Link href="/">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Site
+                </Link>
+              </Button>
+            </div>
             <div className="flex items-center gap-4">
                <div className="text-right hidden sm:block">
                   <p className="text-sm font-medium">{user.displayName || 'Administrator'}</p>

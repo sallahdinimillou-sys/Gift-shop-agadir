@@ -15,7 +15,7 @@ const AUTHORIZED_ADMIN_EMAIL = 'sallahdinimillou@gmail.com';
 
 export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState(AUTHORIZED_ADMIN_EMAIL);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
   const { toast } = useToast();
@@ -23,7 +23,7 @@ export default function AdminLoginPage() {
   const { user, isLoading: userLoading } = useUser();
 
   useEffect(() => {
-    // If user is already logged in and authorized, redirect to dashboard
+    // If user is already logged in and authorized, redirect to dashboard using push
     if (!userLoading && user && user.email === AUTHORIZED_ADMIN_EMAIL) {
       router.push('/admin');
     }
@@ -110,6 +110,7 @@ export default function AdminLoginPage() {
                 <Input 
                   id="email" 
                   type="email" 
+                  placeholder="admin@example.com"
                   className="pl-12 h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-primary focus:border-primary transition-all"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
