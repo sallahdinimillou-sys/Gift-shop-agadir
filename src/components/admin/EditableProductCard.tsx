@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useRef } from 'react';
@@ -14,6 +15,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Trash2, X, Image as ImageIcon, Loader2, Save, UploadCloud } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 interface EditableProductCardProps {
   product: Product;
@@ -31,42 +34,53 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
   const [isUploading, setIsUploading] = useState(false);
   
   const [formData, setFormData] = useState({
-    title: product.title,
-    price: product.price,
-    description: product.description,
+    title: product.title || '',
+    price: product.price || 0,
+    description: product.description || '',
     imageUrl: product.images?.[0] || '',
   });
 
   useEffect(() => {
     if (!isEditing) {
       setFormData({
-        title: product.title,
-        price: product.price,
-        description: product.description,
+        title: product.title || '',
+        price: product.price || 0,
+        description: product.description || '',
         imageUrl: product.images?.[0] || '',
       });
     }
   }, [product, isEditing]);
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!firestore) return;
     setIsSaving(true);
-    try {
-      const docRef = doc(firestore, 'products', product.id);
-      await updateDoc(docRef, {
-        title: formData.title,
-        price: Number(formData.price),
-        description: formData.description,
-        updatedAt: serverTimestamp(),
+    
+    const docRef = doc(firestore, 'products', product.id);
+    const slug = formData.title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
+    
+    const updatedData = {
+      title: formData.title,
+      price: Number(formData.price),
+      description: formData.description,
+      slug: slug || product.slug,
+      updatedAt: serverTimestamp(),
+    };
+
+    updateDoc(docRef, updatedData)
+      .then(() => {
+        setIsEditing(false);
+        setIsSaving(false);
+        toast({ title: "تم الحفظ", description: "تم تحديث بيانات المنتج في Firestore بنجاح." });
+      })
+      .catch(async (error) => {
+        setIsSaving(false);
+        const permissionError = new FirestorePermissionError({
+          path: docRef.path,
+          operation: 'update',
+          requestResourceData: updatedData
+        });
+        errorEmitter.emit('permission-error', permissionError);
       });
-      setIsEditing(false);
-      toast({ title: "تم الحفظ", description: "تم تحديث بيانات المنتج بنجاح." });
-    } catch (error) {
-      console.error("Save error:", error);
-      toast({ title: "خطأ", description: "فشل في حفظ التغييرات.", variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,40 +96,52 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
       setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
       
       const docRef = doc(firestore, 'products', product.id);
-      await updateDoc(docRef, {
+      updateDoc(docRef, {
         images: [downloadURL],
         updatedAt: serverTimestamp(),
+      }).catch(async (err) => {
+        const permissionError = new FirestorePermissionError({
+          path: docRef.path,
+          operation: 'update',
+          requestResourceData: { images: [downloadURL] }
+        });
+        errorEmitter.emit('permission-error', permissionError);
       });
 
-      toast({ title: "تم الرفع", description: "تم تحديث صورة المنتج بنجاح." });
-    } catch (error) {
+      toast({ title: "تم الرفع", description: "تم تحديث الصورة وحفظ الرابط بنجاح." });
+    } catch (error: any) {
       console.error("Upload error:", error);
-      toast({ title: "خطأ", description: "فشل في رفع الصورة.", variant: "destructive" });
+      toast({ title: "خطأ في الرفع", description: "تأكد من إعدادات Firebase Storage.", variant: "destructive" });
     } finally {
       setIsUploading(false);
     }
   };
 
-  const handleDelete = async () => {
-    if (!firestore || !confirm("هل أنت متأكد من رغبتك في حذف هذا المنتج؟")) return;
+  const handleDelete = () => {
+    if (!firestore || !confirm("هل أنت متأكد من رغبتك في حذف هذا المنتج نهائياً؟")) return;
     setIsDeleting(true);
-    try {
-      const docRef = doc(firestore, 'products', product.id);
-      await deleteDoc(docRef);
-      toast({ title: "تم الحذف", description: "تمت إزالة المنتج من المتجر." });
-    } catch (error) {
-      console.error("Delete error:", error);
-      toast({ title: "خطأ", description: "فشل في حذف المنتج.", variant: "destructive" });
-    } finally {
-      setIsDeleting(false);
-    }
+    
+    const docRef = doc(firestore, 'products', product.id);
+    deleteDoc(docRef)
+      .then(() => {
+        setIsDeleting(false);
+        toast({ title: "تم الحذف", description: "تمت إزالة المنتج من Firestore." });
+      })
+      .catch(async (error) => {
+        setIsDeleting(false);
+        const permissionError = new FirestorePermissionError({
+          path: docRef.path,
+          operation: 'delete'
+        });
+        errorEmitter.emit('permission-error', permissionError);
+      });
   };
 
   const handleCancel = () => {
     setFormData({
-      title: product.title,
-      price: product.price,
-      description: product.description,
+      title: product.title || '',
+      price: product.price || 0,
+      description: product.description || '',
       imageUrl: product.images?.[0] || '',
     });
     setIsEditing(false);
@@ -302,8 +328,4 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
       </Card>
     </motion.div>
   );
-}
-
-function Label({ className, children }: { className?: string; children: React.ReactNode }) {
-  return <label className={cn("block text-sm font-medium", className)}>{children}</label>;
 }
