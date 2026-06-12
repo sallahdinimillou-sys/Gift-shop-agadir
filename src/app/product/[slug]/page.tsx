@@ -10,10 +10,12 @@ import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, Heart, Share2, ShieldCheck, Truck, Clock } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useCart } from '@/context/CartContext';
 
 export default function ProductDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
+  const { addToCart } = useCart();
   
   const product = MOCK_PRODUCTS.find(p => p.slug === slug);
 
@@ -78,7 +80,11 @@ export default function ProductDetailPage() {
 
             <div className="space-y-4 pt-6 border-t border-white/5">
               <div className="flex gap-4">
-                <Button size="lg" className="flex-1 bg-primary hover:bg-primary/90 h-14 rounded-xl text-lg font-bold">
+                <Button 
+                  size="lg" 
+                  className="flex-1 bg-primary hover:bg-primary/90 h-14 rounded-xl text-lg font-bold"
+                  onClick={() => addToCart(product)}
+                >
                   <ShoppingCart className="w-5 h-5 mr-2" />
                   Add to Cart
                 </Button>

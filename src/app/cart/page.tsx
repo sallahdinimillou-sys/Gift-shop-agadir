@@ -7,37 +7,13 @@ import { Button } from '@/components/ui/button';
 import { ShoppingBag, ArrowLeft, Trash2, Plus, Minus } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useCart } from '@/context/CartContext';
 
 export default function CartPage() {
-  // Simple local state for demonstration since we don't have a global state manager yet
-  const [items, setItems] = useState([
-    {
-      id: '1',
-      title: 'Crystal Excellence Award',
-      price: 450.00,
-      quantity: 1,
-      image: 'https://picsum.photos/seed/p1/200/200'
-    }
-  ]);
-
-  const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-  const shipping = 50.00;
-  const total = subtotal + shipping;
-
-  const removeItem = (id: string) => {
-    setItems(items.filter(item => item.id !== id));
-  };
-
-  const updateQuantity = (id: string, delta: number) => {
-    setItems(items.map(item => {
-      if (item.id === id) {
-        const newQty = Math.max(1, item.quantity + delta);
-        return { ...item, quantity: newQty };
-      }
-      return item;
-    }));
-  };
+  const { items, cartTotal, removeFromCart, updateQuantity } = useCart();
+  
+  const shipping = items.length > 0 ? 50.00 : 0;
+  const total = cartTotal + shipping;
 
   return (
     <main className="min-h-screen">
@@ -60,7 +36,7 @@ export default function CartPage() {
               {/* Items List */}
               <div className="lg:col-span-2 space-y-6">
                 {items.map((item) => (
-                  <div key={item.id} className="flex gap-6 p-6 rounded-3xl bg-white/5 border border-white/5 items-center">
+                  <div key={item.productId} className="flex gap-6 p-6 rounded-3xl bg-white/5 border border-white/5 items-center">
                     <div className="relative w-24 h-24 rounded-2xl overflow-hidden bg-muted shrink-0">
                       <Image src={item.image} alt={item.title} fill className="object-cover" />
                     </div>
@@ -73,7 +49,7 @@ export default function CartPage() {
                         variant="ghost" 
                         size="icon" 
                         className="h-8 w-8 rounded-full"
-                        onClick={() => updateQuantity(item.id, -1)}
+                        onClick={() => updateQuantity(item.productId, -1)}
                       >
                         <Minus className="w-3 h-3" />
                       </Button>
@@ -82,7 +58,7 @@ export default function CartPage() {
                         variant="ghost" 
                         size="icon" 
                         className="h-8 w-8 rounded-full"
-                        onClick={() => updateQuantity(item.id, 1)}
+                        onClick={() => updateQuantity(item.productId, 1)}
                       >
                         <Plus className="w-3 h-3" />
                       </Button>
@@ -91,7 +67,7 @@ export default function CartPage() {
                       variant="ghost" 
                       size="icon" 
                       className="text-muted-foreground hover:text-destructive"
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeFromCart(item.productId)}
                     >
                       <Trash2 className="w-5 h-5" />
                     </Button>
@@ -106,7 +82,7 @@ export default function CartPage() {
                   <div className="space-y-4 text-sm">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Subtotal</span>
-                      <span className="font-medium">{subtotal.toFixed(2)} MAD</span>
+                      <span className="font-medium">{cartTotal.toFixed(2)} MAD</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Shipping</span>

@@ -6,11 +6,12 @@ import { useState, useEffect } from 'react';
 import { ShoppingBag, Menu, X, Search, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { BUSINESS_INFO } from '@/lib/constants';
+import { useCart } from '@/context/CartContext';
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { cartCount } = useCart();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,7 +63,11 @@ export function Navbar() {
           <Link href="/cart">
             <Button variant="ghost" size="icon" className="relative group">
               <ShoppingBag className="w-5 h-5 transition-transform group-hover:scale-110" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full ring-2 ring-background" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white ring-2 ring-background animate-in zoom-in">
+                  {cartCount}
+                </span>
+              )}
             </Button>
           </Link>
           <Link href="/admin/login" className="hidden sm:block">

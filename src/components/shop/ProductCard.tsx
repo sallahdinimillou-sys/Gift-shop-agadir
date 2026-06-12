@@ -2,19 +2,22 @@
 "use client"
 
 import { Product } from '@/types';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Heart, Eye } from 'lucide-react';
+import { ShoppingCart, Eye } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useCart } from '@/context/CartContext';
 
 interface ProductCardProps {
   product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const { addToCart } = useCart();
+
   return (
     <motion.div
       whileHover={{ y: -5 }}
@@ -43,13 +46,18 @@ export function ProductCard({ product }: ProductCardProps) {
                 <Eye className="w-5 h-5" />
               </Button>
             </Link>
-            <Button size="icon" variant="secondary" className="rounded-full h-12 w-12 bg-primary text-white border-none">
+            <Button 
+              size="icon" 
+              variant="secondary" 
+              className="rounded-full h-12 w-12 bg-primary text-white border-none"
+              onClick={() => addToCart(product)}
+            >
               <ShoppingCart className="w-5 h-5" />
             </Button>
           </div>
         </div>
         <CardContent className="p-6">
-          <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Category Name</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Gift Selection</p>
           <Link href={`/product/${product.slug}`}>
             <h3 className="text-lg font-bold group-hover:text-primary transition-colors line-clamp-1">{product.title}</h3>
           </Link>
