@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useMemo, useEffect } from 'react';
@@ -114,6 +115,7 @@ export default function AdminProductsPage() {
       featured: formData.featured,
       bestSeller: formData.bestSeller,
       updatedAt: serverTimestamp(),
+      published: true // تفعيل النشر تلقائياً عند الحفظ
     };
 
     try {
@@ -156,7 +158,7 @@ export default function AdminProductsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!firestore || !confirm("هل أنت متأكد من رغبتك في حذف هذا المنتج؟")) return;
+    if (!firestore) return;
 
     const docRef = doc(firestore, 'products', id);
     deleteDoc(docRef).catch(async (error) => {
@@ -166,7 +168,7 @@ export default function AdminProductsPage() {
       });
       errorEmitter.emit('permission-error', permissionError);
     });
-    toast({ title: "تم الحذف", description: "تمت إزالة المنتج من القاعدة." });
+    toast({ title: "تم الحذف", description: "تمت إزالة المنتج فوراً من القائمة." });
   };
 
   return (

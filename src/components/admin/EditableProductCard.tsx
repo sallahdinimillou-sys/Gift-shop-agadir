@@ -56,6 +56,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
   const handleSave = () => {
     if (!firestore) return;
     
+    // إغلاق وضع التعديل فوراً لتحسين الاستجابة البصرية
     setIsEditing(false);
     
     const docRef = doc(firestore, 'products', product.id);
@@ -66,7 +67,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
       price: Number(formData.price),
       description: formData.description,
       slug: slug || product.slug,
-      published: true, // عند الحفظ يتم تفعيل النشر ليظهر في المتجر
+      published: true, 
       updatedAt: serverTimestamp(),
     };
 
@@ -113,6 +114,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
         const response = JSON.parse(xhr.responseText);
         const downloadURL = response.secure_url;
         
+        // عرض الصورة فوراً وإخفاء شريط التحميل
         setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
         setIsUploading(false);
         setUploadProgress(0);
@@ -148,14 +150,16 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
   };
 
   const handleDelete = () => {
-    if (!firestore || !confirm("هل أنت متأكد من رغبتك في حذف هذا المنتج نهائياً؟")) return;
+    if (!firestore) return;
+    
+    // الحذف فوري ومباشر دون تأكيد كما طلب العميل
     setIsDeleting(true);
     
     const docRef = doc(firestore, 'products', product.id);
     deleteDoc(docRef)
       .then(() => {
         setIsDeleting(false);
-        toast({ title: "🗑️ تم الحذف" });
+        toast({ title: "🗑️ تم الحذف نهائياً" });
       })
       .catch(async (error) => {
         setIsDeleting(false);
@@ -210,11 +214,13 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
             </div>
           )}
           
-          {!isEditing && (
-            <button onClick={(e) => { e.stopPropagation(); handleDelete(); }} className="absolute top-5 right-5 z-30 bg-destructive text-white p-2.5 rounded-2xl">
-              {isDeleting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
-            </button>
-          )}
+          <button 
+            onClick={(e) => { e.stopPropagation(); handleDelete(); }} 
+            className="absolute top-5 right-5 z-30 bg-destructive text-white p-2.5 rounded-2xl shadow-xl hover:scale-110 active:scale-95 transition-all"
+            title="حذف المنتج"
+          >
+            {isDeleting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+          </button>
         </div>
 
         <CardContent className="p-7 space-y-5">
