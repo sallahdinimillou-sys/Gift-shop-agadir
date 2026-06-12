@@ -107,7 +107,8 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable) {
         const percent = Math.round((event.loaded / event.total) * 100);
-        setUploadProgress(percent);
+        // نضع حد أقصى 99% حتى نحصل على الاستجابة الفعلية من السيرفر
+        setUploadProgress(Math.min(percent, 99));
       }
     };
 
@@ -117,8 +118,15 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
         const response = JSON.parse(xhr.responseText);
         const downloadURL = response.secure_url;
         
+        // تحديث الصورة فوراً في الواجهة قبل حتى الحفظ في Firestore
         setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
         
+        // إخفاء شريط التحميل فوراً بعد استلام الرابط
+        setTimeout(() => {
+          setIsUploading(false);
+          setUploadProgress(0);
+        }, 300);
+
         const docRef = doc(firestore, 'products', product.id);
         const updateData = {
           images: [downloadURL],
@@ -139,8 +147,6 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
           });
           errorEmitter.emit('permission-error', permissionError);
         } finally {
-          setIsUploading(false);
-          setUploadProgress(0);
           if (fileInputRef.current) fileInputRef.current.value = '';
         }
       } else {
@@ -232,7 +238,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
                   <div className="w-full space-y-1">
                     <Progress value={uploadProgress} className="h-1 bg-white/20" />
                     <p className="text-white text-[10px] text-center font-bold animate-pulse">
-                      {uploadProgress < 100 ? "جاري الرفع..." : "جاري الحفظ في المتجر..."}
+                      {uploadProgress < 100 ? "جاري الرفع..." : "اكتمل الرفع!"}
                     </p>
                   </div>
                 </div>
