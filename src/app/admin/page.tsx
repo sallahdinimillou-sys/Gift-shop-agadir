@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useMemo } from 'react';
@@ -42,8 +41,8 @@ export default function AdminDashboardPage() {
     const randomSuffix = Math.random().toString(36).substring(2, 7);
     
     const newProduct = {
-      title: 'منتج جديد',
-      description: 'اضغط هنا لإضافة وصف للمنتج...',
+      title: '', // تم جعلها فارغة كما طلب العميل
+      description: '', // تم جعلها فارغة كما طلب العميل
       price: 0,
       images: [],
       createdAt: serverTimestamp(),
