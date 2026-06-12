@@ -7,15 +7,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, Eye } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
 
 interface ProductCardProps {
   product: Product;
+  onViewDetails: (product: Product) => void;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, onViewDetails }: ProductCardProps) {
   const { addToCart } = useCart();
 
   return (
@@ -23,7 +23,7 @@ export function ProductCard({ product }: ProductCardProps) {
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="overflow-hidden group border-white/5 bg-card/50 backdrop-blur-sm rounded-3xl">
+      <Card className="overflow-hidden group border-white/5 bg-card/50 backdrop-blur-sm rounded-3xl cursor-pointer" onClick={() => onViewDetails(product)}>
         <div className="relative aspect-square overflow-hidden bg-muted">
           <Image
             src={product.images[0]}
@@ -33,24 +33,33 @@ export function ProductCard({ product }: ProductCardProps) {
           />
           <div className="absolute top-4 left-4 flex flex-col gap-2">
             {product.featured && (
-              <Badge className="bg-primary hover:bg-primary border-none text-white">Featured</Badge>
+              <Badge className="bg-primary hover:bg-primary border-none text-white font-bold">Featured</Badge>
             )}
             {product.bestSeller && (
-              <Badge className="bg-accent hover:bg-accent border-none text-navy-black">Best Seller</Badge>
+              <Badge className="bg-accent hover:bg-accent border-none text-navy-black font-bold">Best Seller</Badge>
             )}
           </div>
           
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Link href={`/product/${product.slug}`}>
-              <Button size="icon" variant="secondary" className="rounded-full h-12 w-12 bg-white text-navy-black">
-                <Eye className="w-5 h-5" />
-              </Button>
-            </Link>
+            <Button 
+              size="icon" 
+              variant="secondary" 
+              className="rounded-full h-12 w-12 bg-white text-navy-black"
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewDetails(product);
+              }}
+            >
+              <Eye className="w-5 h-5" />
+            </Button>
             <Button 
               size="icon" 
               variant="secondary" 
               className="rounded-full h-12 w-12 bg-primary text-white border-none"
-              onClick={() => addToCart(product)}
+              onClick={(e) => {
+                e.stopPropagation();
+                addToCart(product);
+              }}
             >
               <ShoppingCart className="w-5 h-5" />
             </Button>
@@ -58,9 +67,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
         <CardContent className="p-6">
           <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Gift Selection</p>
-          <Link href={`/product/${product.slug}`}>
-            <h3 className="text-lg font-bold group-hover:text-primary transition-colors line-clamp-1">{product.title}</h3>
-          </Link>
+          <h3 className="text-lg font-bold group-hover:text-primary transition-colors line-clamp-1">{product.title}</h3>
           <div className="mt-4 flex items-center justify-between">
             <div className="flex flex-col">
               <span className="text-xl font-bold text-gradient-primary">{product.price.toFixed(2)} MAD</span>
