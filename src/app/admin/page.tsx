@@ -17,7 +17,8 @@ export default function AdminDashboardPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
-  const [isAdding, setIsAdding] = useState(false);
+  // العداد يتتبع عدد المنتجات التي جاري إضافتها حالياً
+  const [addingCount, setAddingCount] = useState(0);
 
   const productsQuery = useMemo(() => {
     if (!firestore) return null;
@@ -35,9 +36,14 @@ export default function AdminDashboardPage() {
 
   const handleAddNewProduct = () => {
     if (!firestore) return;
-    setIsAdding(true);
+    
+    // زيادة العداد للسماح بإضافات متعددة متزامنة
+    setAddingCount(prev => prev + 1);
 
     const colRef = collection(firestore, 'products');
+    // توليد لاحقة عشوائية لضمان تفرد الرابط (Slug)
+    const randomSuffix = Math.random().toString(36).substring(2, 7);
+    
     const newProduct = {
       title: 'منتج جديد',
       description: 'اضغط هنا لإضافة وصف للمنتج...',
@@ -45,24 +51,24 @@ export default function AdminDashboardPage() {
       images: ['https://picsum.photos/seed/new/800/800'],
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-      slug: `new-product-${Date.now()}`,
+      slug: `new-product-${Date.now()}-${randomSuffix}`,
       categoryId: 'trophies',
       stockStatus: 'in-stock',
       featured: false,
       bestSeller: false
     };
 
-    // No await here for immediate UI responsiveness
+    // تنفيذ الإضافة بشكل متفائل (Optimistic) لسرعة الواجهة
     addDoc(colRef, newProduct)
       .then(() => {
-        setIsAdding(false);
+        setAddingCount(prev => Math.max(0, prev - 1));
         toast({
           title: "✅ تمت الإضافة",
           description: "تمت إضافة مسودة منتج جديد بنجاح."
         });
       })
       .catch(async (error) => {
-        setIsAdding(false);
+        setAddingCount(prev => Math.max(0, prev - 1));
         const permissionError = new FirestorePermissionError({
           path: colRef.path,
           operation: 'create',
@@ -81,11 +87,19 @@ export default function AdminDashboardPage() {
         </div>
         <Button 
           onClick={handleAddNewProduct} 
-          disabled={isAdding}
-          className="rounded-2xl h-14 px-8 bg-primary hover:bg-primary/90 text-lg font-bold shadow-xl shadow-primary/20 transition-all active:scale-95"
+          className="rounded-2xl h-14 px-8 bg-primary hover:bg-primary/90 text-lg font-bold shadow-xl shadow-primary/20 transition-all active:scale-95 flex items-center gap-3"
         >
-          {isAdding ? <Loader2 className="animate-spin mr-2" /> : <Plus className="w-6 h-6 mr-2" />}
-          إضافة منتج جديد
+          {addingCount > 0 ? (
+            <>
+              <Loader2 className="animate-spin w-5 h-5" />
+              <span>جاري الإضافة ({addingCount})...</span>
+            </>
+          ) : (
+            <>
+              <Plus className="w-6 h-6" />
+              <span>إضافة منتج جديد</span>
+            </>
+          )}
         </Button>
       </div>
 
@@ -99,7 +113,7 @@ export default function AdminDashboardPage() {
         />
       </div>
 
-      {loading ? (
+      {loading && products?.length === 0 ? (
         <div className="py-32 flex flex-col items-center justify-center gap-4">
           <Loader2 className="w-12 h-12 animate-spin text-primary" />
           <p className="text-muted-foreground font-medium animate-pulse">جاري جلب البيانات من Firestore...</p>
