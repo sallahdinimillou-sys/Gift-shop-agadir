@@ -74,7 +74,10 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
       .then(() => {
         setIsEditing(false);
         setIsSaving(false);
-        toast({ title: "تم الحفظ", description: "تم تحديث بيانات المنتج بنجاح." });
+        toast({ 
+          title: "✅ تم حفظ التغييرات", 
+          description: "تم تحديث بيانات المنتج بنجاح في المتجر." 
+        });
       })
       .catch(async (error) => {
         setIsSaving(false);
@@ -101,11 +104,9 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, true);
 
-    // تتبع التقدم الحقيقي للرفع
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable) {
         const percent = Math.round((event.loaded / event.total) * 100);
-        // نخصص 90% للرفع و 10% لتحديث Firestore
         setUploadProgress(Math.floor(percent * 0.9));
       }
     };
@@ -113,7 +114,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
     xhr.onload = async () => {
       if (xhr.status === 200) {
         const response = JSON.parse(xhr.responseText);
-        const downloadURL = response.secure_url; // هذا هو رابط الصورة (يعادل getDownloadURL)
+        const downloadURL = response.secure_url;
         
         setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
         
@@ -126,22 +127,30 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
         try {
           await updateDoc(docRef, updateData);
           setUploadProgress(100);
-          toast({ title: "تم الرفع والحفظ", description: "تم تحديث صورة المنتج بنجاح." });
+          
+          // تأخير بسيط ليرى المستخدم اكتمال الرفع قبل ظهور الإشعار
+          setTimeout(() => {
+            setIsUploading(false);
+            setUploadProgress(0);
+            toast({ 
+              title: "✅ تم تحديث الصورة", 
+              description: "تم رفع وحفظ صورة المنتج الجديدة بنجاح." 
+            });
+            if (fileInputRef.current) fileInputRef.current.value = '';
+          }, 600);
         } catch (err) {
+          setIsUploading(false);
+          setUploadProgress(0);
           const permissionError = new FirestorePermissionError({
             path: docRef.path,
             operation: 'update',
             requestResourceData: updateData
           });
           errorEmitter.emit('permission-error', permissionError);
-        } finally {
-          setIsUploading(false);
-          setUploadProgress(0);
-          if (fileInputRef.current) fileInputRef.current.value = '';
         }
       } else {
         toast({ 
-          title: "فشل الرفع", 
+          title: "❌ فشل الرفع", 
           description: "حدث خطأ أثناء الرفع إلى Cloudinary.", 
           variant: "destructive" 
         });
@@ -152,7 +161,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
 
     xhr.onerror = () => {
       toast({ 
-        title: "خطأ في الاتصال", 
+        title: "⚠️ خطأ في الاتصال", 
         description: "تعذر الاتصال بخوادم Cloudinary.", 
         variant: "destructive" 
       });
@@ -171,7 +180,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
     deleteDoc(docRef)
       .then(() => {
         setIsDeleting(false);
-        toast({ title: "تم الحذف", description: "تمت إزالة المنتج بنجاح." });
+        toast({ title: "🗑️ تم الحذف", description: "تمت إزالة المنتج بنجاح." });
       })
       .catch(async (error) => {
         setIsDeleting(false);
