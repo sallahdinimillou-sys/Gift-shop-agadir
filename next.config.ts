@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
+        pathname: '/**',
       },
       {
         protocol: 'https',
@@ -35,10 +36,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: '**.base44.app',
+        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'debonair-irify-learn-french.base44.app',
+        pathname: '/**',
       }
     ],
   },
