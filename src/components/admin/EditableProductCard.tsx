@@ -22,9 +22,9 @@ interface EditableProductCardProps {
   product: Product;
 }
 
-// Replace this with your actual Cloudinary Cloud Name from your dashboard
-const CLOUDINARY_CLOUD_NAME = "YOUR_CLOUDINARY_CLOUD_NAME";
-const CLOUDINARY_UPLOAD_PRESET = "products";
+// Cloudinary Configuration
+const CLOUDINARY_CLOUD_NAME = "drpt9ibut";
+const CLOUDINARY_UPLOAD_PRESET = "ml_default";
 
 export function EditableProductCard({ product }: EditableProductCardProps) {
   const firestore = useFirestore();
@@ -91,17 +91,8 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
     const file = e.target.files?.[0];
     if (!file || !firestore) return;
 
-    if (CLOUDINARY_CLOUD_NAME === "YOUR_CLOUDINARY_CLOUD_NAME") {
-      toast({ 
-        title: "خطأ في الإعدادات", 
-        description: "يرجى إدخال Cloud Name الخاص بك في الكود أولاً.",
-        variant: "destructive"
-      });
-      return;
-    }
-
     setIsUploading(true);
-    setUploadProgress(10); // Start progress
+    setUploadProgress(10);
 
     const cloudData = new FormData();
     cloudData.append("file", file);
@@ -138,7 +129,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
       console.error("Cloudinary Upload error:", err);
       toast({ 
         title: "فشل الرفع", 
-        description: "حدث خطأ أثناء الرفع إلى Cloudinary. يرجى التحقق من الإعدادات.", 
+        description: "حدث خطأ أثناء الرفع إلى Cloudinary. يرجى التحقق من اتصال الإنترنت.", 
         variant: "destructive" 
       });
     } finally {
