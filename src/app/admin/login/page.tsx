@@ -12,6 +12,7 @@ import { Lock, Mail, Loader2, ShieldCheck } from 'lucide-react';
 import { useAuth, useUser } from '@/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
+// Only this email is allowed to access the admin area
 const AUTHORIZED_ADMIN_EMAIL = 'sallahdinimillou@gmail.com';
 
 export default function AdminLoginPage() {
@@ -33,28 +34,36 @@ export default function AdminLoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!auth) {
-      toast({ title: "Configuration Error", description: "Firebase is not initialized correctly.", variant: "destructive" });
+      toast({ title: "Configuration Error", description: "Firebase is not initialized correctly. Check environment variables.", variant: "destructive" });
       return;
     }
 
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
       
-      if (email === AUTHORIZED_ADMIN_EMAIL) {
+      if (user.email === AUTHORIZED_ADMIN_EMAIL) {
         toast({ title: "Welcome back!", description: "Logged in successfully." });
         router.push('/admin');
       } else {
-        // The AdminLayout will catch the wrong email and show Access Denied
+        toast({ 
+          title: "Access Denied", 
+          description: "This account is not authorized for administrative access.", 
+          variant: "destructive" 
+        });
+        // We push them to dashboard, where the layout will handle the "Access Denied" screen
         router.push('/admin'); 
       }
     } catch (error: any) {
       console.error(error);
       let message = "Invalid credentials.";
       if (error.code === 'auth/invalid-api-key') {
-        message = "Firebase API Key is invalid. Please check your configuration.";
-      } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        message = "Firebase API Key is invalid. Please check your .env file.";
+      } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
         message = "Invalid email or password.";
+      } else if (error.code === 'auth/too-many-requests') {
+        message = "Too many failed attempts. Please try again later.";
       }
       
       toast({ 

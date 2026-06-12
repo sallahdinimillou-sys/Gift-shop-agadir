@@ -9,6 +9,7 @@ import { useUser, useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 // Only this email is allowed to access the admin area
 const AUTHORIZED_ADMIN_EMAIL = 'sallahdinimillou@gmail.com';
@@ -18,13 +19,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const { user, isLoading } = useUser();
   const auth = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     // Redirect to login if not authenticated and trying to access admin pages
     if (!isLoading && !user && pathname !== '/admin/login') {
       router.push('/admin/login');
     }
-  }, [user, isLoading, pathname, router]);
+    
+    // If authenticated but not the authorized admin, show warning and redirect
+    if (!isLoading && user && user.email !== AUTHORIZED_ADMIN_EMAIL && pathname !== '/admin/login') {
+      toast({
+        variant: "destructive",
+        title: "Access Denied",
+        description: "You do not have administrative privileges."
+      });
+      router.push('/');
+    }
+  }, [user, isLoading, pathname, router, toast]);
 
   // Public login page does not need the internal layout protection
   if (pathname === '/admin/login') return <>{children}</>;
@@ -73,7 +85,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   // Final check to prevent layout flicker before redirect
-  if (!user) return null;
+  if (!user || user.email !== AUTHORIZED_ADMIN_EMAIL) return null;
 
   const handleLogout = async () => {
     if (auth) {
