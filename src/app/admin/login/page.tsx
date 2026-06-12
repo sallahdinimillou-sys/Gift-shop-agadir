@@ -23,7 +23,8 @@ export default function AdminLoginPage() {
   const { user, isLoading: userLoading } = useUser();
 
   useEffect(() => {
-    // If user is already logged in and authorized, redirect to dashboard using push
+    // If user is already logged in and authorized, redirect to dashboard
+    // Using router.push as requested to preserve navigation history
     if (!userLoading && user && user.email === AUTHORIZED_ADMIN_EMAIL) {
       router.push('/admin');
     }
@@ -32,35 +33,34 @@ export default function AdminLoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!auth) {
-      toast({ title: "Configuration Error", description: "Firebase is not initialized correctly.", variant: "destructive" });
+      toast({ title: "Configuration Error", description: "Firebase is not initialized.", variant: "destructive" });
       return;
     }
 
     setLoading(true);
     try {
-      // Ensure persistence is set to local so the session survives refreshes
+      // Ensure the session persists across restarts
       await setPersistence(auth, browserLocalPersistence);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const loggedUser = userCredential.user;
       
       if (loggedUser.email === AUTHORIZED_ADMIN_EMAIL) {
-        toast({ title: "Welcome back!", description: "Authenticated successfully." });
+        toast({ title: "Access Granted", description: "Welcome to the administration panel." });
         router.push('/admin');
       } else {
         toast({ 
-          title: "Access Denied", 
-          description: "This account is not authorized for administrative access.", 
+          title: "Unauthorized", 
+          description: "This account is not permitted to access this area.", 
           variant: "destructive" 
         });
       }
     } catch (error: any) {
-      console.error(error);
-      let message = "Invalid credentials.";
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-        message = "Invalid email or password.";
+      let message = "An error occurred during authentication.";
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+        message = "The email or password you entered is incorrect.";
       }
       toast({ 
-        title: "Login failed", 
+        title: "Login Failed", 
         description: message, 
         variant: "destructive" 
       });
@@ -93,10 +93,10 @@ export default function AdminLoginPage() {
           </div>
           <div className="space-y-1">
             <CardTitle className="text-3xl font-bold uppercase tracking-tighter text-gradient-primary">
-              Admin Gateway
+              Admin Portal
             </CardTitle>
             <CardDescription className="text-sm font-medium">
-              Authorized Personnel Access Only
+              Please sign in to manage your shop
             </CardDescription>
           </div>
         </CardHeader>
@@ -104,13 +104,13 @@ export default function AdminLoginPage() {
         <CardContent className="px-8 pb-10">
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Admin Email</Label>
+              <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Email</Label>
               <div className="relative group">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input 
                   id="email" 
                   type="email" 
-                  placeholder="admin@example.com"
+                  placeholder="admin@giftshop-agadir.com"
                   className="pl-12 h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-primary focus:border-primary transition-all"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
@@ -126,7 +126,7 @@ export default function AdminLoginPage() {
                 <Input 
                   id="password" 
                   type="password" 
-                  placeholder="Enter your password"
+                  placeholder="••••••••"
                   className="pl-12 h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-primary focus:border-primary transition-all"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
@@ -139,9 +139,16 @@ export default function AdminLoginPage() {
               {loading ? (
                 <span className="flex items-center gap-2">
                   <Loader2 className="animate-spin w-5 h-5" />
-                  Verifying...
+                  Checking credentials...
                 </span>
-              ) : "Authenticate Access"}
+              ) : "Sign In"}
+            </Button>
+
+            <Button variant="ghost" className="w-full h-10 rounded-xl text-muted-foreground" asChild>
+              <Link href="/">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Return to Homepage
+              </Link>
             </Button>
           </form>
         </CardContent>

@@ -20,34 +20,41 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { toast } = useToast();
 
   useEffect(() => {
-    // Only redirect if we've finished loading and there's no authorized user
+    // Only perform redirection logic once loading is finished
     if (!isLoading) {
-      if (!user && pathname !== '/admin/login') {
+      const isLoginPage = pathname === '/admin/login';
+      
+      if (!user && !isLoginPage) {
+        // Not logged in and trying to access admin pages -> go to login
         router.push('/admin/login');
-      } else if (user && user.email !== AUTHORIZED_ADMIN_EMAIL && pathname !== '/admin/login') {
+      } else if (user && user.email !== AUTHORIZED_ADMIN_EMAIL && !isLoginPage) {
+        // Logged in as wrong user -> sign out and go to login
         toast({
           variant: "destructive",
           title: "Access Denied",
-          description: "You do not have administrative privileges."
+          description: "This account does not have administrative privileges."
         });
         signOut(auth!).then(() => router.push('/admin/login'));
       }
     }
   }, [user, isLoading, pathname, router, toast, auth]);
 
+  // If we are on the login page, just render children without the sidebar
   if (pathname === '/admin/login') return <>{children}</>;
 
+  // Show a loading screen while verifying auth state
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-10 h-10 animate-spin text-primary" />
-          <p className="text-sm font-medium text-muted-foreground animate-pulse">Verifying Authorization...</p>
+          <p className="text-sm font-medium text-muted-foreground animate-pulse">Authenticating...</p>
         </div>
       </div>
     );
   }
 
+  // Final check to prevent unauthorized render
   if (!user || user.email !== AUTHORIZED_ADMIN_EMAIL) {
     return null;
   }
