@@ -25,7 +25,6 @@ export default function AdminLoginPage() {
   const { user, isLoading: userLoading } = useUser();
 
   useEffect(() => {
-    // If user is already logged in and authorized, navigate to dashboard
     if (!userLoading && user && user.email?.toLowerCase() === AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
       router.push('/admin');
     }
@@ -40,14 +39,12 @@ export default function AdminLoginPage() {
 
     setLoading(true);
     try {
-      // Ensure the session persists across restarts/refreshes
       await setPersistence(auth, browserLocalPersistence);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const loggedUser = userCredential.user;
       
       if (loggedUser.email?.toLowerCase() === AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
         toast({ title: "Access Granted", description: "Welcome to the administration panel." });
-        // Use router.push to ensure the back button works correctly
         router.push('/admin');
       } else {
         toast({ 
@@ -58,10 +55,8 @@ export default function AdminLoginPage() {
       }
     } catch (error: any) {
       let message = "An error occurred during authentication.";
-      if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-email') {
         message = "The email or password you entered is incorrect.";
-      } else if (error.code === 'auth/invalid-api-key') {
-        message = "Firebase configuration error. Please check your API key.";
       }
       toast({ 
         title: "Login Failed", 
@@ -114,7 +109,7 @@ export default function AdminLoginPage() {
                 <Input 
                   id="email" 
                   type="email" 
-                  placeholder="admin@giftshop-agadir.com"
+                  placeholder="sallahdinimillou@gmail.com"
                   className="pl-12 h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-primary focus:border-primary transition-all"
                   value={email}
                   onChange={e => setEmail(e.target.value)}

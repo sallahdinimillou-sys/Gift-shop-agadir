@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useUser, useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -19,18 +19,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { user, isLoading } = useUser();
   const auth = useAuth();
   const { toast } = useToast();
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
-    // Only perform redirection logic once loading is finished
     if (!isLoading) {
+      const authorized = user && user.email?.toLowerCase() === AUTHORIZED_ADMIN_EMAIL.toLowerCase();
+      setIsAuthorized(!!authorized);
+
       const isLoginPage = pathname === '/admin/login';
-      const isAuthorized = user && user.email?.toLowerCase() === AUTHORIZED_ADMIN_EMAIL.toLowerCase();
       
       if (!user && !isLoginPage) {
-        // Not logged in and trying to access admin pages -> go to login
         router.push('/admin/login');
-      } else if (user && !isAuthorized && !isLoginPage) {
-        // Logged in as wrong user -> sign out and go to login
+      } else if (user && !authorized && !isLoginPage) {
         toast({
           variant: "destructive",
           title: "Access Denied",
@@ -43,23 +43,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [user, isLoading, pathname, router, toast, auth]);
 
-  // If we are on the login page, just render children without the sidebar
-  if (pathname === '/admin/login') return <>{children}</>;
+  if (pathname === '/admin/login') {
+    return <>{children}</>;
+  }
 
-  // Show a loading screen while verifying auth state
-  if (isLoading) {
+  if (isLoading || isAuthorized === null) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-10 h-10 animate-spin text-primary" />
-          <p className="text-sm font-medium text-muted-foreground animate-pulse">Checking access...</p>
+          <p className="text-sm font-medium text-muted-foreground animate-pulse">Verifying access...</p>
         </div>
       </div>
     );
   }
 
-  // Final check to prevent unauthorized render
-  if (!user || user.email?.toLowerCase() !== AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
+  if (!isAuthorized) {
     return null;
   }
 
@@ -136,11 +135,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             <div className="flex items-center gap-4">
                <div className="text-right hidden sm:block">
-                  <p className="text-sm font-medium">{user.displayName || 'Administrator'}</p>
-                  <p className="text-xs text-muted-foreground">{user.email}</p>
+                  <p className="text-sm font-medium">{user?.displayName || 'Administrator'}</p>
+                  <p className="text-xs text-muted-foreground">{user?.email}</p>
                </div>
                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary border border-primary/20">
-                 {user.email?.[0].toUpperCase()}
+                 {user?.email?.[0].toUpperCase()}
                </div>
             </div>
           </header>
