@@ -40,19 +40,17 @@ export function ShopSection() {
   const [cachedData, setCachedData] = useState<Product[]>([]);
   const { addToCart } = useCart();
 
-  // تحميل البيانات من localStorage عند التشغيل لأول مرة لسرعة العرض
   useEffect(() => {
     const saved = localStorage.getItem(CACHE_KEY);
     if (saved) {
       try {
         setCachedData(JSON.parse(saved));
       } catch (e) {
-        console.error("خطأ في قراءة ذاكرة التخزين المؤقت", e);
+        console.error("Error reading cache", e);
       }
     }
   }, []);
 
-  // استعلام جلب كافة المنتجات من Firestore مرتبة حسب الأحدث
   const productsQuery = useMemo(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'products'), orderBy('createdAt', 'desc'));
@@ -60,7 +58,6 @@ export function ShopSection() {
 
   const { data: products, loading } = useCollection<Product>(productsQuery);
 
-  // تحديث ذاكرة التخزين المؤقت كلما وصلت بيانات جديدة
   useEffect(() => {
     if (products && products.length > 0) {
       localStorage.setItem(CACHE_KEY, JSON.stringify(products));
@@ -68,16 +65,20 @@ export function ShopSection() {
     }
   }, [products]);
 
-  // البيانات التي سيتم عرضها: إما البيانات الحية (products) أو المخزنة (cachedData)
   const displayData = products || cachedData || [];
 
   const filteredProducts = useMemo(() => {
     const keywords = searchQuery.toLowerCase().trim().split(/\s+/).filter(Boolean);
 
     return displayData.filter(product => {
+      // شرط أساسي: يجب أن يحتوي المنتج على صورة واحدة على الأقل ليظهر للعموم
+      const hasImage = product.images && product.images.length > 0;
+      if (!hasImage) return false;
+
       const title = product.title?.toLowerCase() || '';
       const matchesSearch = keywords.length === 0 || keywords.every(keyword => title.includes(keyword));
       const matchesCategory = selectedCategory ? product.categoryId === selectedCategory : true;
+      
       return matchesSearch && matchesCategory;
     });
   }, [searchQuery, selectedCategory, displayData]);
@@ -187,7 +188,7 @@ export function ShopSection() {
               <div className="lg:w-1/2 bg-card p-6 flex flex-col gap-4">
                 <div className="relative aspect-square rounded-2xl overflow-hidden bg-background border border-white/5">
                   <Image 
-                    src={selectedProduct.images?.[activeImageIndex] || 'https://placehold.co/800x800?text=قريباً'} 
+                    src={selectedProduct.images?.[activeImageIndex] || ''} 
                     alt={selectedProduct.title} 
                     fill
                     className="object-cover animate-in fade-in duration-500"

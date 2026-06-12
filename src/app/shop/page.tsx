@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useMemo } from 'react';
@@ -33,6 +34,10 @@ export default function ShopPage() {
   const filteredProducts = useMemo(() => {
     if (!products) return [];
     return products.filter(product => {
+      // شرط العرض: يجب أن يحتوي المنتج على صورة واحدة على الأقل
+      const hasImage = product.images && product.images.length > 0;
+      if (!hasImage) return false;
+
       const title = product.title?.toLowerCase() || '';
       const matchesSearch = title.includes(searchQuery.toLowerCase());
       const matchesCategory = selectedCategory ? product.categoryId === selectedCategory : true;
