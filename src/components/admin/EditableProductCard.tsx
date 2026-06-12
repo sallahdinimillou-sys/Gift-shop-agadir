@@ -10,13 +10,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useFirestore, useStorage } from '@/firebase';
 import { doc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Trash2, X, Image as ImageIcon, Loader2, Save, UploadCloud, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { Progress } from '@/components/ui/progress';
 
 interface EditableProductCardProps {
   product: Product;
@@ -32,6 +33,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
   
   const [formData, setFormData] = useState({
     title: product.title || '',
@@ -87,79 +89,52 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
     const file = e.target.files?.[0];
     if (!file || !storage || !firestore) return;
 
-    // Check file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ 
-        title: "الملف كبير جداً", 
-        description: "يرجى اختيار صورة بحجم أقل من 5 ميجابايت لضمان سرعة التحميل.", 
-        variant: "destructive" 
-      });
-      return;
-    }
-
     setIsUploading(true);
+    setUploadProgress(0);
 
-    // Create a timeout promise
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("TIMEOUT")), 30000)
-    );
+    const storageRef = ref(storage, `products/${product.id}/${Date.now()}_${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
 
-    try {
-      const storageRef = ref(storage, `products/${product.id}/${Date.now()}_${file.name}`);
-      
-      // Race the upload against the timeout
-      const uploadPromise = uploadBytes(storageRef, file);
-      const snapshot = await Promise.race([uploadPromise, timeoutPromise]) as any;
-      
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      
-      setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
-      
-      const docRef = doc(firestore, 'products', product.id);
-      
-      // Update Firestore without awaiting (optimistic UI)
-      const updateData = {
-        images: [downloadURL],
-        updatedAt: serverTimestamp(),
-      };
-
-      updateDoc(docRef, updateData)
-        .then(() => {
-          toast({ title: "تم الرفع", description: "تم تحديث الصورة بنجاح." });
-        })
-        .catch(async (err) => {
-          const permissionError = new FirestorePermissionError({
-            path: docRef.path,
-            operation: 'update',
-            requestResourceData: updateData
-          });
-          errorEmitter.emit('permission-error', permissionError);
+    uploadTask.on('state_changed', 
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setUploadProgress(Math.round(progress));
+      }, 
+      (error: any) => {
+        console.error("Upload error:", error);
+        setIsUploading(false);
+        let message = "فشل رفع الصورة. يرجى التحقق من اتصالك وقواعد الأمان.";
+        if (error.code === 'storage/unauthorized') {
+          message = "ليس لديك صلاحية لرفع الصور. يرجى ضبط قواعد Storage Rules.";
+        }
+        toast({ 
+          title: "فشل الرفع", 
+          description: message, 
+          variant: "destructive" 
         });
+      }, 
+      async () => {
+        try {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
+          
+          const docRef = doc(firestore, 'products', product.id);
+          const updateData = {
+            images: [downloadURL],
+            updatedAt: serverTimestamp(),
+          };
 
-    } catch (error: any) {
-      console.error("Upload error:", error);
-      let message = "حدث خطأ غير متوقع أثناء الرفع. يرجى تكرار المحاولة.";
-      
-      if (error.message === "TIMEOUT") {
-        message = "استغرق الرفع وقتاً طويلاً جداً (أكثر من 30 ثانية). يرجى التحقق من اتصالك بالإنترنت.";
-      } else if (error.code === 'storage/unauthorized') {
-        message = "ليس لديك صلاحية لرفع الملفات. تأكد من تسجيل الدخول كمسؤول.";
-      } else if (error.code === 'storage/retry-limit-exceeded') {
-        message = "تم تجاوز حد محاولات الرفع. تحقق من استقرار الشبكة.";
+          await updateDoc(docRef, updateData);
+          toast({ title: "تم الرفع", description: "تم تحديث الصورة بنجاح." });
+        } catch (err: any) {
+          console.error("Error updating Firestore after upload:", err);
+        } finally {
+          setIsUploading(false);
+          setUploadProgress(0);
+          if (fileInputRef.current) fileInputRef.current.value = '';
+        }
       }
-
-      toast({ 
-        title: "فشل الرفع", 
-        description: message, 
-        variant: "destructive" 
-      });
-    } finally {
-      setIsUploading(false);
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
+    );
   };
 
   const handleDelete = () => {
@@ -219,9 +194,15 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
               onClick={() => !isUploading && fileInputRef.current?.click()}
             >
               {isUploading ? (
-                <div className="flex flex-col items-center gap-3">
-                  <Loader2 className="w-10 h-10 text-primary animate-spin" />
-                  <span className="text-white text-sm font-bold animate-pulse">جاري الرفع...</span>
+                <div className="flex flex-col items-center gap-4 w-full px-8">
+                  <div className="relative w-16 h-16 flex items-center justify-center">
+                    <Loader2 className="absolute w-full h-full text-primary animate-spin" />
+                    <span className="text-white text-[10px] font-bold">{uploadProgress}%</span>
+                  </div>
+                  <div className="w-full space-y-1">
+                    <Progress value={uploadProgress} className="h-1 bg-white/20" />
+                    <p className="text-white text-[10px] text-center font-bold animate-pulse">جاري الرفع...</p>
+                  </div>
                 </div>
               ) : (
                 <>
@@ -318,7 +299,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
                 <div className="flex items-center gap-2">
                   <Input 
                     type="number"
-                    value={formData.price || ''}
+                    value={formData.price === 0 ? '' : formData.price}
                     onChange={e => {
                       const val = e.target.value === '' ? 0 : Number(e.target.value);
                       setFormData({...formData, price: val});
