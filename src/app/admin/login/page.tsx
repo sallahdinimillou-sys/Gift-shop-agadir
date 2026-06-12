@@ -8,9 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Lock, Mail, Loader2 } from 'lucide-react';
+import { Lock, Mail, Loader2, ShieldCheck } from 'lucide-react';
 import { useAuth, useUser } from '@/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+
+const AUTHORIZED_ADMIN_EMAIL = 'sallahdinimillou@gmail.com';
 
 export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
@@ -22,7 +24,8 @@ export default function AdminLoginPage() {
   const { user, isLoading: userLoading } = useUser();
 
   useEffect(() => {
-    if (!userLoading && user) {
+    // If user is already logged in with the correct email, go to dashboard
+    if (!userLoading && user && user.email === AUTHORIZED_ADMIN_EMAIL) {
       router.push('/admin');
     }
   }, [user, userLoading, router]);
@@ -34,8 +37,20 @@ export default function AdminLoginPage() {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      toast({ title: "Welcome back!", description: "Logged in successfully." });
-      router.push('/admin');
+      
+      if (email === AUTHORIZED_ADMIN_EMAIL) {
+        toast({ title: "Welcome back!", description: "Logged in successfully." });
+        router.push('/admin');
+      } else {
+        // We let them log in, but the AdminLayout will catch the wrong email
+        // We show a preemptive toast here too
+        toast({ 
+          title: "Account Restricted", 
+          description: "This account does not have admin access.",
+          variant: "destructive"
+        });
+        router.push('/admin'); 
+      }
     } catch (error: any) {
       console.error(error);
       toast({ 
@@ -57,59 +72,80 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/20 blur-[120px] rounded-full" />
-        <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-accent/20 blur-[120px] rounded-full" />
+    <main className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute top-[10%] left-[10%] w-[30%] h-[30%] bg-primary/20 blur-[100px] rounded-full animate-pulse" />
+        <div className="absolute bottom-[10%] right-[10%] w-[30%] h-[30%] bg-accent/20 blur-[100px] rounded-full animate-pulse" />
       </div>
 
-      <Card className="w-full max-w-md relative z-10 border-white/5 bg-card/80 backdrop-blur-xl shadow-2xl rounded-3xl">
-        <CardHeader className="text-center space-y-2">
-          <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-2">
-            <Lock className="text-primary w-6 h-6" />
+      <Card className="w-full max-w-md relative z-10 border-white/5 bg-card/80 backdrop-blur-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-[2.5rem] overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-accent to-primary" />
+        
+        <CardHeader className="text-center space-y-4 pt-10 pb-6">
+          <div className="mx-auto w-16 h-16 bg-primary/10 rounded-3xl flex items-center justify-center rotate-3 border border-primary/20 shadow-inner">
+            <ShieldCheck className="text-primary w-8 h-8" />
           </div>
-          <CardTitle className="text-2xl font-bold uppercase tracking-tighter text-gradient-primary">
-            Gift Shop Agadir
-          </CardTitle>
-          <CardDescription>Administrator Control Center</CardDescription>
+          <div className="space-y-1">
+            <CardTitle className="text-3xl font-bold uppercase tracking-tighter text-gradient-primary">
+              Admin Gateway
+            </CardTitle>
+            <CardDescription className="text-sm font-medium">
+              Authorized Personnel Access Only
+            </CardDescription>
+          </div>
         </CardHeader>
-        <CardContent>
+
+        <CardContent className="px-8 pb-10">
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+              <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Admin Email</Label>
+              <div className="relative group">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input 
                   id="email" 
                   type="email" 
-                  placeholder="admin@giftshopagadir.com" 
-                  className="pl-10 h-12 rounded-xl"
+                  placeholder={AUTHORIZED_ADMIN_EMAIL} 
+                  className="pl-12 h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-primary focus:border-primary transition-all"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   required
                 />
               </div>
             </div>
+            
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+              <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Security Key</Label>
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input 
                   id="password" 
                   type="password" 
-                  className="pl-10 h-12 rounded-xl"
+                  className="pl-12 h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-primary focus:border-primary transition-all"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
                 />
               </div>
             </div>
-            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 h-12 rounded-xl font-bold" disabled={loading}>
-              {loading ? <Loader2 className="animate-spin mr-2" /> : "Sign In to Dashboard"}
+
+            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 h-14 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20 transition-all active:scale-95" disabled={loading}>
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="animate-spin w-5 h-5" />
+                  Verifying...
+                </span>
+              ) : "Authenticate Access"}
             </Button>
           </form>
-          <div className="mt-8 pt-8 border-t border-white/5 text-center">
-            <p className="text-xs text-muted-foreground">Authorized personnel only. All access attempts are logged.</p>
+
+          <div className="mt-8 pt-8 border-t border-white/5 text-center flex flex-col gap-2">
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+              Secure Environment
+            </p>
+            <p className="text-xs text-muted-foreground/60 leading-relaxed">
+              All login attempts, successful or otherwise, are monitored and logged for security purposes.
+            </p>
           </div>
         </CardContent>
       </Card>
