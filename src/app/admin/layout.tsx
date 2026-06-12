@@ -1,3 +1,4 @@
+
 "use client"
 
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
@@ -23,18 +24,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     // Only perform redirection logic once loading is finished
     if (!isLoading) {
       const isLoginPage = pathname === '/admin/login';
+      const isAuthorized = user && user.email?.toLowerCase() === AUTHORIZED_ADMIN_EMAIL.toLowerCase();
       
       if (!user && !isLoginPage) {
         // Not logged in and trying to access admin pages -> go to login
         router.push('/admin/login');
-      } else if (user && user.email !== AUTHORIZED_ADMIN_EMAIL && !isLoginPage) {
+      } else if (user && !isAuthorized && !isLoginPage) {
         // Logged in as wrong user -> sign out and go to login
         toast({
           variant: "destructive",
           title: "Access Denied",
           description: "This account does not have administrative privileges."
         });
-        signOut(auth!).then(() => router.push('/admin/login'));
+        if (auth) {
+          signOut(auth).then(() => router.push('/admin/login'));
+        }
       }
     }
   }, [user, isLoading, pathname, router, toast, auth]);
@@ -48,14 +52,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-10 h-10 animate-spin text-primary" />
-          <p className="text-sm font-medium text-muted-foreground animate-pulse">Authenticating...</p>
+          <p className="text-sm font-medium text-muted-foreground animate-pulse">Checking access...</p>
         </div>
       </div>
     );
   }
 
   // Final check to prevent unauthorized render
-  if (!user || user.email !== AUTHORIZED_ADMIN_EMAIL) {
+  if (!user || user.email?.toLowerCase() !== AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
     return null;
   }
 

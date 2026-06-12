@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -25,8 +26,7 @@ export default function AdminLoginPage() {
 
   useEffect(() => {
     // If user is already logged in and authorized, navigate to dashboard
-    // We use router.push to preserve navigation history as requested
-    if (!userLoading && user && user.email === AUTHORIZED_ADMIN_EMAIL) {
+    if (!userLoading && user && user.email?.toLowerCase() === AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
       router.push('/admin');
     }
   }, [user, userLoading, router]);
@@ -34,7 +34,7 @@ export default function AdminLoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!auth) {
-      toast({ title: "Configuration Error", description: "Firebase is not initialized.", variant: "destructive" });
+      toast({ title: "Error", description: "Firebase is not initialized.", variant: "destructive" });
       return;
     }
 
@@ -45,7 +45,7 @@ export default function AdminLoginPage() {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const loggedUser = userCredential.user;
       
-      if (loggedUser.email === AUTHORIZED_ADMIN_EMAIL) {
+      if (loggedUser.email?.toLowerCase() === AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
         toast({ title: "Access Granted", description: "Welcome to the administration panel." });
         // Use router.push to ensure the back button works correctly
         router.push('/admin');
@@ -60,6 +60,8 @@ export default function AdminLoginPage() {
       let message = "An error occurred during authentication.";
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
         message = "The email or password you entered is incorrect.";
+      } else if (error.code === 'auth/invalid-api-key') {
+        message = "Firebase configuration error. Please check your API key.";
       }
       toast({ 
         title: "Login Failed", 
@@ -141,7 +143,7 @@ export default function AdminLoginPage() {
               {loading ? (
                 <span className="flex items-center gap-2">
                   <Loader2 className="animate-spin w-5 h-5" />
-                  Checking credentials...
+                  Authenticating...
                 </span>
               ) : "Sign In"}
             </Button>
