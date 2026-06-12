@@ -87,56 +87,80 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
       });
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !firestore) return;
 
     setIsUploading(true);
-    setUploadProgress(10);
+    setUploadProgress(0);
 
     const cloudData = new FormData();
     cloudData.append("file", file);
     cloudData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
-    try {
-      setUploadProgress(30);
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-        {
-          method: "POST",
-          body: cloudData,
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, true);
+
+    // تتبع التقدم الحقيقي للرفع
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const percent = Math.round((event.loaded / event.total) * 100);
+        // نخصص 90% للرفع و 10% لتحديث Firestore
+        setUploadProgress(Math.floor(percent * 0.9));
+      }
+    };
+
+    xhr.onload = async () => {
+      if (xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        const downloadURL = response.secure_url; // هذا هو رابط الصورة (يعادل getDownloadURL)
+        
+        setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
+        
+        const docRef = doc(firestore, 'products', product.id);
+        const updateData = {
+          images: [downloadURL],
+          updatedAt: serverTimestamp(),
+        };
+
+        try {
+          await updateDoc(docRef, updateData);
+          setUploadProgress(100);
+          toast({ title: "تم الرفع والحفظ", description: "تم تحديث صورة المنتج بنجاح." });
+        } catch (err) {
+          const permissionError = new FirestorePermissionError({
+            path: docRef.path,
+            operation: 'update',
+            requestResourceData: updateData
+          });
+          errorEmitter.emit('permission-error', permissionError);
+        } finally {
+          setIsUploading(false);
+          setUploadProgress(0);
+          if (fileInputRef.current) fileInputRef.current.value = '';
         }
-      );
+      } else {
+        toast({ 
+          title: "فشل الرفع", 
+          description: "حدث خطأ أثناء الرفع إلى Cloudinary.", 
+          variant: "destructive" 
+        });
+        setIsUploading(false);
+        setUploadProgress(0);
+      }
+    };
 
-      if (!response.ok) throw new Error("فشل الرفع إلى Cloudinary");
-
-      setUploadProgress(80);
-      const data = await response.json();
-      const downloadURL = data.secure_url;
-      
-      setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
-      
-      const docRef = doc(firestore, 'products', product.id);
-      const updateData = {
-        images: [downloadURL],
-        updatedAt: serverTimestamp(),
-      };
-
-      await updateDoc(docRef, updateData);
-      setUploadProgress(100);
-      toast({ title: "تم الرفع", description: "تم تحديث الصورة بنجاح عبر Cloudinary." });
-    } catch (err: any) {
-      console.error("Cloudinary Upload error:", err);
+    xhr.onerror = () => {
       toast({ 
-        title: "فشل الرفع", 
-        description: "حدث خطأ أثناء الرفع إلى Cloudinary. يرجى التحقق من اتصال الإنترنت.", 
+        title: "خطأ في الاتصال", 
+        description: "تعذر الاتصال بخوادم Cloudinary.", 
         variant: "destructive" 
       });
-    } finally {
       setIsUploading(false);
       setUploadProgress(0);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
+    };
+
+    xhr.send(cloudData);
   };
 
   const handleDelete = () => {
@@ -203,7 +227,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
                   </div>
                   <div className="w-full space-y-1">
                     <Progress value={uploadProgress} className="h-1 bg-white/20" />
-                    <p className="text-white text-[10px] text-center font-bold animate-pulse">جاري الرفع إلى Cloudinary...</p>
+                    <p className="text-white text-[10px] text-center font-bold animate-pulse">جاري الرفع والحفظ...</p>
                   </div>
                 </div>
               ) : (
