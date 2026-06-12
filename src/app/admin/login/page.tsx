@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -10,14 +9,13 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Lock, Mail, Loader2, ShieldCheck } from 'lucide-react';
 import { useAuth, useUser } from '@/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from 'firebase/auth';
 
-// Only this email is allowed to access the admin area
-const AUTHORIZED_ADMIN_EMAIL = 'sallahdinimillou@gmail.com';
+const AUTHORIZED_ADMIN_EMAIL = 'admin@giftshop-agadir.com';
 
 export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(AUTHORIZED_ADMIN_EMAIL);
   const [password, setPassword] = useState('');
   const router = useRouter();
   const { toast } = useToast();
@@ -25,7 +23,6 @@ export default function AdminLoginPage() {
   const { user, isLoading: userLoading } = useUser();
 
   useEffect(() => {
-    // If user is already logged in with the correct email, go to dashboard
     if (!userLoading && user && user.email === AUTHORIZED_ADMIN_EMAIL) {
       router.push('/admin');
     }
@@ -34,17 +31,18 @@ export default function AdminLoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!auth) {
-      toast({ title: "Configuration Error", description: "Firebase is not initialized correctly. Check environment variables.", variant: "destructive" });
+      toast({ title: "Configuration Error", description: "Firebase is not initialized correctly.", variant: "destructive" });
       return;
     }
 
     setLoading(true);
     try {
+      await setPersistence(auth, browserLocalPersistence);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
       if (user.email === AUTHORIZED_ADMIN_EMAIL) {
-        toast({ title: "Welcome back!", description: "Logged in successfully." });
+        toast({ title: "Welcome back!", description: "Authenticated successfully." });
         router.push('/admin');
       } else {
         toast({ 
@@ -52,20 +50,13 @@ export default function AdminLoginPage() {
           description: "This account is not authorized for administrative access.", 
           variant: "destructive" 
         });
-        // We push them to dashboard, where the layout will handle the "Access Denied" screen
-        router.push('/admin'); 
       }
     } catch (error: any) {
       console.error(error);
       let message = "Invalid credentials.";
-      if (error.code === 'auth/invalid-api-key') {
-        message = "Firebase API Key is invalid. Please check your .env file.";
-      } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-        message = "Invalid email or password.";
-      } else if (error.code === 'auth/too-many-requests') {
-        message = "Too many failed attempts. Please try again later.";
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+        message = "Invalid secret code or email.";
       }
-      
       toast({ 
         title: "Login failed", 
         description: message, 
@@ -87,8 +78,8 @@ export default function AdminLoginPage() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-[10%] left-[10%] w-[30%] h-[30%] bg-primary/20 blur-[100px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[10%] right-[10%] w-[30%] h-[30%] bg-accent/20 blur-[100px] rounded-full animate-pulse" />
+        <div className="absolute top-[10%] left-[10%] w-[30%] h-[30%] bg-primary/20 blur-[100px] rounded-full" />
+        <div className="absolute bottom-[10%] right-[10%] w-[30%] h-[30%] bg-accent/20 blur-[100px] rounded-full" />
       </div>
 
       <Card className="w-full max-w-md relative z-10 border-white/5 bg-card/80 backdrop-blur-2xl shadow-2xl rounded-[2.5rem] overflow-hidden">
@@ -117,7 +108,6 @@ export default function AdminLoginPage() {
                 <Input 
                   id="email" 
                   type="email" 
-                  placeholder={AUTHORIZED_ADMIN_EMAIL} 
                   className="pl-12 h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-primary focus:border-primary transition-all"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
@@ -127,12 +117,13 @@ export default function AdminLoginPage() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Security Key</Label>
+              <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Secret Access Code</Label>
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input 
                   id="password" 
                   type="password" 
+                  placeholder="Enter secret code"
                   className="pl-12 h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-primary focus:border-primary transition-all"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
@@ -150,15 +141,6 @@ export default function AdminLoginPage() {
               ) : "Authenticate Access"}
             </Button>
           </form>
-
-          <div className="mt-8 pt-8 border-t border-white/5 text-center flex flex-col gap-2">
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
-              Secure Environment
-            </p>
-            <p className="text-xs text-muted-foreground/60 leading-relaxed">
-              All login attempts are monitored and logged for security purposes.
-            </p>
-          </div>
         </CardContent>
       </Card>
     </main>

@@ -1,4 +1,3 @@
-
 "use client"
 
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
@@ -11,8 +10,7 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
-// Only this email is allowed to access the admin area
-const AUTHORIZED_ADMIN_EMAIL = 'sallahdinimillou@gmail.com';
+const AUTHORIZED_ADMIN_EMAIL = 'admin@giftshop-agadir.com';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -22,12 +20,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { toast } = useToast();
 
   useEffect(() => {
-    // Redirect to login if not authenticated and trying to access admin pages
     if (!isLoading && !user && pathname !== '/admin/login') {
       router.push('/admin/login');
     }
     
-    // If authenticated but not the authorized admin, show warning and redirect
     if (!isLoading && user && user.email !== AUTHORIZED_ADMIN_EMAIL && pathname !== '/admin/login') {
       toast({
         variant: "destructive",
@@ -38,7 +34,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [user, isLoading, pathname, router, toast]);
 
-  // Public login page does not need the internal layout protection
   if (pathname === '/admin/login') return <>{children}</>;
 
   if (isLoading) {
@@ -49,43 +44,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  // If user is logged in but their email doesn't match the authorized admin
-  if (user && user.email !== AUTHORIZED_ADMIN_EMAIL) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <div className="max-w-md w-full text-center space-y-6 animate-in fade-in zoom-in duration-300">
-          <div className="mx-auto w-24 h-24 bg-destructive/10 rounded-full flex items-center justify-center border-2 border-destructive/20 shadow-2xl">
-            <ShieldAlert className="w-12 h-12 text-destructive" />
-          </div>
-          <div className="space-y-3">
-            <h1 className="text-3xl font-bold tracking-tighter">Access Denied</h1>
-            <p className="text-muted-foreground leading-relaxed">
-              Your account (<span className="text-foreground font-medium">{user.email}</span>) does not have administrative privileges. 
-              Only <span className="text-primary font-medium">{AUTHORIZED_ADMIN_EMAIL}</span> is authorized to access the control center.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 pt-4">
-            <Button 
-              className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 font-bold"
-              onClick={() => router.push('/')}
-            >
-              Return to Homepage
-            </Button>
-            <Button 
-              className="w-full h-12 rounded-xl" 
-              variant="outline"
-              onClick={() => auth && signOut(auth).then(() => router.push('/admin/login'))}
-            >
-              Logout and Try Another Account
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
+  if (!user || user.email !== AUTHORIZED_ADMIN_EMAIL) {
+    return null;
   }
-
-  // Final check to prevent layout flicker before redirect
-  if (!user || user.email !== AUTHORIZED_ADMIN_EMAIL) return null;
 
   const handleLogout = async () => {
     if (auth) {
