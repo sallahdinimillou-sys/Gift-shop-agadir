@@ -48,7 +48,7 @@ export default function AdminDashboardPage() {
       title: 'منتج جديد',
       description: 'اضغط هنا لإضافة وصف للمنتج...',
       price: 0,
-      images: ['https://picsum.photos/seed/new/800/800'],
+      images: [], // تم جعل مصفوفة الصور فارغة كما طلب المستخدم
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       slug: `new-product-${Date.now()}-${randomSuffix}`,
