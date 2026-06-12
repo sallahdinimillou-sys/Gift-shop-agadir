@@ -60,25 +60,25 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
         updatedAt: serverTimestamp(),
       });
       setIsEditing(false);
-      toast({ title: "Saved", description: "Product updated successfully." });
+      toast({ title: "تم الحفظ", description: "تم تحديث المنتج بنجاح." });
     } catch (error) {
       console.error("Save error:", error);
-      toast({ title: "Error", description: "Failed to save changes.", variant: "destructive" });
+      toast({ title: "خطأ", description: "فشل في حفظ التغييرات.", variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!firestore || !confirm("Are you sure you want to delete this product?")) return;
+    if (!firestore || !confirm("هل أنت متأكد من رغبتك في حذف هذا المنتج؟")) return;
     setIsDeleting(true);
     try {
       const docRef = doc(firestore, 'products', product.id);
       await deleteDoc(docRef);
-      toast({ title: "Deleted", description: "Product has been removed." });
+      toast({ title: "تم الحذف", description: "تمت إزالة المنتج من المتجر." });
     } catch (error) {
       console.error("Delete error:", error);
-      toast({ title: "Error", description: "Failed to delete product.", variant: "destructive" });
+      toast({ title: "خطأ", description: "فشل في حذف المنتج.", variant: "destructive" });
     } finally {
       setIsDeleting(false);
     }
@@ -111,7 +111,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
           {isEditing ? (
             <div className="absolute inset-0 bg-black/60 z-20 flex flex-col items-center justify-center p-6 space-y-4">
               <ImageIcon className="w-8 h-8 text-primary mb-2" />
-              <Label className="text-white text-xs font-bold uppercase tracking-widest">Image URL</Label>
+              <Label className="text-white text-xs font-bold uppercase tracking-widest">رابط الصورة</Label>
               <Input 
                 value={formData.imageUrl}
                 onChange={e => {
@@ -120,7 +120,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
                 className="bg-black/40 border-white/20 text-white rounded-xl h-10 text-sm"
                 placeholder="https://images.unsplash.com/..."
               />
-              <p className="text-[10px] text-white/40 italic">Changes reflect in preview</p>
+              <p className="text-[10px] text-white/40 italic">تحديث تلقائي للمعاينة</p>
             </div>
           ) : (
             <div 
@@ -128,7 +128,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
               onClick={() => setIsEditing(true)}
             >
               <div className="bg-white text-black p-3 rounded-full flex items-center gap-2 font-bold text-xs">
-                <ImageIcon className="w-4 h-4" /> Edit Image
+                <ImageIcon className="w-4 h-4" /> تعديل الصورة
               </div>
             </div>
           )}
@@ -141,8 +141,8 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
           />
           
           <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
-            {product.featured && <Badge className="bg-primary border-none font-bold">Featured</Badge>}
-            {product.bestSeller && <Badge className="bg-accent border-none text-black font-bold">Best Seller</Badge>}
+            {product.featured && <Badge className="bg-primary border-none font-bold">مميز</Badge>}
+            {product.bestSeller && <Badge className="bg-accent border-none text-black font-bold">الأكثر مبيعاً</Badge>}
           </div>
 
           <AnimatePresence>
@@ -164,7 +164,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
         {/* Content Section */}
         <CardContent className="p-6 space-y-4">
           <div className="space-y-1">
-            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.2em]">Product Details</p>
+            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.2em]">بيانات المنتج</p>
             
             {/* Title */}
             {isEditing ? (
@@ -191,7 +191,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
                 value={formData.description}
                 onChange={e => setFormData({...formData, description: e.target.value})}
                 className="text-sm bg-white/5 border-white/10 rounded-xl resize-none min-h-[100px]"
-                placeholder="Product description..."
+                placeholder="وصف المنتج..."
               />
             ) : (
               <p 
@@ -211,9 +211,13 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
                   <span className="text-primary font-bold">MAD</span>
                   <Input 
                     type="number"
-                    value={formData.price}
-                    onChange={e => setFormData({...formData, price: Number(e.target.value)})}
+                    value={formData.price || ''}
+                    onChange={e => {
+                      const val = e.target.value === '' ? 0 : Number(e.target.value);
+                      setFormData({...formData, price: val});
+                    }}
                     className="w-24 h-9 bg-white/5 border-white/10 rounded-lg text-sm font-bold"
+                    placeholder="0.00"
                   />
                 </div>
               ) : (
@@ -247,7 +251,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
                     disabled={isSaving}
                     className="rounded-full h-9 px-4 bg-primary hover:bg-primary/90 font-bold"
                   >
-                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Check className="w-4 h-4 mr-1" /> Save</>}
+                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Check className="w-4 h-4 mr-1" /> حفظ</>}
                   </Button>
                 </motion.div>
               ) : (
@@ -257,7 +261,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
                   onClick={() => setIsEditing(true)}
                   className="rounded-full text-xs font-bold text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Click to Edit
+                  اضغط للتعديل
                 </Button>
               )}
             </AnimatePresence>
