@@ -47,7 +47,7 @@ export function Hero() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/shop">
+              <Link href="/#shop">
                 <Button size="lg" className="bg-primary hover:bg-primary/90 text-white px-8 h-14 text-lg rounded-full">
                   Explore Shop
                   <ArrowRight className="ml-2 w-5 h-5" />

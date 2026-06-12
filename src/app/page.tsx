@@ -2,6 +2,7 @@
 import { Navbar } from '@/components/layout/Navbar';
 import { Hero } from '@/components/home/Hero';
 import { CategoryShowcase } from '@/components/home/CategoryShowcase';
+import { ShopSection } from '@/components/home/ShopSection';
 import { Footer } from '@/components/layout/Footer';
 import { WhatsAppButton } from '@/components/layout/WhatsAppButton';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,7 @@ export default function Home() {
       <Navbar />
       <Hero />
       <CategoryShowcase />
+      <ShopSection />
 
       {/* Why Choose Us */}
       <section className="py-24 bg-background">
@@ -45,7 +47,7 @@ export default function Home() {
             <h2 className="text-4xl md:text-6xl font-bold tracking-tighter">Ready to Create Something <span className="text-gradient-primary">Unique?</span></h2>
             <p className="text-xl text-muted-foreground">Whether it's for a corporate event, a wedding, or a personal milestone, our AI-powered personalization tool helps you find the perfect words.</p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Link href="/shop">
+              <Link href="/#shop">
                 <Button size="lg" className="bg-primary hover:bg-primary/90 rounded-full h-14 px-8 text-lg">Shop Custom Gifts</Button>
               </Link>
               <Link href="/personalization-ai">

@@ -23,7 +23,7 @@ export function Navbar() {
 
   const navLinks = [
     { name: 'Home', href: '/' },
-    { name: 'Shop', href: '/shop' },
+    { name: 'Shop', href: '/#shop' },
     { name: 'Categories', href: '/#categories' },
     { name: 'About', href: '/about' },
     { name: 'Contact', href: '/contact' },
@@ -55,7 +55,7 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center space-x-4">
-          <Link href="/shop">
+          <Link href="/#shop">
             <Button variant="ghost" size="icon" className="hidden sm:flex">
               <Search className="w-5 h-5" />
             </Button>

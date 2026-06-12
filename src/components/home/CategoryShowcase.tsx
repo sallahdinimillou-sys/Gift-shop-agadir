@@ -19,7 +19,7 @@ export function CategoryShowcase() {
               Discover our wide range of curated collections for every occasion.
             </p>
           </div>
-          <Link href="/shop" className="text-primary font-medium hover:underline hidden sm:flex items-center">
+          <Link href="/#shop" className="text-primary font-medium hover:underline hidden sm:flex items-center">
             View All Categories <ArrowUpRight className="ml-1 w-4 h-4" />
           </Link>
         </div>
@@ -49,7 +49,7 @@ export function CategoryShowcase() {
                 <div className="absolute bottom-0 left-0 p-8 w-full">
                   <h3 className="text-2xl font-bold text-white mb-2">{cat.name}</h3>
                   <Link 
-                    href={`/shop?category=${cat.slug}`}
+                    href="/#shop"
                     className="inline-flex items-center text-primary-foreground font-medium opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all"
                   >
                     Browse Collection <ArrowUpRight className="ml-2 w-4 h-4" />
