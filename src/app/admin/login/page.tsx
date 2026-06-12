@@ -11,7 +11,7 @@ import { Lock, Mail, Loader2, ShieldCheck } from 'lucide-react';
 import { useAuth, useUser } from '@/firebase';
 import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from 'firebase/auth';
 
-const AUTHORIZED_ADMIN_EMAIL = 'admin@giftshop-agadir.com';
+const AUTHORIZED_ADMIN_EMAIL = 'sallahdinimillou@gmail.com';
 
 export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
@@ -23,6 +23,7 @@ export default function AdminLoginPage() {
   const { user, isLoading: userLoading } = useUser();
 
   useEffect(() => {
+    // If user is already logged in and authorized, redirect to dashboard
     if (!userLoading && user && user.email === AUTHORIZED_ADMIN_EMAIL) {
       router.push('/admin');
     }
@@ -37,11 +38,12 @@ export default function AdminLoginPage() {
 
     setLoading(true);
     try {
+      // Ensure persistence is set to local so the session survives refreshes
       await setPersistence(auth, browserLocalPersistence);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+      const loggedUser = userCredential.user;
       
-      if (user.email === AUTHORIZED_ADMIN_EMAIL) {
+      if (loggedUser.email === AUTHORIZED_ADMIN_EMAIL) {
         toast({ title: "Welcome back!", description: "Authenticated successfully." });
         router.push('/admin');
       } else {
@@ -55,7 +57,7 @@ export default function AdminLoginPage() {
       console.error(error);
       let message = "Invalid credentials.";
       if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-        message = "Invalid secret code or email.";
+        message = "Invalid email or password.";
       }
       toast({ 
         title: "Login failed", 
@@ -117,13 +119,13 @@ export default function AdminLoginPage() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Secret Access Code</Label>
+              <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Password</Label>
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input 
                   id="password" 
                   type="password" 
-                  placeholder="Enter secret code"
+                  placeholder="Enter your password"
                   className="pl-12 h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-primary focus:border-primary transition-all"
                   value={password}
                   onChange={e => setPassword(e.target.value)}

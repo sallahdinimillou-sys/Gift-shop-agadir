@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
-const AUTHORIZED_ADMIN_EMAIL = 'admin@giftshop-agadir.com';
+const AUTHORIZED_ADMIN_EMAIL = 'sallahdinimillou@gmail.com';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -20,19 +20,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!isLoading && !user && pathname !== '/admin/login') {
-      router.push('/admin/login');
+    // Only redirect if we've finished loading and there's no authorized user
+    if (!isLoading) {
+      if (!user && pathname !== '/admin/login') {
+        router.push('/admin/login');
+      } else if (user && user.email !== AUTHORIZED_ADMIN_EMAIL && pathname !== '/admin/login') {
+        toast({
+          variant: "destructive",
+          title: "Access Denied",
+          description: "You do not have administrative privileges."
+        });
+        signOut(auth!).then(() => router.push('/admin/login'));
+      }
     }
-    
-    if (!isLoading && user && user.email !== AUTHORIZED_ADMIN_EMAIL && pathname !== '/admin/login') {
-      toast({
-        variant: "destructive",
-        title: "Access Denied",
-        description: "You do not have administrative privileges."
-      });
-      router.push('/');
-    }
-  }, [user, isLoading, pathname, router, toast]);
+  }, [user, isLoading, pathname, router, toast, auth]);
 
   if (pathname === '/admin/login') return <>{children}</>;
 
