@@ -4,16 +4,31 @@
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
-import { ShoppingBag, ArrowLeft, Trash2, Plus, Minus } from 'lucide-react';
+import { ShoppingBag, ArrowLeft, Trash2, Plus, Minus, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
+import { BUSINESS_INFO } from '@/lib/constants';
 
 export default function CartPage() {
   const { items, cartTotal, removeFromCart, updateQuantity } = useCart();
   
   const shipping = items.length > 0 ? 50.00 : 0;
   const total = cartTotal + shipping;
+
+  const handleWhatsAppCheckout = () => {
+    if (items.length === 0) return;
+
+    const itemsList = items
+      .map((item) => `- ${item.title} (x${item.quantity}) - ${item.price * item.quantity} MAD`)
+      .join('\n');
+    
+    const message = encodeURIComponent(
+      `Hello Gift Shop Agadir!\n\nI would like to place an order for the following items:\n\n${itemsList}\n\n*Subtotal:* ${cartTotal.toFixed(2)} MAD\n*Shipping:* ${shipping.toFixed(2)} MAD\n*Total:* ${total.toFixed(2)} MAD\n\nPlease let me know the next steps for payment and delivery.`
+    );
+
+    window.open(`https://wa.me/${BUSINESS_INFO.whatsapp.replace('+', '')}?text=${message}`, '_blank');
+  };
 
   return (
     <main className="min-h-screen">
@@ -93,11 +108,15 @@ export default function CartPage() {
                       <span className="text-gradient-primary">{total.toFixed(2)} MAD</span>
                     </div>
                   </div>
-                  <Button className="w-full h-14 rounded-xl text-lg font-bold bg-primary hover:bg-primary/90">
-                    Proceed to Checkout
+                  <Button 
+                    onClick={handleWhatsAppCheckout}
+                    className="w-full h-14 rounded-xl text-lg font-bold bg-[#25D366] hover:bg-[#20ba59] text-white"
+                  >
+                    <MessageCircle className="w-5 h-5 mr-2 fill-current" />
+                    Order via WhatsApp
                   </Button>
                   <p className="text-[10px] text-center text-muted-foreground">
-                    Secure payment processed via local payment gateways.
+                    Finalize your order and arrange payment directly on WhatsApp.
                   </p>
                 </div>
               </div>

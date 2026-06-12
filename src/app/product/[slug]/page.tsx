@@ -7,10 +7,11 @@ import { Footer } from '@/components/layout/Footer';
 import { MOCK_PRODUCTS } from '@/lib/mock-data';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Heart, Share2, ShieldCheck, Truck, Clock } from 'lucide-react';
+import { ShoppingCart, Heart, Share2, ShieldCheck, Truck, Clock, MessageCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
+import { BUSINESS_INFO } from '@/lib/constants';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -27,6 +28,13 @@ export default function ProductDetailPage() {
       </div>
     );
   }
+
+  const handleBuyNowWhatsApp = () => {
+    const message = encodeURIComponent(
+      `Hello Gift Shop Agadir!\n\nI'm interested in ordering the *${product.title}*.\n\n*Price:* ${product.price.toFixed(2)} MAD\n\nIs this product currently available?`
+    );
+    window.open(`https://wa.me/${BUSINESS_INFO.whatsapp.replace('+', '')}?text=${message}`, '_blank');
+  };
 
   return (
     <main className="min-h-screen">
@@ -79,16 +87,25 @@ export default function ProductDetailPage() {
             </div>
 
             <div className="space-y-4 pt-6 border-t border-white/5">
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
                   size="lg" 
-                  className="flex-1 bg-primary hover:bg-primary/90 h-14 rounded-xl text-lg font-bold"
+                  variant="outline"
+                  className="flex-1 border-primary text-primary hover:bg-primary/10 h-14 rounded-xl text-lg font-bold"
                   onClick={() => addToCart(product)}
                 >
                   <ShoppingCart className="w-5 h-5 mr-2" />
                   Add to Cart
                 </Button>
-                <Button size="lg" variant="outline" className="h-14 w-14 rounded-xl border-white/10 shrink-0">
+                <Button 
+                  size="lg" 
+                  className="flex-1 bg-[#25D366] hover:bg-[#20ba59] h-14 rounded-xl text-lg font-bold text-white"
+                  onClick={handleBuyNowWhatsApp}
+                >
+                  <MessageCircle className="w-5 h-5 mr-2 fill-current" />
+                  Buy via WhatsApp
+                </Button>
+                <Button size="lg" variant="ghost" className="h-14 w-14 rounded-xl border border-white/10 shrink-0 hidden sm:flex">
                   <Heart className="w-5 h-5" />
                 </Button>
               </div>
