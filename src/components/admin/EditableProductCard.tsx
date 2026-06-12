@@ -57,7 +57,9 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
 
   const handleSave = () => {
     if (!firestore) return;
-    setIsSaving(true);
+    
+    // إغلاق وضع التعديل فوراً لتحسين الاستجابة (Optimistic UI)
+    setIsEditing(false);
     
     const docRef = doc(firestore, 'products', product.id);
     const slug = formData.title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
@@ -70,18 +72,9 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
       updatedAt: serverTimestamp(),
     };
 
-    // تنفيذ التحديث وإغلاق وضع التعديل فوراً عند النجاح لإخفاء الزر
+    // إرسال التحديث دون انتظار (non-blocking)
     updateDoc(docRef, updatedData)
-      .then(() => {
-        setIsSaving(false);
-        setIsEditing(false); // إغلاق وضع التعديل سيؤدي لاختفاء زر الحفظ فوراً
-        toast({ 
-          title: "✅ تم الحفظ", 
-          description: "تم تحديث بيانات المنتج بنجاح." 
-        });
-      })
       .catch(async (error) => {
-        setIsSaving(false);
         const permissionError = new FirestorePermissionError({
           path: docRef.path,
           operation: 'update',
@@ -89,6 +82,11 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
         });
         errorEmitter.emit('permission-error', permissionError);
       });
+
+    toast({ 
+      title: "✅ تم الحفظ", 
+      description: "تم تحديث بيانات المنتج بنجاح." 
+    });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -335,10 +333,9 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
                   <Button 
                     size="sm" 
                     onClick={handleSave}
-                    disabled={isSaving}
                     className="rounded-2xl h-10 px-5 bg-primary hover:bg-primary/90 font-bold"
                   >
-                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4 mr-2" /> حفظ</>}
+                    <Save className="w-4 h-4 mr-2" /> حفظ
                   </Button>
                 </motion.div>
               )}
