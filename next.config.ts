@@ -28,6 +28,14 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: '**.base44.app',
+      },
+      {
+        protocol: 'https',
+        hostname: 'debonair-irify-learn-french.base44.app',
+      }
     ],
   },
 };

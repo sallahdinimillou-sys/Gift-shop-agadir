@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useMemo } from 'react';
@@ -155,7 +154,7 @@ export default function AdminDashboardPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Products</h1>
-          <p className="text-muted-foreground">Manage your store catalog easily.</p>
+          <p className="text-muted-foreground">Manage your store catalog.</p>
         </div>
         <Button onClick={handleOpenAdd} className="rounded-xl h-12 px-6">
           <Plus className="w-5 h-5 mr-2" />
@@ -202,7 +201,14 @@ export default function AdminDashboardPage() {
                   <TableCell>
                     <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-white/10">
                       {product.images?.[0] ? (
-                        <Image src={product.images[0]} alt={product.title} fill className="object-cover" />
+                        <img 
+                          src={product.images[0]} 
+                          alt={product.title} 
+                          className="w-full h-full object-cover" 
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://placehold.co/400x400?text=No+Image';
+                          }}
+                        />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-muted">
                           <ImageIcon className="w-4 h-4 text-muted-foreground" />
