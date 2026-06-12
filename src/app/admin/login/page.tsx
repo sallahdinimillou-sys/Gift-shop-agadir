@@ -32,7 +32,10 @@ export default function AdminLoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth) return;
+    if (!auth) {
+      toast({ title: "Configuration Error", description: "Firebase is not initialized correctly.", variant: "destructive" });
+      return;
+    }
 
     setLoading(true);
     try {
@@ -42,20 +45,21 @@ export default function AdminLoginPage() {
         toast({ title: "Welcome back!", description: "Logged in successfully." });
         router.push('/admin');
       } else {
-        // We let them log in, but the AdminLayout will catch the wrong email
-        // We show a preemptive toast here too
-        toast({ 
-          title: "Account Restricted", 
-          description: "This account does not have admin access.",
-          variant: "destructive"
-        });
+        // The AdminLayout will catch the wrong email and show Access Denied
         router.push('/admin'); 
       }
     } catch (error: any) {
       console.error(error);
+      let message = "Invalid credentials.";
+      if (error.code === 'auth/invalid-api-key') {
+        message = "Firebase API Key is invalid. Please check your configuration.";
+      } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        message = "Invalid email or password.";
+      }
+      
       toast({ 
         title: "Login failed", 
-        description: error.message || "Invalid credentials.", 
+        description: message, 
         variant: "destructive" 
       });
     } finally {
@@ -73,13 +77,12 @@ export default function AdminLoginPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
-      {/* Background Decor */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-[10%] left-[10%] w-[30%] h-[30%] bg-primary/20 blur-[100px] rounded-full animate-pulse" />
         <div className="absolute bottom-[10%] right-[10%] w-[30%] h-[30%] bg-accent/20 blur-[100px] rounded-full animate-pulse" />
       </div>
 
-      <Card className="w-full max-w-md relative z-10 border-white/5 bg-card/80 backdrop-blur-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-[2.5rem] overflow-hidden">
+      <Card className="w-full max-w-md relative z-10 border-white/5 bg-card/80 backdrop-blur-2xl shadow-2xl rounded-[2.5rem] overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-accent to-primary" />
         
         <CardHeader className="text-center space-y-4 pt-10 pb-6">
@@ -144,7 +147,7 @@ export default function AdminLoginPage() {
               Secure Environment
             </p>
             <p className="text-xs text-muted-foreground/60 leading-relaxed">
-              All login attempts, successful or otherwise, are monitored and logged for security purposes.
+              All login attempts are monitored and logged for security purposes.
             </p>
           </div>
         </CardContent>

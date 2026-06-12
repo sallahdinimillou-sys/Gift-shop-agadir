@@ -2,7 +2,7 @@
 "use client"
 
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
-import { LayoutDashboard, Package, Tag, ShoppingCart, MessageSquare, Settings, LogOut, Image as ImageIcon, Loader2, ShieldAlert } from 'lucide-react';
+import { LayoutDashboard, Package, Tag, ShoppingCart, MessageSquare, Settings, LogOut, ShieldAlert, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useUser, useAuth } from '@/firebase';
@@ -62,7 +62,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Button 
               className="w-full h-12 rounded-xl" 
               variant="outline"
-              onClick={() => auth && signOut(auth)}
+              onClick={() => auth && signOut(auth).then(() => router.push('/admin/login'))}
             >
               Logout and Try Another Account
             </Button>
@@ -83,13 +83,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   const menuItems = [
-    { icon: <LayoutDashboard />, label: 'Overview', href: '/admin' },
-    { icon: <Package />, label: 'Products', href: '/admin/products' },
-    { icon: <Tag />, label: 'Categories', href: '/admin/categories' },
-    { icon: <ShoppingCart />, label: 'Orders', href: '/admin/orders' },
-    { icon: <MessageSquare />, label: 'Inquiries', href: '/admin/inquiries' },
-    { icon: <ImageIcon />, label: 'Media Library', href: '/admin/media' },
-    { icon: <Settings />, label: 'Site CMS', href: '/admin/cms' },
+    { icon: <LayoutDashboard className="w-4 h-4" />, label: 'Overview', href: '/admin' },
+    { icon: <Package className="w-4 h-4" />, label: 'Products', href: '/admin/products' },
+    { icon: <Tag className="w-4 h-4" />, label: 'Categories', href: '/admin/categories' },
+    { icon: <ShoppingCart className="w-4 h-4" />, label: 'Orders', href: '/admin/orders' },
+    { icon: <MessageSquare className="w-4 h-4" />, label: 'Inquiries', href: '/admin/inquiries' },
+    { icon: <Settings className="w-4 h-4" />, label: 'Settings', href: '/admin/settings' },
   ];
 
   return (
@@ -128,7 +127,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   onClick={handleLogout}
                   className="h-11 rounded-xl text-destructive hover:text-destructive hover:bg-destructive/10"
                 >
-                  <LogOut />
+                  <LogOut className="w-4 h-4" />
                   <span>Logout</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
