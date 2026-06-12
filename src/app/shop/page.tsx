@@ -1,33 +1,44 @@
-
 "use client"
 
 import { useState, useMemo } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { ProductCard } from '@/components/shop/ProductCard';
-import { MOCK_PRODUCTS } from '@/lib/mock-data';
+import { useFirestore, useCollection } from '@/firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
 import { CATEGORIES } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Filter, SlidersHorizontal } from 'lucide-react';
+import { Search, Filter, SlidersHorizontal, Loader2 } from 'lucide-react';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
+import { Product } from '@/types';
 
 export default function ShopPage() {
+  const firestore = useFirestore();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+  const productsQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'products'), orderBy('createdAt', 'desc'));
+  }, [firestore]);
+
+  const { data: products, loading } = useCollection<Product>(productsQuery);
+
   const filteredProducts = useMemo(() => {
-    return MOCK_PRODUCTS.filter(product => {
-      const matchesSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase());
+    if (!products) return [];
+    return products.filter(product => {
+      const title = product.title?.toLowerCase() || '';
+      const matchesSearch = title.includes(searchQuery.toLowerCase());
       const matchesCategory = selectedCategory ? product.categoryId === selectedCategory : true;
       return matchesSearch && matchesCategory;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, products]);
 
   return (
     <main className="min-h-screen">
@@ -35,18 +46,16 @@ export default function ShopPage() {
       
       <div className="pt-32 pb-24 container mx-auto px-4 md:px-8">
         <div className="flex flex-col space-y-8">
-          {/* Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
             <div className="space-y-2">
               <h1 className="text-4xl md:text-5xl font-bold tracking-tighter">Our <span className="text-gradient-primary">Collection</span></h1>
               <p className="text-muted-foreground max-w-lg">Discover high-end trophies, awards, and personalized gifts crafted for your special moments.</p>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              Showing {filteredProducts.length} results
+              {loading ? "Loading..." : `Showing ${filteredProducts.length} results`}
             </div>
           </div>
 
-          {/* Filters Bar */}
           <div className="flex flex-col sm:flex-row gap-4 bg-white/5 p-4 rounded-3xl border border-white/5">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -83,11 +92,14 @@ export default function ShopPage() {
             </div>
           </div>
 
-          {/* Product Grid */}
-          {filteredProducts.length > 0 ? (
+          {loading ? (
+            <div className="py-24 flex justify-center">
+              <Loader2 className="w-10 h-10 animate-spin text-primary" />
+            </div>
+          ) : filteredProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard key={product.id} product={product} onViewDetails={() => {}} />
               ))}
             </div>
           ) : (

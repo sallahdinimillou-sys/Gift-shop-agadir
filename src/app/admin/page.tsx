@@ -24,7 +24,6 @@ import {
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, Search, ImageIcon, Loader2 } from 'lucide-react';
-import Image from 'next/image';
 import { Product } from '@/types';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -153,19 +152,19 @@ export default function AdminDashboardPage() {
     <div className="p-8 space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Products</h1>
-          <p className="text-muted-foreground">Manage your store catalog.</p>
+          <h1 className="text-3xl font-bold tracking-tight">Products Inventory</h1>
+          <p className="text-muted-foreground">Add and manage the products displayed on your homepage.</p>
         </div>
         <Button onClick={handleOpenAdd} className="rounded-xl h-12 px-6">
           <Plus className="w-5 h-5 mr-2" />
-          Add Product
+          Add New Product
         </Button>
       </div>
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input 
-          placeholder="Search products..." 
+          placeholder="Search inventory..." 
           className="pl-10 h-11 bg-white/5 rounded-xl border-white/10"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -177,7 +176,7 @@ export default function AdminDashboardPage() {
           <TableHeader className="bg-white/5">
             <TableRow>
               <TableHead className="w-[100px]">Image</TableHead>
-              <TableHead>Name</TableHead>
+              <TableHead>Product Name</TableHead>
               <TableHead>Price (MAD)</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -192,7 +191,7 @@ export default function AdminDashboardPage() {
             ) : filteredProducts.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="h-48 text-center text-muted-foreground">
-                  No products found.
+                  No products found. Use the "Add New Product" button to get started.
                 </TableCell>
               </TableRow>
             ) : (
@@ -269,7 +268,7 @@ export default function AdminDashboardPage() {
                 id="imageUrl" 
                 value={formData.imageUrl} 
                 onChange={e => setFormData({...formData, imageUrl: e.target.value})}
-                placeholder="https://..."
+                placeholder="https://images.unsplash.com/..."
                 required
                 className="rounded-xl h-12 bg-white/5 border-white/10"
               />

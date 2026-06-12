@@ -1,13 +1,13 @@
-
 "use client"
 
 import { useState, useMemo } from 'react';
 import { ProductCard } from '@/components/shop/ProductCard';
-import { MOCK_PRODUCTS } from '@/lib/mock-data';
+import { useFirestore, useCollection } from '@/firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
 import { CATEGORIES, BUSINESS_INFO } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Filter, SlidersHorizontal, ShoppingCart, MessageCircle, X, ShieldCheck, Truck, Clock } from 'lucide-react';
+import { Search, Filter, SlidersHorizontal, ShoppingCart, MessageCircle, ShieldCheck, Truck, Clock, Loader2 } from 'lucide-react';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -28,26 +28,32 @@ import { cn } from '@/lib/utils';
 import { Product } from '@/types';
 
 export function ShopSection() {
+  const firestore = useFirestore();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const { addToCart } = useCart();
 
+  const productsQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'products'), orderBy('createdAt', 'desc'));
+  }, [firestore]);
+
+  const { data: products, loading } = useCollection<Product>(productsQuery);
+
   const filteredProducts = useMemo(() => {
-    // Split search query into lowercase keywords, removing empty strings
+    if (!products) return [];
+    
     const keywords = searchQuery.toLowerCase().trim().split(/\s+/).filter(Boolean);
 
-    return MOCK_PRODUCTS.filter(product => {
-      const title = product.title.toLowerCase();
-      
-      // Match if EVERY keyword entered is present anywhere in the title
-      const matchesSearch = keywords.every(keyword => title.includes(keyword));
-      
+    return products.filter(product => {
+      const title = product.title?.toLowerCase() || '';
+      const matchesSearch = keywords.length === 0 || keywords.every(keyword => title.includes(keyword));
       const matchesCategory = selectedCategory ? product.categoryId === selectedCategory : true;
       return matchesSearch && matchesCategory;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, products]);
 
   const handleBuyNowWhatsApp = (product: Product) => {
     const message = encodeURIComponent(
@@ -64,23 +70,21 @@ export function ShopSection() {
   return (
     <section id="shop" className="py-24 container mx-auto px-4 md:px-8 scroll-mt-20">
       <div className="flex flex-col space-y-8">
-        {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div className="space-y-2">
             <h2 className="text-4xl md:text-5xl font-bold tracking-tighter">Our <span className="text-gradient-primary">Collection</span></h2>
             <p className="text-muted-foreground max-w-lg">Discover high-end trophies, awards, and personalized gifts crafted for your special moments.</p>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            Showing {filteredProducts.length} results
+            {loading ? "Loading products..." : `Showing ${filteredProducts.length} results`}
           </div>
         </div>
 
-        {/* Filters Bar */}
         <div className="flex flex-col sm:flex-row gap-4 bg-white/5 p-4 rounded-3xl border border-white/5">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input 
-              placeholder="Search by title (e.g. 'Crystal Award')..." 
+              placeholder="Search by title..." 
               className="pl-10 h-11 bg-background/50 rounded-xl"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -112,8 +116,12 @@ export function ShopSection() {
           </div>
         </div>
 
-        {/* Product Grid */}
-        {filteredProducts.length > 0 ? (
+        {loading ? (
+          <div className="py-24 flex flex-col items-center justify-center gap-4">
+            <Loader2 className="w-10 h-10 animate-spin text-primary" />
+            <p className="text-muted-foreground">Fetching latest collection...</p>
+          </div>
+        ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {filteredProducts.map((product) => (
               <ProductCard 
@@ -125,7 +133,7 @@ export function ShopSection() {
           </div>
         ) : (
           <div className="py-24 text-center">
-            <p className="text-xl text-muted-foreground">No products found matching your keywords.</p>
+            <p className="text-xl text-muted-foreground">No products found matching your search.</p>
             <Button 
               variant="link" 
               className="text-primary mt-2"
@@ -137,22 +145,19 @@ export function ShopSection() {
         )}
       </div>
 
-      {/* Product Details Modal */}
       <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
         <DialogContent className="max-w-5xl p-0 overflow-hidden bg-background border-white/10 rounded-[2rem] shadow-2xl">
           {selectedProduct && (
             <div className="flex flex-col lg:flex-row h-full max-h-[90vh] overflow-y-auto">
-              {/* Image Section */}
               <div className="lg:w-1/2 bg-card p-6 flex flex-col gap-4">
                 <div className="relative aspect-square rounded-2xl overflow-hidden bg-background border border-white/5">
-                  <Image 
-                    src={selectedProduct.images[activeImageIndex]} 
+                  <img 
+                    src={selectedProduct.images?.[activeImageIndex] || 'https://placehold.co/800x800?text=No+Image'} 
                     alt={selectedProduct.title} 
-                    fill 
-                    className="object-cover animate-in fade-in duration-500"
+                    className="w-full h-full object-cover animate-in fade-in duration-500"
                   />
                 </div>
-                {selectedProduct.images.length > 1 && (
+                {selectedProduct.images && selectedProduct.images.length > 1 && (
                   <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                     {selectedProduct.images.map((img, i) => (
                       <button 
@@ -163,27 +168,26 @@ export function ShopSection() {
                           activeImageIndex === i ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"
                         )}
                       >
-                        <Image src={img} alt="" fill className="object-cover" />
+                        <img src={img} alt="" className="w-full h-full object-cover" />
                       </button>
                     ))}
                   </div>
                 )}
               </div>
 
-              {/* Content Section */}
               <div className="lg:w-1/2 p-8 lg:p-12 space-y-8 flex flex-col justify-center">
                 <div className="space-y-4">
                   <div className="flex flex-wrap gap-2">
                     {selectedProduct.featured && <Badge className="bg-primary font-bold">FEATURED</Badge>}
                     <Badge variant="outline" className="border-white/20 uppercase tracking-widest text-[10px]">
-                      {selectedProduct.categoryId.replace('-', ' ')}
+                      {selectedProduct.categoryId?.replace('-', ' ') || 'General'}
                     </Badge>
                   </div>
                   <DialogTitle className="text-3xl lg:text-4xl font-bold tracking-tighter leading-tight">
                     {selectedProduct.title}
                   </DialogTitle>
                   <div className="text-3xl font-bold text-gradient-primary">
-                    {selectedProduct.price.toFixed(2)} MAD
+                    {selectedProduct.price?.toFixed(2)} MAD
                   </div>
                   <DialogDescription className="text-muted-foreground text-lg leading-relaxed line-clamp-4">
                     {selectedProduct.description}
@@ -208,7 +212,6 @@ export function ShopSection() {
                     </Button>
                   </div>
 
-                  {/* Quick Perks */}
                   <div className="grid grid-cols-3 gap-2 pt-6 border-t border-white/5">
                     <div className="flex flex-col items-center text-center gap-1">
                       <ShieldCheck className="w-5 h-5 text-primary" />
