@@ -24,7 +24,6 @@ export default function AdminLoginPage() {
   const auth = useAuth();
   const { user, isLoading: userLoading } = useUser();
 
-  // Redirect if already logged in as admin
   useEffect(() => {
     if (!userLoading && user && user.email?.toLowerCase() === AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
       router.push('/admin');
@@ -40,9 +39,7 @@ export default function AdminLoginPage() {
 
     setLoading(true);
     try {
-      // Force local persistence so session survives refreshes
       await setPersistence(auth, browserLocalPersistence);
-      
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const loggedUser = userCredential.user;
       
@@ -50,7 +47,6 @@ export default function AdminLoginPage() {
         toast({ title: "Access Granted", description: "Welcome to the administration panel." });
         router.push('/admin');
       } else {
-        // If logged in as non-admin, sign them out immediately
         await signOut(auth);
         toast({ 
           title: "Unauthorized", 
@@ -108,7 +104,7 @@ export default function AdminLoginPage() {
               Admin Portal
             </CardTitle>
             <CardDescription className="text-sm font-medium">
-              Sign in with sallahdinimillou@gmail.com
+              Secure Administration Access
             </CardDescription>
           </div>
         </CardHeader>
@@ -122,7 +118,7 @@ export default function AdminLoginPage() {
                 <Input 
                   id="email" 
                   type="email" 
-                  placeholder="sallahdinimillou@gmail.com"
+                  placeholder="admin@example.com"
                   className="pl-12 h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-primary focus:border-primary transition-all"
                   value={email}
                   onChange={e => setEmail(e.target.value)}

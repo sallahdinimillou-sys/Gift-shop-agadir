@@ -29,10 +29,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       const isLoginPage = pathname === '/admin/login';
       
       if (!user && !isLoginPage) {
-        // Not logged in and not on login page -> redirect to login
         router.push('/admin/login');
       } else if (user && !authorized && !isLoginPage) {
-        // Logged in but not admin -> show error and sign out
         toast({
           variant: "destructive",
           title: "Access Denied",
@@ -41,19 +39,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         if (auth) {
           signOut(auth).then(() => router.push('/admin/login'));
         }
-      } else if (user && authorized && isLoginPage) {
-        // Logged in as admin and on login page -> go to dashboard
-        router.push('/admin');
       }
     }
   }, [user, isLoading, pathname, router, toast, auth]);
 
-  // Special case for login page: allow it to render its own content
   if (pathname === '/admin/login') {
     return <>{children}</>;
   }
 
-  // Show loading screen while checking auth
   if (isLoading || isAuthorized === null) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -65,7 +58,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  // Final protection: if not authorized, render nothing (the useEffect will handle redirect)
   if (!isAuthorized) {
     return null;
   }
@@ -83,7 +75,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { icon: <Tag className="w-4 h-4" />, label: 'Categories', href: '/admin/categories' },
     { icon: <ShoppingCart className="w-4 h-4" />, label: 'Orders', href: '/admin/orders' },
     { icon: <MessageSquare className="w-4 h-4" />, label: 'Inquiries', href: '/admin/inquiries' },
-    { icon: <Settings className="w-4 h-4" />, label: 'Settings', href: '/admin/settings' },
   ];
 
   return (
