@@ -12,6 +12,7 @@ export type Product = {
   stockStatus: 'in-stock' | 'out-of-stock' | 'on-backorder';
   featured: boolean;
   bestSeller: boolean;
+  published: boolean;
   createdAt: string;
   updatedAt: string;
 };

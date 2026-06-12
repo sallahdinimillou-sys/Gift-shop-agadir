@@ -17,7 +17,6 @@ export default function AdminDashboardPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
-  // العداد يتتبع عدد المنتجات التي جاري إضافتها حالياً
   const [addingCount, setAddingCount] = useState(0);
 
   const productsQuery = useMemo(() => {
@@ -37,28 +36,26 @@ export default function AdminDashboardPage() {
   const handleAddNewProduct = () => {
     if (!firestore) return;
     
-    // زيادة العداد للسماح بإضافات متعددة متزامنة
     setAddingCount(prev => prev + 1);
 
     const colRef = collection(firestore, 'products');
-    // توليد لاحقة عشوائية لضمان تفرد الرابط (Slug)
     const randomSuffix = Math.random().toString(36).substring(2, 7);
     
     const newProduct = {
       title: 'منتج جديد',
       description: 'اضغط هنا لإضافة وصف للمنتج...',
       price: 0,
-      images: [], // تم جعل مصفوفة الصور فارغة كما طلب المستخدم
+      images: [],
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       slug: `new-product-${Date.now()}-${randomSuffix}`,
       categoryId: 'trophies',
       stockStatus: 'in-stock',
       featured: false,
-      bestSeller: false
+      bestSeller: false,
+      published: false // يتم إنشاؤه كمسودة غير منشورة
     };
 
-    // تنفيذ الإضافة بشكل متفائل (Optimistic) لسرعة الواجهة
     addDoc(colRef, newProduct)
       .then(() => {
         setAddingCount(prev => Math.max(0, prev - 1));

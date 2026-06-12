@@ -71,9 +71,13 @@ export function ShopSection() {
     const keywords = searchQuery.toLowerCase().trim().split(/\s+/).filter(Boolean);
 
     return displayData.filter(product => {
-      // شرط أساسي: يجب أن يحتوي المنتج على صورة واحدة على الأقل ليظهر للعموم
+      // شروط الظهور للعملاء:
+      // 1. يجب أن يكون تم الضغط على زر الحفظ (published === true)
+      // 2. يجب أن يحتوي على صورة واحدة على الأقل
+      const isPublished = product.published === true;
       const hasImage = product.images && product.images.length > 0;
-      if (!hasImage) return false;
+      
+      if (!isPublished || !hasImage) return false;
 
       const title = product.title?.toLowerCase() || '';
       const matchesSearch = keywords.length === 0 || keywords.every(keyword => title.includes(keyword));

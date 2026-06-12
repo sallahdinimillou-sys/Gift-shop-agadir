@@ -22,7 +22,6 @@ interface EditableProductCardProps {
   product: Product;
 }
 
-// Cloudinary Configuration
 const CLOUDINARY_CLOUD_NAME = "drpt9ibut";
 const CLOUDINARY_UPLOAD_PRESET = "ml_default";
 
@@ -32,7 +31,6 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
@@ -58,7 +56,6 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
   const handleSave = () => {
     if (!firestore) return;
     
-    // إغلاق وضع التعديل فوراً لتحسين الاستجابة (Optimistic UI)
     setIsEditing(false);
     
     const docRef = doc(firestore, 'products', product.id);
@@ -69,11 +66,17 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
       price: Number(formData.price),
       description: formData.description,
       slug: slug || product.slug,
+      published: true, // عند الحفظ يتم تفعيل النشر ليظهر في المتجر
       updatedAt: serverTimestamp(),
     };
 
-    // إرسال التحديث دون انتظار (non-blocking)
     updateDoc(docRef, updatedData)
+      .then(() => {
+        toast({ 
+          title: "✅ تم الحفظ بنجاح", 
+          description: "المنتج الآن ظاهر للعموم في المتجر." 
+        });
+      })
       .catch(async (error) => {
         const permissionError = new FirestorePermissionError({
           path: docRef.path,
@@ -82,11 +85,6 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
         });
         errorEmitter.emit('permission-error', permissionError);
       });
-
-    toast({ 
-      title: "✅ تم الحفظ", 
-      description: "تم تحديث بيانات المنتج بنجاح." 
-    });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -140,22 +138,10 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
           
         if (fileInputRef.current) fileInputRef.current.value = '';
       } else {
-        toast({ 
-          title: "❌ فشل الرفع", 
-          variant: "destructive" 
-        });
+        toast({ title: "❌ فشل الرفع", variant: "destructive" });
         setIsUploading(false);
         setUploadProgress(0);
       }
-    };
-
-    xhr.onerror = () => {
-      toast({ 
-        title: "⚠️ خطأ في الاتصال", 
-        variant: "destructive" 
-      });
-      setIsUploading(false);
-      setUploadProgress(0);
     };
 
     xhr.send(cloudData);
@@ -181,67 +167,31 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
       });
   };
 
-  const handleCancel = () => {
-    setFormData({
-      title: product.title || '',
-      price: product.price || 0,
-      description: product.description || '',
-      imageUrl: product.images?.[0] || '',
-    });
-    setIsEditing(false);
-  };
-
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="relative"
-    >
-      <input 
-        type="file" 
-        ref={fileInputRef} 
-        onChange={handleFileChange} 
-        className="hidden" 
-        accept="image/*"
-      />
+    <motion.div layout className="relative">
+      <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
 
       <Card className={cn(
         "overflow-hidden group border-white/5 bg-card/50 backdrop-blur-sm rounded-[2.5rem] transition-all duration-300",
-        isEditing ? "ring-2 ring-primary shadow-2xl scale-[1.02] z-10" : "hover:border-white/10"
+        isEditing ? "ring-2 ring-primary shadow-2xl z-10" : "hover:border-white/10"
       )}>
         <div className="relative aspect-square overflow-hidden bg-muted cursor-pointer group/img">
           {isEditing ? (
-            <div 
-              className="absolute inset-0 bg-black/60 z-20 flex flex-col items-center justify-center p-6 space-y-4"
-              onClick={() => !isUploading && fileInputRef.current?.click()}
-            >
+            <div className="absolute inset-0 bg-black/60 z-20 flex flex-col items-center justify-center p-6 space-y-4" onClick={() => !isUploading && fileInputRef.current?.click()}>
               {isUploading ? (
                 <div className="flex flex-col items-center gap-4 w-full px-8">
-                  <div className="relative w-16 h-16 flex items-center justify-center">
-                    <Loader2 className="absolute w-full h-full text-primary animate-spin" />
-                    <span className="text-white text-[10px] font-bold">{uploadProgress}%</span>
-                  </div>
-                  <div className="w-full space-y-1">
-                    <Progress value={uploadProgress} className="h-1 bg-white/20" />
-                    <p className="text-white text-[10px] text-center font-bold animate-pulse">
-                      جاري الرفع...
-                    </p>
-                  </div>
+                  <Loader2 className="w-10 h-10 text-primary animate-spin" />
+                  <Progress value={uploadProgress} className="h-1" />
                 </div>
               ) : (
                 <>
-                  <UploadCloud className="w-12 h-12 text-primary mb-2" />
-                  <span className="text-white text-xs font-bold uppercase tracking-[0.2em] text-center">اضغط لتغيير الصورة</span>
+                  <UploadCloud className="w-12 h-12 text-primary" />
+                  <span className="text-white text-xs font-bold uppercase tracking-widest">تغيير الصورة</span>
                 </>
               )}
             </div>
           ) : (
-            <div 
-              className="absolute inset-0 z-20 opacity-0 group-hover/img:opacity-100 bg-black/40 transition-opacity flex items-center justify-center"
-              onClick={() => setIsEditing(true)}
-            >
+            <div className="absolute inset-0 z-20 opacity-0 group-hover/img:opacity-100 bg-black/40 transition-opacity flex items-center justify-center" onClick={() => setIsEditing(true)}>
               <div className="glass text-white px-5 py-2.5 rounded-full flex items-center gap-2 font-bold text-xs">
                 <ImageIcon className="w-4 h-4" /> تعديل البيانات
               </div>
@@ -251,95 +201,53 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
           <img
             src={formData.imageUrl || 'https://placehold.co/800x800?text=No+Image'}
             alt={formData.title}
-            className={cn(
-              "w-full h-full object-cover transition-transform duration-700",
-              !isEditing && "group-hover:scale-110"
-            )}
-            onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/800x800?text=Invalid+Image'; }}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
-          
-          <div className="absolute top-5 left-5 flex flex-col gap-2 z-10">
-            {product.featured && <Badge className="bg-primary border-none font-bold px-3 py-1">مميز</Badge>}
-            {product.bestSeller && <Badge className="bg-accent border-none text-black font-bold px-3 py-1">الأكثر مبيعاً</Badge>}
-          </div>
 
+          {!product.published && (
+            <div className="absolute top-5 left-5 z-30">
+              <Badge variant="secondary" className="bg-yellow-500 text-black font-bold">مسودة</Badge>
+            </div>
+          )}
+          
           {!isEditing && (
-            <button
-              onClick={(e) => { e.stopPropagation(); handleDelete(); }}
-              disabled={isDeleting}
-              className="absolute top-5 right-5 z-30 bg-destructive/90 hover:bg-destructive text-white p-2.5 rounded-2xl backdrop-blur-md transition-all active:scale-90"
-            >
+            <button onClick={(e) => { e.stopPropagation(); handleDelete(); }} className="absolute top-5 right-5 z-30 bg-destructive text-white p-2.5 rounded-2xl">
               {isDeleting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
             </button>
           )}
         </div>
 
         <CardContent className="p-7 space-y-5">
-          <div className="space-y-1.5">
-            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.3em] ml-1">اسم المنتج</p>
-            {isEditing ? (
-              <Input 
-                value={formData.title}
-                onChange={e => setFormData({...formData, title: e.target.value})}
-                className="text-lg font-bold bg-white/5 border-white/10 rounded-2xl h-12 focus:ring-primary focus:border-primary"
-              />
-            ) : (
-              <h3 className="text-xl font-bold group-hover:text-primary transition-colors line-clamp-1">{formData.title || "بدون عنوان"}</h3>
-            )}
-          </div>
-
-          <div className="min-h-[80px] space-y-1.5">
-            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.3em] ml-1">الوصف</p>
-            {isEditing ? (
-              <Textarea 
-                value={formData.description}
-                onChange={e => setFormData({...formData, description: e.target.value})}
-                className="text-sm bg-white/5 border-white/10 rounded-2xl resize-none min-h-[120px] focus:ring-primary focus:border-primary"
-              />
-            ) : (
-              <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">{formData.description || "لا يوجد وصف."}</p>
-            )}
-          </div>
-
+          <Input 
+            disabled={!isEditing}
+            value={formData.title}
+            onChange={e => setFormData({...formData, title: e.target.value})}
+            className={cn("text-lg font-bold bg-transparent border-none p-0 h-auto focus-visible:ring-0", !isEditing && "cursor-default")}
+            placeholder="اسم المنتج"
+          />
+          <Textarea 
+            disabled={!isEditing}
+            value={formData.description}
+            onChange={e => setFormData({...formData, description: e.target.value})}
+            className={cn("text-sm bg-transparent border-none p-0 h-auto resize-none min-h-[60px] focus-visible:ring-0", !isEditing && "cursor-default")}
+            placeholder="وصف المنتج"
+          />
           <div className="pt-5 border-t border-white/5 flex items-center justify-between">
-            <div className="flex flex-col gap-1">
-              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.3em]">الثمن</p>
-              {isEditing ? (
-                <div className="flex items-center gap-2">
-                  <Input 
-                    type="number"
-                    value={formData.price === 0 ? '' : formData.price}
-                    onChange={e => setFormData({...formData, price: e.target.value === '' ? 0 : Number(e.target.value)})}
-                    className="w-28 h-10 bg-white/5 border-white/10 rounded-xl text-sm font-bold"
-                  />
-                  <span className="text-primary font-bold text-xs">MAD</span>
-                </div>
-              ) : (
-                <span className="text-2xl font-bold text-gradient-primary">{formData.price.toFixed(2)} MAD</span>
-              )}
+            <div className="flex items-center gap-1">
+              <Input 
+                type="number"
+                disabled={!isEditing}
+                value={formData.price}
+                onChange={e => setFormData({...formData, price: Number(e.target.value)})}
+                className="w-20 h-8 bg-transparent border-none p-0 focus-visible:ring-0 font-bold text-xl"
+              />
+              <span className="text-primary font-bold">MAD</span>
             </div>
-
-            <AnimatePresence>
-              {isEditing && (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  className="flex gap-2"
-                >
-                  <Button size="icon" variant="ghost" onClick={handleCancel} className="h-10 w-10 rounded-2xl hover:bg-white/10">
-                    <X className="w-5 h-5 text-muted-foreground" />
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    onClick={handleSave}
-                    className="rounded-2xl h-10 px-5 bg-primary hover:bg-primary/90 font-bold"
-                  >
-                    <Save className="w-4 h-4 mr-2" /> حفظ
-                  </Button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {isEditing && (
+              <Button size="sm" onClick={handleSave} className="rounded-xl px-6 bg-primary font-bold">
+                <Save className="w-4 h-4 mr-2" /> حفظ
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
