@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Lock, Mail, Loader2 } from 'lucide-react';
+import { useAuth, useUser } from '@/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
@@ -16,23 +18,43 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
   const router = useRouter();
   const { toast } = useToast();
+  const auth = useAuth();
+  const { user, isLoading: userLoading } = useUser();
+
+  useEffect(() => {
+    if (!userLoading && user) {
+      router.push('/admin');
+    }
+  }, [user, userLoading, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!auth) return;
+
     setLoading(true);
-    
-    // In a real app, this would use Firebase Auth
-    // For this prototype, we simulate a successful login
-    setTimeout(() => {
-      if (email === 'admin@giftshopagadir.com' && password === 'admin123') {
-        toast({ title: "Welcome back!", description: "Logged in successfully." });
-        router.push('/admin');
-      } else {
-        toast({ title: "Login failed", description: "Invalid credentials.", variant: "destructive" });
-      }
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      toast({ title: "Welcome back!", description: "Logged in successfully." });
+      router.push('/admin');
+    } catch (error: any) {
+      console.error(error);
+      toast({ 
+        title: "Login failed", 
+        description: error.message || "Invalid credentials.", 
+        variant: "destructive" 
+      });
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
+
+  if (userLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-background p-4">

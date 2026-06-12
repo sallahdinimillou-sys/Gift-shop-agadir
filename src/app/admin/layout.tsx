@@ -2,15 +2,43 @@
 "use client"
 
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
-import { LayoutDashboard, Package, Tag, ShoppingCart, MessageSquare, Settings, LogOut, Image as ImageIcon } from 'lucide-react';
+import { LayoutDashboard, Package, Tag, ShoppingCart, MessageSquare, Settings, LogOut, Image as ImageIcon, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useUser, useAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
+import { useEffect } from 'react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { user, isLoading } = useUser();
+  const auth = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && !user && pathname !== '/admin/login') {
+      router.push('/admin/login');
+    }
+  }, [user, isLoading, pathname, router]);
 
   if (pathname === '/admin/login') return <>{children}</>;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) return null;
+
+  const handleLogout = async () => {
+    if (auth) {
+      await signOut(auth);
+      router.push('/admin/login');
+    }
+  };
 
   const menuItems = [
     { icon: <LayoutDashboard />, label: 'Overview', href: '/admin' },
@@ -55,7 +83,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton 
-                  onClick={() => router.push('/admin/login')}
+                  onClick={handleLogout}
                   className="h-11 rounded-xl text-destructive hover:text-destructive hover:bg-destructive/10"
                 >
                   <LogOut />
@@ -71,11 +99,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <SidebarTrigger />
             <div className="flex items-center gap-4">
                <div className="text-right hidden sm:block">
-                  <p className="text-sm font-medium">Administrator</p>
-                  <p className="text-xs text-muted-foreground">giftshopagadir@gmail.com</p>
+                  <p className="text-sm font-medium">{user.displayName || 'Administrator'}</p>
+                  <p className="text-xs text-muted-foreground">{user.email}</p>
                </div>
                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary border border-primary/20">
-                 A
+                 {user.email?.[0].toUpperCase()}
                </div>
             </div>
           </header>
