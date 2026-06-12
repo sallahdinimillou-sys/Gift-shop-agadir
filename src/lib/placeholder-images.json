@@ -1,3 +1,58 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-main",
+      "description": "Luxury Gift Collection Agadir",
+      "imageUrl": "https://picsum.photos/seed/gift-hero/1920/1080",
+      "imageHint": "luxury gifts trophies"
+    },
+    {
+      "id": "cat-trophies",
+      "description": "Elegant Trophies and Awards",
+      "imageUrl": "https://picsum.photos/seed/trophy/800/600",
+      "imageHint": "golden trophy award"
+    },
+    {
+      "id": "cat-medals",
+      "description": "Customized Medals",
+      "imageUrl": "https://picsum.photos/seed/medal/800/600",
+      "imageHint": "sports medals"
+    },
+    {
+      "id": "cat-gifts",
+      "description": "Personalized Luxury Gifts",
+      "imageUrl": "https://picsum.photos/seed/perfume/800/600",
+      "imageHint": "personalized gift"
+    },
+    {
+      "id": "cat-wedding",
+      "description": "Wedding & Event Gifts",
+      "imageUrl": "https://picsum.photos/seed/wedding/800/600",
+      "imageHint": "wedding gift"
+    },
+    {
+      "id": "product-1",
+      "description": "Premium Crystal Award",
+      "imageUrl": "https://picsum.photos/seed/p1/600/600",
+      "imageHint": "crystal award"
+    },
+    {
+      "id": "product-2",
+      "description": "Golden Excellence Trophy",
+      "imageUrl": "https://picsum.photos/seed/p2/600/600",
+      "imageHint": "gold trophy"
+    },
+    {
+      "id": "product-3",
+      "description": "Custom Engraved Watch",
+      "imageUrl": "https://picsum.photos/seed/p3/600/600",
+      "imageHint": "luxury watch"
+    },
+    {
+      "id": "product-4",
+      "description": "Artisan Silver Medal",
+      "imageUrl": "https://picsum.photos/seed/p4/600/600",
+      "imageHint": "silver medal"
+    }
+  ]
 }
