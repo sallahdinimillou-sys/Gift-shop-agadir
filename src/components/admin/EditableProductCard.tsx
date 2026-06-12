@@ -8,11 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { useFirestore, useStorage } from '@/firebase';
+import { useFirestore } from '@/firebase';
 import { doc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Trash2, X, Image as ImageIcon, Loader2, Save, UploadCloud, AlertCircle } from 'lucide-react';
+import { Check, Trash2, X, Image as ImageIcon, Loader2, Save, UploadCloud } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -23,9 +22,12 @@ interface EditableProductCardProps {
   product: Product;
 }
 
+// Replace this with your actual Cloudinary Cloud Name from your dashboard
+const CLOUDINARY_CLOUD_NAME = "YOUR_CLOUDINARY_CLOUD_NAME";
+const CLOUDINARY_UPLOAD_PRESET = "products";
+
 export function EditableProductCard({ product }: EditableProductCardProps) {
   const firestore = useFirestore();
-  const storage = useStorage();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -87,54 +89,63 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !storage || !firestore) return;
+    if (!file || !firestore) return;
+
+    if (CLOUDINARY_CLOUD_NAME === "YOUR_CLOUDINARY_CLOUD_NAME") {
+      toast({ 
+        title: "خطأ في الإعدادات", 
+        description: "يرجى إدخال Cloud Name الخاص بك في الكود أولاً.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     setIsUploading(true);
-    setUploadProgress(0);
+    setUploadProgress(10); // Start progress
 
-    const storageRef = ref(storage, `products/${product.id}/${Date.now()}_${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
+    const cloudData = new FormData();
+    cloudData.append("file", file);
+    cloudData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
-    uploadTask.on('state_changed', 
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setUploadProgress(Math.round(progress));
-      }, 
-      (error: any) => {
-        console.error("Upload error:", error);
-        setIsUploading(false);
-        let message = "فشل رفع الصورة. يرجى التحقق من اتصالك وقواعد الأمان.";
-        if (error.code === 'storage/unauthorized') {
-          message = "ليس لديك صلاحية لرفع الصور. يرجى ضبط قواعد Storage Rules.";
+    try {
+      setUploadProgress(30);
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+        {
+          method: "POST",
+          body: cloudData,
         }
-        toast({ 
-          title: "فشل الرفع", 
-          description: message, 
-          variant: "destructive" 
-        });
-      }, 
-      async () => {
-        try {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
-          
-          const docRef = doc(firestore, 'products', product.id);
-          const updateData = {
-            images: [downloadURL],
-            updatedAt: serverTimestamp(),
-          };
+      );
 
-          await updateDoc(docRef, updateData);
-          toast({ title: "تم الرفع", description: "تم تحديث الصورة بنجاح." });
-        } catch (err: any) {
-          console.error("Error updating Firestore after upload:", err);
-        } finally {
-          setIsUploading(false);
-          setUploadProgress(0);
-          if (fileInputRef.current) fileInputRef.current.value = '';
-        }
-      }
-    );
+      if (!response.ok) throw new Error("فشل الرفع إلى Cloudinary");
+
+      setUploadProgress(80);
+      const data = await response.json();
+      const downloadURL = data.secure_url;
+      
+      setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
+      
+      const docRef = doc(firestore, 'products', product.id);
+      const updateData = {
+        images: [downloadURL],
+        updatedAt: serverTimestamp(),
+      };
+
+      await updateDoc(docRef, updateData);
+      setUploadProgress(100);
+      toast({ title: "تم الرفع", description: "تم تحديث الصورة بنجاح عبر Cloudinary." });
+    } catch (err: any) {
+      console.error("Cloudinary Upload error:", err);
+      toast({ 
+        title: "فشل الرفع", 
+        description: "حدث خطأ أثناء الرفع إلى Cloudinary. يرجى التحقق من الإعدادات.", 
+        variant: "destructive" 
+      });
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   };
 
   const handleDelete = () => {
@@ -201,7 +212,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
                   </div>
                   <div className="w-full space-y-1">
                     <Progress value={uploadProgress} className="h-1 bg-white/20" />
-                    <p className="text-white text-[10px] text-center font-bold animate-pulse">جاري الرفع...</p>
+                    <p className="text-white text-[10px] text-center font-bold animate-pulse">جاري الرفع إلى Cloudinary...</p>
                   </div>
                 </div>
               ) : (
