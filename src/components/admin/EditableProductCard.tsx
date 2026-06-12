@@ -1,17 +1,17 @@
-
 "use client"
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Product } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useStorage } from '@/firebase';
 import { doc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Trash2, X, Image as ImageIcon, Loader2, Save } from 'lucide-react';
+import { Check, Trash2, X, Image as ImageIcon, Loader2, Save, UploadCloud } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
@@ -21,13 +21,15 @@ interface EditableProductCardProps {
 
 export function EditableProductCard({ product }: EditableProductCardProps) {
   const firestore = useFirestore();
+  const storage = useStorage();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   
-  // Local edit state
   const [formData, setFormData] = useState({
     title: product.title,
     price: product.price,
@@ -35,7 +37,6 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
     imageUrl: product.images?.[0] || '',
   });
 
-  // Sync with prop changes (from external Firestore updates)
   useEffect(() => {
     if (!isEditing) {
       setFormData({
@@ -56,16 +57,42 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
         title: formData.title,
         price: Number(formData.price),
         description: formData.description,
-        images: [formData.imageUrl],
         updatedAt: serverTimestamp(),
       });
       setIsEditing(false);
-      toast({ title: "تم الحفظ", description: "تم تحديث المنتج بنجاح." });
+      toast({ title: "تم الحفظ", description: "تم تحديث بيانات المنتج بنجاح." });
     } catch (error) {
       console.error("Save error:", error);
       toast({ title: "خطأ", description: "فشل في حفظ التغييرات.", variant: "destructive" });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !storage || !firestore) return;
+
+    setIsUploading(true);
+    try {
+      const storageRef = ref(storage, `products/${product.id}/${Date.now()}_${file.name}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      
+      setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
+      
+      const docRef = doc(firestore, 'products', product.id);
+      await updateDoc(docRef, {
+        images: [downloadURL],
+        updatedAt: serverTimestamp(),
+      });
+
+      toast({ title: "تم الرفع", description: "تم تحديث صورة المنتج بنجاح." });
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast({ title: "خطأ", description: "فشل في رفع الصورة.", variant: "destructive" });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -102,25 +129,35 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
       exit={{ opacity: 0, scale: 0.95 }}
       className="relative"
     >
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={handleFileChange} 
+        className="hidden" 
+        accept="image/*"
+      />
+
       <Card className={cn(
         "overflow-hidden group border-white/5 bg-card/50 backdrop-blur-sm rounded-[2rem] transition-all duration-300",
         isEditing ? "ring-2 ring-primary shadow-2xl scale-[1.02] z-10" : "hover:border-white/10"
       )}>
-        {/* Image Section */}
         <div className="relative aspect-square overflow-hidden bg-muted cursor-pointer group/img">
           {isEditing ? (
-            <div className="absolute inset-0 bg-black/60 z-20 flex flex-col items-center justify-center p-6 space-y-4">
-              <ImageIcon className="w-8 h-8 text-primary mb-2" />
-              <Label className="text-white text-xs font-bold uppercase tracking-widest">رابط الصورة</Label>
-              <Input 
-                value={formData.imageUrl}
-                onChange={e => {
-                  setFormData({...formData, imageUrl: e.target.value});
-                }}
-                className="bg-black/40 border-white/20 text-white rounded-xl h-10 text-sm"
-                placeholder="https://images.unsplash.com/..."
-              />
-              <p className="text-[10px] text-white/40 italic">تحديث تلقائي للمعاينة</p>
+            <div 
+              className="absolute inset-0 bg-black/60 z-20 flex flex-col items-center justify-center p-6 space-y-4"
+              onClick={() => !isUploading && fileInputRef.current?.click()}
+            >
+              {isUploading ? (
+                <div className="flex flex-col items-center gap-2">
+                  <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                  <span className="text-white text-xs font-bold">جاري الرفع...</span>
+                </div>
+              ) : (
+                <>
+                  <UploadCloud className="w-10 h-10 text-primary mb-2" />
+                  <span className="text-white text-xs font-bold uppercase tracking-widest text-center">اضغط لتغيير الصورة</span>
+                </>
+              )}
             </div>
           ) : (
             <div 
@@ -128,7 +165,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
               onClick={() => setIsEditing(true)}
             >
               <div className="bg-white text-black p-3 rounded-full flex items-center gap-2 font-bold text-xs">
-                <ImageIcon className="w-4 h-4" /> تعديل الصورة
+                <ImageIcon className="w-4 h-4" /> تعديل
               </div>
             </div>
           )}
@@ -161,12 +198,9 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
           </AnimatePresence>
         </div>
 
-        {/* Content Section */}
         <CardContent className="p-6 space-y-4">
           <div className="space-y-1">
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.2em]">بيانات المنتج</p>
-            
-            {/* Title */}
             {isEditing ? (
               <Input 
                 value={formData.title}
@@ -184,7 +218,6 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
             )}
           </div>
 
-          {/* Description */}
           <div className="min-h-[60px]">
             {isEditing ? (
               <Textarea 
@@ -203,7 +236,6 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
             )}
           </div>
 
-          {/* Price & Actions */}
           <div className="pt-4 border-t border-white/5 flex items-center justify-between">
             <div className="flex flex-col">
               {isEditing ? (
@@ -217,7 +249,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
                       setFormData({...formData, price: val});
                     }}
                     className="w-24 h-9 bg-white/5 border-white/10 rounded-lg text-sm font-bold"
-                    placeholder="0.00"
+                    placeholder="الثمن"
                   />
                 </div>
               ) : (
@@ -225,7 +257,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
                   className="text-xl font-bold text-gradient-primary cursor-text"
                   onClick={() => setIsEditing(true)}
                 >
-                  {formData.price.toFixed(2)} MAD
+                  {formData.price > 0 ? `${formData.price.toFixed(2)} MAD` : "حدد الثمن"}
                 </span>
               )}
             </div>
