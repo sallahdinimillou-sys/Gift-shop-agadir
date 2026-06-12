@@ -5,6 +5,10 @@ import { getAuth, Auth } from 'firebase/auth';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
 import { firebaseConfig } from './config';
 
+/**
+ * Initializes Firebase services for the application.
+ * Note: Storage security rules are managed externally.
+ */
 export function initializeFirebase(): {
   firebaseApp: FirebaseApp;
   firestore: Firestore;
@@ -16,7 +20,7 @@ export function initializeFirebase(): {
   const auth = getAuth(firebaseApp);
   const storage = getStorage(firebaseApp);
 
-  // Enable offline persistence for better performance
+  // Enable offline persistence for better performance and instant loads
   if (typeof window !== 'undefined') {
     enableIndexedDbPersistence(firestore).catch((err) => {
       if (err.code === 'failed-precondition') {

@@ -12,7 +12,7 @@ import { useFirestore, useStorage } from '@/firebase';
 import { doc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Trash2, X, Image as ImageIcon, Loader2, Save, UploadCloud } from 'lucide-react';
+import { Check, Trash2, X, Image as ImageIcon, Loader2, Save, UploadCloud, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -70,7 +70,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
       .then(() => {
         setIsEditing(false);
         setIsSaving(false);
-        toast({ title: "تم الحفظ", description: "تم تحديث بيانات المنتج في Firestore بنجاح." });
+        toast({ title: "تم الحفظ", description: "تم تحديث بيانات المنتج بنجاح." });
       })
       .catch(async (error) => {
         setIsSaving(false);
@@ -87,33 +87,78 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
     const file = e.target.files?.[0];
     if (!file || !storage || !firestore) return;
 
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ 
+        title: "الملف كبير جداً", 
+        description: "يرجى اختيار صورة بحجم أقل من 5 ميجابايت لضمان سرعة التحميل.", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
     setIsUploading(true);
+
+    // Create a timeout promise
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("TIMEOUT")), 30000)
+    );
+
     try {
       const storageRef = ref(storage, `products/${product.id}/${Date.now()}_${file.name}`);
-      const snapshot = await uploadBytes(storageRef, file);
+      
+      // Race the upload against the timeout
+      const uploadPromise = uploadBytes(storageRef, file);
+      const snapshot = await Promise.race([uploadPromise, timeoutPromise]) as any;
+      
       const downloadURL = await getDownloadURL(snapshot.ref);
       
       setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
       
       const docRef = doc(firestore, 'products', product.id);
-      updateDoc(docRef, {
+      
+      // Update Firestore without awaiting (optimistic UI)
+      const updateData = {
         images: [downloadURL],
         updatedAt: serverTimestamp(),
-      }).catch(async (err) => {
-        const permissionError = new FirestorePermissionError({
-          path: docRef.path,
-          operation: 'update',
-          requestResourceData: { images: [downloadURL] }
-        });
-        errorEmitter.emit('permission-error', permissionError);
-      });
+      };
 
-      toast({ title: "تم الرفع", description: "تم تحديث الصورة وحفظ الرابط بنجاح." });
+      updateDoc(docRef, updateData)
+        .then(() => {
+          toast({ title: "تم الرفع", description: "تم تحديث الصورة بنجاح." });
+        })
+        .catch(async (err) => {
+          const permissionError = new FirestorePermissionError({
+            path: docRef.path,
+            operation: 'update',
+            requestResourceData: updateData
+          });
+          errorEmitter.emit('permission-error', permissionError);
+        });
+
     } catch (error: any) {
       console.error("Upload error:", error);
-      toast({ title: "خطأ في الرفع", description: "تأكد من إعدادات Firebase Storage.", variant: "destructive" });
+      let message = "حدث خطأ غير متوقع أثناء الرفع. يرجى تكرار المحاولة.";
+      
+      if (error.message === "TIMEOUT") {
+        message = "استغرق الرفع وقتاً طويلاً جداً (أكثر من 30 ثانية). يرجى التحقق من اتصالك بالإنترنت.";
+      } else if (error.code === 'storage/unauthorized') {
+        message = "ليس لديك صلاحية لرفع الملفات. تأكد من تسجيل الدخول كمسؤول.";
+      } else if (error.code === 'storage/retry-limit-exceeded') {
+        message = "تم تجاوز حد محاولات الرفع. تحقق من استقرار الشبكة.";
+      }
+
+      toast({ 
+        title: "فشل الرفع", 
+        description: message, 
+        variant: "destructive" 
+      });
     } finally {
       setIsUploading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -125,7 +170,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
     deleteDoc(docRef)
       .then(() => {
         setIsDeleting(false);
-        toast({ title: "تم الحذف", description: "تمت إزالة المنتج من Firestore." });
+        toast({ title: "تم الحذف", description: "تمت إزالة المنتج بنجاح." });
       })
       .catch(async (error) => {
         setIsDeleting(false);
@@ -164,7 +209,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
       />
 
       <Card className={cn(
-        "overflow-hidden group border-white/5 bg-card/50 backdrop-blur-sm rounded-[2rem] transition-all duration-300",
+        "overflow-hidden group border-white/5 bg-card/50 backdrop-blur-sm rounded-[2.5rem] transition-all duration-300",
         isEditing ? "ring-2 ring-primary shadow-2xl scale-[1.02] z-10" : "hover:border-white/10"
       )}>
         <div className="relative aspect-square overflow-hidden bg-muted cursor-pointer group/img">
@@ -174,14 +219,14 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
               onClick={() => !isUploading && fileInputRef.current?.click()}
             >
               {isUploading ? (
-                <div className="flex flex-col items-center gap-2">
-                  <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                  <span className="text-white text-xs font-bold">جاري الرفع...</span>
+                <div className="flex flex-col items-center gap-3">
+                  <Loader2 className="w-10 h-10 text-primary animate-spin" />
+                  <span className="text-white text-sm font-bold animate-pulse">جاري الرفع...</span>
                 </div>
               ) : (
                 <>
-                  <UploadCloud className="w-10 h-10 text-primary mb-2" />
-                  <span className="text-white text-xs font-bold uppercase tracking-widest text-center">اضغط لتغيير الصورة</span>
+                  <UploadCloud className="w-12 h-12 text-primary mb-2" />
+                  <span className="text-white text-xs font-bold uppercase tracking-[0.2em] text-center">اضغط لتغيير الصورة</span>
                 </>
               )}
             </div>
@@ -190,8 +235,8 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
               className="absolute inset-0 z-20 opacity-0 group-hover/img:opacity-100 bg-black/40 transition-opacity flex items-center justify-center"
               onClick={() => setIsEditing(true)}
             >
-              <div className="bg-white text-black p-3 rounded-full flex items-center gap-2 font-bold text-xs">
-                <ImageIcon className="w-4 h-4" /> تعديل
+              <div className="glass text-white px-5 py-2.5 rounded-full flex items-center gap-2 font-bold text-xs">
+                <ImageIcon className="w-4 h-4" /> تعديل البيانات
               </div>
             </div>
           )}
@@ -199,13 +244,16 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
           <img
             src={formData.imageUrl || 'https://placehold.co/800x800?text=No+Image'}
             alt={formData.title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            className={cn(
+              "w-full h-full object-cover transition-transform duration-700",
+              !isEditing && "group-hover:scale-110"
+            )}
             onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/800x800?text=Invalid+Image'; }}
           />
           
-          <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
-            {product.featured && <Badge className="bg-primary border-none font-bold">مميز</Badge>}
-            {product.bestSeller && <Badge className="bg-accent border-none text-black font-bold">الأكثر مبيعاً</Badge>}
+          <div className="absolute top-5 left-5 flex flex-col gap-2 z-10">
+            {product.featured && <Badge className="bg-primary border-none font-bold px-3 py-1">مميز</Badge>}
+            {product.bestSeller && <Badge className="bg-accent border-none text-black font-bold px-3 py-1">الأكثر مبيعاً</Badge>}
           </div>
 
           <AnimatePresence>
@@ -216,57 +264,58 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
                 exit={{ opacity: 0, x: 20 }}
                 onClick={(e) => { e.stopPropagation(); handleDelete(); }}
                 disabled={isDeleting}
-                className="absolute top-4 right-4 z-30 bg-destructive/80 hover:bg-destructive text-white p-2 rounded-xl backdrop-blur-sm transition-colors"
+                className="absolute top-5 right-5 z-30 bg-destructive/90 hover:bg-destructive text-white p-2.5 rounded-2xl backdrop-blur-md transition-all active:scale-90"
               >
-                {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                {isDeleting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
               </motion.button>
             )}
           </AnimatePresence>
         </div>
 
-        <CardContent className="p-6 space-y-4">
-          <div className="space-y-1">
-            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.2em]">بيانات المنتج</p>
+        <CardContent className="p-7 space-y-5">
+          <div className="space-y-1.5">
+            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.3em] ml-1">اسم المنتج</p>
             {isEditing ? (
               <Input 
                 value={formData.title}
                 onChange={e => setFormData({...formData, title: e.target.value})}
-                className="text-lg font-bold bg-white/5 border-white/10 rounded-xl mt-1 h-10"
+                className="text-lg font-bold bg-white/5 border-white/10 rounded-2xl h-12 focus:ring-primary focus:border-primary"
                 autoFocus
               />
             ) : (
               <h3 
-                className="text-lg font-bold group-hover:text-primary transition-colors line-clamp-1 cursor-text"
+                className="text-xl font-bold group-hover:text-primary transition-colors line-clamp-1 cursor-text"
                 onClick={() => setIsEditing(true)}
               >
-                {formData.title}
+                {formData.title || "بدون عنوان"}
               </h3>
             )}
           </div>
 
-          <div className="min-h-[60px]">
+          <div className="min-h-[80px] space-y-1.5">
+            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.3em] ml-1">الوصف</p>
             {isEditing ? (
               <Textarea 
                 value={formData.description}
                 onChange={e => setFormData({...formData, description: e.target.value})}
-                className="text-sm bg-white/5 border-white/10 rounded-xl resize-none min-h-[100px]"
-                placeholder="وصف المنتج..."
+                className="text-sm bg-white/5 border-white/10 rounded-2xl resize-none min-h-[120px] focus:ring-primary focus:border-primary"
+                placeholder="أدخل وصف المنتج هنا..."
               />
             ) : (
               <p 
                 className="text-sm text-muted-foreground line-clamp-3 leading-relaxed cursor-text"
                 onClick={() => setIsEditing(true)}
               >
-                {formData.description}
+                {formData.description || "لا يوجد وصف لهذا المنتج حالياً."}
               </p>
             )}
           </div>
 
-          <div className="pt-4 border-t border-white/5 flex items-center justify-between">
-            <div className="flex flex-col">
+          <div className="pt-5 border-t border-white/5 flex items-center justify-between">
+            <div className="flex flex-col gap-1">
+              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.3em]">الثمن</p>
               {isEditing ? (
                 <div className="flex items-center gap-2">
-                  <span className="text-primary font-bold">MAD</span>
                   <Input 
                     type="number"
                     value={formData.price || ''}
@@ -274,13 +323,14 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
                       const val = e.target.value === '' ? 0 : Number(e.target.value);
                       setFormData({...formData, price: val});
                     }}
-                    className="w-24 h-9 bg-white/5 border-white/10 rounded-lg text-sm font-bold"
-                    placeholder="الثمن"
+                    className="w-28 h-10 bg-white/5 border-white/10 rounded-xl text-sm font-bold focus:ring-primary focus:border-primary"
+                    placeholder="السعر"
                   />
+                  <span className="text-primary font-bold text-xs">MAD</span>
                 </div>
               ) : (
                 <span 
-                  className="text-xl font-bold text-gradient-primary cursor-text"
+                  className="text-2xl font-bold text-gradient-primary cursor-text"
                   onClick={() => setIsEditing(true)}
                 >
                   {formData.price > 0 ? `${formData.price.toFixed(2)} MAD` : "حدد الثمن"}
@@ -299,17 +349,17 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
                     size="icon" 
                     variant="ghost" 
                     onClick={handleCancel}
-                    className="h-9 w-9 rounded-full hover:bg-white/10"
+                    className="h-10 w-10 rounded-2xl hover:bg-white/10"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-5 h-5 text-muted-foreground" />
                   </Button>
                   <Button 
                     size="sm" 
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="rounded-full h-9 px-4 bg-primary hover:bg-primary/90 font-bold"
+                    className="rounded-2xl h-10 px-5 bg-primary hover:bg-primary/90 font-bold shadow-lg shadow-primary/20 transition-all active:scale-95"
                   >
-                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Check className="w-4 h-4 mr-1" /> حفظ</>}
+                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4 mr-2" /> حفظ</>}
                   </Button>
                 </motion.div>
               ) : (
