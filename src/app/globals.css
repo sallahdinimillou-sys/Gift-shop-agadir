@@ -4,26 +4,26 @@
 
 @layer base {
   :root {
-    --background: 240 40% 17%; /* #1a1a3e */
+    --background: 240 40% 11%; /* Deep Navy - darker for better contrast with glow */
     --foreground: 210 40% 98%;
-    --card: 240 40% 20%;
+    --card: 240 40% 15%;
     --card-foreground: 210 40% 98%;
-    --popover: 240 40% 17%;
+    --popover: 240 40% 11%;
     --popover-foreground: 210 40% 98%;
     --primary: 327 100% 39%; /* #C8006E Hot Pink */
     --primary-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 240 40% 20%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
+    --muted: 240 30% 20%;
     --muted-foreground: 215 20.2% 65.1%;
     --accent: 47 95% 53%; /* #FACC15 Golden/Orange */
     --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
-    --border: 327 100% 39%; /* Hot pink borders by default for some elements */
-    --input: 217.2 32.6% 17.5%;
+    --border: 327 100% 39%; 
+    --input: 240 40% 20%;
     --ring: 327 100% 39%;
-    --radius: 0.75rem;
+    --radius: 1.25rem;
   }
 }
 
@@ -39,13 +39,41 @@
 
 @layer utilities {
   .glass-navbar {
-    background: rgba(26, 26, 62, 0.85); /* #1a1a3e with opacity */
+    background: rgba(26, 26, 62, 0.85);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
 
   .text-gradient-primary {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-[#C8006E] to-[#FF8C00];
+  }
+
+  /* Glowing Effects for Buttons */
+  .btn-glow-primary {
+    box-shadow: 0 0 15px rgba(200, 0, 110, 0.4);
+    @apply transition-all duration-300;
+  }
+  .btn-glow-primary:hover {
+    box-shadow: 0 0 25px rgba(200, 0, 110, 0.7), 0 0 50px rgba(200, 0, 110, 0.3);
+    @apply scale-[1.03];
+  }
+
+  .btn-glow-accent {
+    box-shadow: 0 0 15px rgba(250, 204, 21, 0.4);
+    @apply transition-all duration-300;
+  }
+  .btn-glow-accent:hover {
+    box-shadow: 0 0 25px rgba(250, 204, 21, 0.7);
+    @apply scale-[1.03];
+  }
+
+  .btn-glow-white {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    @apply transition-all duration-300;
+  }
+  .btn-glow-white:hover {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    @apply scale-[1.03];
   }
 
   @keyframes whatsapp-glow {
