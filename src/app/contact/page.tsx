@@ -151,8 +151,8 @@ export default function ContactPage() {
               </Card>
 
               {/* خريطة موقع المحل بالإحداثيات الدقيقة */}
-              <div className="space-y-4 text-left">
-                <h3 className="text-xl font-bold">موقع المحل على الخريطة</h3>
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-center">عنوان المحل على الخريطة</h3>
                 <div className="w-full h-[400px] rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl relative group">
                   <iframe 
                     src={mapUrl} 
