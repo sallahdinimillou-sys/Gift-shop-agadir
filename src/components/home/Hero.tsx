@@ -17,7 +17,7 @@ export function Hero() {
   };
 
   return (
-    <section className="relative min-h-[90vh] w-full flex items-center pt-40 pb-20 overflow-hidden">
+    <section className="relative min-h-[90vh] w-full flex items-center pt-48 pb-20 overflow-hidden">
       <div className="absolute inset-0 z-0">
         {heroImg && (
           <Image
@@ -32,10 +32,10 @@ export function Hero() {
         <div className="absolute inset-0 bg-gradient-to-l from-background via-background/40 to-transparent" />
       </div>
 
-      <div className="container mx-auto px-6 md:px-12 z-10">
-        <div className="max-w-4xl mr-auto lg:mr-0">
+      <div className="container mx-auto px-6 md:px-12 z-10 text-right">
+        <div className="max-w-4xl ml-auto">
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
             className="space-y-10"
@@ -47,13 +47,13 @@ export function Hero() {
               Celebrating <br /> 
               <span className="text-gradient-primary animate-text-glow">Every Victory</span>
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl leading-relaxed font-medium">
+            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl leading-relaxed font-medium mr-auto">
               الوجهة الأولى في أكادير للكؤوس والجوائز الفاخرة والهدايا المخصصة الراقية. صُنعت بشغف، وقُدمت بتميز.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-6 pt-6">
+            <div className="flex flex-col sm:flex-row-reverse gap-6 pt-6 justify-start">
               <Link href="/#shop">
-                <Button size="lg" className="rounded-full h-16 px-12 text-xl font-black btn-glow">
+                <Button size="lg" className="rounded-full h-16 px-12 text-xl font-black">
                   تصفح المتجر
                   <ArrowLeft className="mr-3 w-6 h-6" />
                 </Button>

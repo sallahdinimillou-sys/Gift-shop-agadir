@@ -136,7 +136,7 @@ export function ShopSection() {
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="h-14 rounded-2xl border-white/5 bg-background/50 hover:bg-primary/10 hover:text-primary px-8 text-lg font-medium btn-glow">
+                  <Button variant="outline" className="h-14 rounded-2xl border-white/5 bg-background/50 hover:bg-primary/10 hover:text-primary px-8 text-lg font-medium">
                     <Filter className="w-5 h-5 ml-2" />
                     {selectedCategory ? CATEGORIES.find(c => c.id === selectedCategory)?.name : 'تصفية حسب الفئة'}
                   </Button>
@@ -239,7 +239,7 @@ export function ShopSection() {
                 <div className="space-y-6">
                   <div className="flex flex-col sm:flex-row-reverse gap-4">
                     <Button 
-                      className="flex-1 h-16 rounded-2xl text-xl font-bold bg-primary hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-primary/20 btn-glow"
+                      className="flex-1 h-16 rounded-2xl text-xl font-bold bg-primary hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-primary/20"
                       onClick={() => addToCart(selectedProduct)}
                     >
                       <ShoppingCart className="w-6 h-6 ml-3" />

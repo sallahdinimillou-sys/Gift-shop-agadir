@@ -68,6 +68,11 @@
     50% { box-shadow: 0 0 30px rgba(200, 0, 110, 0.6); }
   }
 
+  @keyframes pulse-glow-accent {
+    0%, 100% { box-shadow: 0 0 15px rgba(255, 140, 0, 0.4); }
+    50% { box-shadow: 0 0 30px rgba(255, 140, 0, 0.6); }
+  }
+
   .btn-glow {
     animation: pulse-glow-primary 3s infinite ease-in-out;
     @apply transition-all duration-300;
@@ -76,6 +81,17 @@
   .btn-glow:hover {
     animation: none;
     box-shadow: 0 0 40px rgba(200, 0, 110, 0.8);
+    @apply scale-[1.05];
+  }
+
+  .btn-glow-accent {
+    animation: pulse-glow-accent 3s infinite ease-in-out;
+    @apply transition-all duration-300;
+  }
+
+  .btn-glow-accent:hover {
+    animation: none;
+    box-shadow: 0 0 40px rgba(255, 140, 0, 0.8);
     @apply scale-[1.05];
   }
 

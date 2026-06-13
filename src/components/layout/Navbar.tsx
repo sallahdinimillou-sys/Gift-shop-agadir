@@ -32,14 +32,17 @@ export function Navbar() {
       "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
       isScrolled ? "glass-navbar py-3 border-b border-primary/20 shadow-2xl" : "bg-transparent py-6"
     )}>
-      <nav className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
+      {/* تم استخدام flex-row-reverse هنا لجعل الشعار في اليسار رغم أن dir=rtl */}
+      <nav className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between flex-row-reverse">
+        
+        {/* Logo - Always on the LEFT (relative to the viewer) */}
         <Link href="/" className="flex items-center">
           <span className="text-2xl md:text-3xl font-black text-gradient-primary animate-text-glow uppercase tracking-tighter">
             Gift Shop Agadir
           </span>
         </Link>
 
-        {/* Desktop Nav */}
+        {/* Desktop Nav - Middle */}
         <div className="hidden lg:flex items-center space-x-10 space-x-reverse">
           {navLinks.map((link) => (
             <Link 
@@ -52,7 +55,8 @@ export function Navbar() {
           ))}
         </div>
 
-        <div className="flex items-center gap-4">
+        {/* Icons/Admin - Right */}
+        <div className="flex items-center gap-4 flex-row-reverse">
           <Link href="/cart">
             <Button variant="ghost" size="icon" className="relative text-white hover:text-primary rounded-full shadow-none active:scale-95">
               <ShoppingBag className="w-6 h-6" />
@@ -64,9 +68,9 @@ export function Navbar() {
             </Button>
           </Link>
           <Link href="/admin/login" className="hidden sm:block">
-            <Button variant="outline" size="sm" className="rounded-full px-6 border-primary/50 text-white hover:bg-primary btn-glow">
+            <Button variant="outline" size="sm" className="rounded-full px-6 border-primary/50 text-white hover:bg-primary">
               <User className="w-4 h-4 ml-2" />
-              Administration
+              الإدارة
             </Button>
           </Link>
           <Button 
@@ -82,7 +86,7 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 top-0 bg-background/98 backdrop-blur-2xl z-[60] p-8 flex flex-col space-y-8 pt-24 animate-in slide-in-from-top duration-300">
+        <div className="lg:hidden fixed inset-0 top-0 bg-background/98 backdrop-blur-2xl z-[60] p-8 flex flex-col space-y-8 pt-24 animate-in slide-in-from-top duration-300 text-right">
           <Button 
             variant="ghost" 
             size="icon" 
@@ -102,8 +106,8 @@ export function Navbar() {
             </Link>
           ))}
           <Link href="/admin/login" onClick={() => setIsMobileMenuOpen(false)}>
-             <Button className="w-full h-14 rounded-2xl bg-primary text-xl font-bold btn-glow">
-               Administration
+             <Button className="w-full h-14 rounded-2xl bg-primary text-xl font-bold">
+               لوحة التحكم
              </Button>
           </Link>
         </div>
