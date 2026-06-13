@@ -1,29 +1,30 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 240 40% 11%; /* Deep Navy - darker for better contrast with glow */
+    --background: 240 40% 6%; /* أغمق للفخامة */
     --foreground: 210 40% 98%;
-    --card: 240 40% 15%;
+    --card: 240 40% 10%;
     --card-foreground: 210 40% 98%;
-    --popover: 240 40% 11%;
+    --popover: 240 40% 6%;
     --popover-foreground: 210 40% 98%;
-    --primary: 327 100% 39%; /* #C8006E Hot Pink */
+    --primary: 327 100% 39%; /* #C8006E وردي فاخر */
     --primary-foreground: 210 40% 98%;
-    --secondary: 240 40% 20%;
+    --secondary: 240 40% 15%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 240 30% 20%;
+    --muted: 240 30% 15%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 47 95% 53%; /* #FACC15 Golden/Orange */
+    --accent: 47 95% 53%; /* ذهبي */
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
     --border: 327 100% 39%; 
-    --input: 240 40% 20%;
+    --input: 240 40% 15%;
     --ring: 327 100% 39%;
-    --radius: 1.25rem;
+    --radius: 1.5rem;
   }
 }
 
@@ -33,28 +34,29 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  .font-arabic {
+    font-family: 'Cairo', 'Poppins', sans-serif;
   }
 }
 
 @layer utilities {
   .glass-navbar {
-    background: rgba(26, 26, 62, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(10, 10, 25, 0.85);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
   }
 
   .text-gradient-primary {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-[#C8006E] to-[#FF8C00];
   }
 
-  /* Text Glow Animation */
   @keyframes text-glow {
     0%, 100% {
-      text-shadow: 0 0 10px rgba(200, 0, 110, 0.3), 0 0 20px rgba(200, 0, 110, 0.1);
+      text-shadow: 0 0 10px rgba(200, 0, 110, 0.4), 0 0 20px rgba(200, 0, 110, 0.2);
     }
     50% {
-      text-shadow: 0 0 15px rgba(200, 0, 110, 0.6), 0 0 30px rgba(255, 140, 0, 0.3);
+      text-shadow: 0 0 20px rgba(200, 0, 110, 0.7), 0 0 40px rgba(255, 140, 0, 0.4);
     }
   }
 
@@ -62,57 +64,25 @@
     animation: text-glow 3s infinite ease-in-out;
   }
 
-  /* Glowing Effects for Buttons */
   @keyframes pulse-glow-primary {
     0%, 100% { box-shadow: 0 0 15px rgba(200, 0, 110, 0.4); }
-    50% { box-shadow: 0 0 25px rgba(200, 0, 110, 0.6); }
-  }
-  @keyframes pulse-glow-accent {
-    0%, 100% { box-shadow: 0 0 15px rgba(250, 204, 21, 0.3); }
-    50% { box-shadow: 0 0 25px rgba(250, 204, 21, 0.5); }
-  }
-  @keyframes pulse-glow-white {
-    0%, 100% { box-shadow: 0 0 10px rgba(255, 255, 255, 0.05); }
-    50% { box-shadow: 0 0 15px rgba(255, 255, 255, 0.1); }
+    50% { box-shadow: 0 0 30px rgba(200, 0, 110, 0.6); }
   }
 
   .btn-glow-primary {
     animation: pulse-glow-primary 3s infinite ease-in-out;
     @apply transition-all duration-300;
   }
+  
   .btn-glow-primary:hover {
     animation: none;
-    box-shadow: 0 0 30px rgba(200, 0, 110, 0.7), 0 0 60px rgba(200, 0, 110, 0.3);
-    @apply scale-[1.05] brightness-110;
-  }
-
-  .btn-glow-accent {
-    animation: pulse-glow-accent 3s infinite ease-in-out;
-    @apply transition-all duration-300;
-  }
-  .btn-glow-accent:hover {
-    animation: none;
-    box-shadow: 0 0 30px rgba(250, 204, 21, 0.6), 0 0 50px rgba(250, 204, 21, 0.2);
-    @apply scale-[1.05] brightness-110;
-  }
-
-  .btn-glow-white {
-    animation: pulse-glow-white 4s infinite ease-in-out;
-    @apply transition-all duration-300;
-  }
-  .btn-glow-white:hover {
-    animation: none;
-    box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
-    @apply scale-[1.05] bg-white/10;
+    box-shadow: 0 0 40px rgba(200, 0, 110, 0.8);
+    @apply scale-[1.05];
   }
 
   @keyframes whatsapp-glow {
-    0%, 100% {
-      box-shadow: 0 0 15px rgba(37, 211, 102, 0.4), 0 0 30px rgba(37, 211, 102, 0.2);
-    }
-    50% {
-      box-shadow: 0 0 25px rgba(37, 211, 102, 0.7), 0 0 50px rgba(37, 211, 102, 0.4);
-    }
+    0%, 100% { box-shadow: 0 0 15px rgba(37, 211, 102, 0.4); }
+    50% { box-shadow: 0 0 30px rgba(37, 211, 102, 0.7); }
   }
 
   .animate-whatsapp-glow {

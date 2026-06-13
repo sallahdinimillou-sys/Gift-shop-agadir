@@ -1,8 +1,9 @@
+
 "use client"
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { ShoppingBag, Menu, X, Search, User } from 'lucide-react';
+import { ShoppingBag, Menu, X, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useCart } from '@/context/CartContext';
@@ -23,61 +24,56 @@ export function Navbar() {
   const navLinks = [
     { name: 'الرئيسية', href: '/' },
     { name: 'المتجر', href: '/#shop' },
-    { name: 'حولنا', href: '/about' },
+    { name: 'من نحن', href: '/about' },
     { name: 'اتصل بنا', href: '/contact' },
   ];
 
   return (
     <header className={cn(
-      "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-[#C8006E]/30 shadow-2xl",
-      "glass-navbar py-4 px-6 md:px-12"
+      "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+      isScrolled ? "glass-navbar py-3 border-b border-primary/20 shadow-2xl" : "bg-transparent py-6"
     )}>
-      <nav className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link href="/" className="flex items-center group">
-          <span className="text-xl md:text-2xl font-black text-gradient-primary animate-text-glow uppercase tracking-tighter">
+      <nav className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
+        <Link href="/" className="flex items-center">
+          <span className="text-2xl md:text-3xl font-black text-gradient-primary animate-text-glow uppercase tracking-tighter">
             Gift Shop Agadir
           </span>
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden lg:flex items-center space-x-12">
+        <div className="hidden lg:flex items-center space-x-10 space-x-reverse">
           {navLinks.map((link) => (
             <Link 
               key={link.name} 
               href={link.href}
-              className="text-sm font-bold text-white/90 hover:text-primary transition-all hover:scale-110 tracking-wide"
+              className="text-base font-bold text-white/90 hover:text-primary transition-all hover:scale-105"
             >
               {link.name}
             </Link>
           ))}
         </div>
 
-        <div className="flex items-center space-x-4">
-          <Link href="/#shop">
-            <Button variant="ghost" size="icon" className="hidden sm:flex text-white hover:text-primary hover:bg-white/10 rounded-full">
-              <Search className="w-5 h-5" />
-            </Button>
-          </Link>
+        <div className="flex items-center gap-4">
           <Link href="/cart">
-            <Button variant="ghost" size="icon" className="relative group text-white hover:text-primary hover:bg-white/10 rounded-full transition-transform active:scale-95 shadow-none">
+            <Button variant="ghost" size="icon" className="relative text-white hover:text-primary rounded-full">
               <ShoppingBag className="w-6 h-6" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white ring-2 ring-[#1a1a3e] animate-in zoom-in">
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white ring-2 ring-background">
                   {cartCount}
                 </span>
               )}
             </Button>
           </Link>
           <Link href="/admin/login" className="hidden sm:block">
-            <Button variant="outline" size="sm" className="border-[#C8006E] text-white hover:bg-[#C8006E] hover:text-white rounded-full px-6 py-2 transition-all btn-glow-white">
-              <User className="w-4 h-4 mr-2" />
-              الإدارة
+            <Button variant="outline" size="sm" className="rounded-full px-6 border-primary/50 text-white hover:bg-primary btn-glow-primary">
+              <User className="w-4 h-4 ml-2" />
+              لوحة التحكم
             </Button>
           </Link>
           <Button 
             variant="ghost" 
             size="icon" 
-            className="lg:hidden text-white hover:bg-white/10"
+            className="lg:hidden text-white"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
@@ -87,7 +83,7 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 top-0 bg-[#1a1a3e]/98 backdrop-blur-2xl z-[60] p-8 flex flex-col space-y-10 pt-32 animate-in slide-in-from-top duration-300 text-right">
+        <div className="lg:hidden fixed inset-0 top-0 bg-background/98 backdrop-blur-2xl z-[60] p-8 flex flex-col space-y-8 pt-24 animate-in slide-in-from-top duration-300">
           <Button 
             variant="ghost" 
             size="icon" 
@@ -101,18 +97,16 @@ export function Navbar() {
               key={link.name} 
               href={link.href}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="text-3xl font-bold text-white hover:text-primary transition-colors border-b border-white/10 pb-6"
+              className="text-2xl font-bold text-white hover:text-primary transition-colors border-b border-white/10 pb-4"
             >
               {link.name}
             </Link>
           ))}
-          <div className="pt-6 space-y-6">
-            <Link href="/admin/login" onClick={() => setIsMobileMenuOpen(false)}>
-               <Button className="w-full bg-[#C8006E] hover:bg-[#C8006E]/90 h-16 rounded-2xl text-xl font-bold shadow-lg shadow-[#C8006E]/20 btn-glow-primary">
-                 لوحة التحكم
-               </Button>
-            </Link>
-          </div>
+          <Link href="/admin/login" onClick={() => setIsMobileMenuOpen(false)}>
+             <Button className="w-full h-14 rounded-2xl bg-primary text-xl font-bold btn-glow-primary">
+               لوحة التحكم
+             </Button>
+          </Link>
         </div>
       )}
     </header>
