@@ -8,7 +8,7 @@ import { collection, query, orderBy } from 'firebase/firestore';
 import { CATEGORIES, BUSINESS_INFO } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Filter, ShoppingCart, MessageCircle, ShieldCheck, Truck, Clock } from 'lucide-react';
+import { Search, Filter, ShoppingCart, MessageCircle, ShieldCheck, Truck, Clock, PackageSearch } from 'lucide-react';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -93,8 +93,6 @@ export function ShopSection() {
     setActiveImageIndex(0);
   };
 
-  const isEmpty = !loading && displayData.length === 0;
-
   return (
     <section id="shop" className="py-16 md:py-24 container mx-auto px-4 md:px-8 scroll-mt-20">
       <div className="flex flex-col space-y-12">
@@ -122,7 +120,7 @@ export function ShopSection() {
           )}
         </div>
 
-        {/* Filters and Search - Hidden if no products are available to keep UI clean */}
+        {/* Filters and Search */}
         {filteredProducts.length > 0 && (
           <div className="flex flex-col sm:flex-row-reverse gap-4 bg-white/5 p-4 rounded-[2rem] border border-white/10 backdrop-blur-xl">
             <div className="relative flex-1 group">
@@ -154,10 +152,12 @@ export function ShopSection() {
           </div>
         )}
 
-        {/* Products Grid or Simple Message */}
+        {/* Products Grid or Styled Empty State */}
         {loading && displayData.length === 0 ? (
-          <div className="py-32 flex items-center justify-center">
-            <p className="text-xl md:text-2xl font-medium text-muted-foreground animate-pulse">لا توجد منتجات حالياً</p>
+          <div className="py-32 flex flex-col items-center justify-center text-center">
+            <div className="p-12 rounded-[3rem] border-2 border-dashed border-white/5 bg-white/5 max-w-xl w-full">
+              <p className="text-xl md:text-2xl font-bold text-muted-foreground animate-pulse">لا توجد منتجات حالياً</p>
+            </div>
           </div>
         ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
@@ -171,8 +171,26 @@ export function ShopSection() {
             ))}
           </div>
         ) : (
-          <div className="py-32 flex items-center justify-center">
-            <p className="text-xl md:text-2xl font-medium text-muted-foreground">لا توجد منتجات حالياً</p>
+          <div className="py-20 flex flex-col items-center justify-center text-center px-4">
+            <div className="relative p-12 md:p-16 rounded-[3rem] border-2 border-dashed border-primary/20 bg-card/30 backdrop-blur-sm max-w-2xl w-full shadow-2xl overflow-hidden group">
+              {/* Decorative elements */}
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 blur-3xl rounded-full group-hover:bg-primary/20 transition-colors" />
+              <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-accent/10 blur-3xl rounded-full group-hover:bg-accent/20 transition-colors" />
+              
+              <div className="relative z-10 flex flex-col items-center space-y-6">
+                <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center rotate-6 border border-primary/20 shadow-inner">
+                  <PackageSearch className="w-10 h-10 text-primary" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-white/90">
+                    لا توجد منتجات حالياً
+                  </h3>
+                  <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto leading-relaxed">
+                    نحن نعمل بجد لتجهيز مجموعة جديدة وفريدة من الهدايا والجوائز التي تليق بمناسباتكم. ترقبوا الإطلاق قريباً!
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
