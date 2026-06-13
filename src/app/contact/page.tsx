@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { BUSINESS_INFO } from '@/lib/constants';
-import { Mail, Phone, MapPin, Send, MessageCircle, Clock } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, MessageCircle, Clock, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function ContactPage() {
@@ -29,6 +29,11 @@ export default function ContactPage() {
       setLoading(false);
       (e.target as HTMLFormElement).reset();
     }, 1500);
+  };
+
+  const openGoogleMaps = () => {
+    const { lat, lng } = BUSINESS_INFO.coordinates;
+    window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`, '_blank');
   };
 
   return (
@@ -50,7 +55,6 @@ export default function ContactPage() {
               <div className="space-y-6">
                 <h3 className="text-2xl font-bold">معلومات التواصل</h3>
                 <div className="space-y-6">
-                  {/* الأيقونات في أقصى اليمين والنص بجانبها */}
                   <div className="flex items-start gap-4 justify-start">
                     <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-inner border border-primary/20">
                       <Phone className="text-primary w-5 h-5" />
@@ -108,8 +112,8 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* نموذج التواصل */}
-            <div className="lg:col-span-2">
+            {/* نموذج التواصل والخريطة */}
+            <div className="lg:col-span-2 space-y-8">
               <Card className="border-white/10 bg-white/5 rounded-[2.5rem] overflow-hidden backdrop-blur-2xl">
                 <CardContent className="p-8 md:p-12">
                   <form onSubmit={handleSubmit} className="space-y-6 text-right">
@@ -142,6 +146,29 @@ export default function ContactPage() {
                   </form>
                 </CardContent>
               </Card>
+
+              {/* خريطة موقع المحل */}
+              <div className="space-y-4 text-right">
+                <div className="flex items-center justify-between">
+                   <Button variant="link" className="text-primary p-0 h-auto font-bold" onClick={openGoogleMaps}>
+                     فتح في خرائط جوجل
+                     <ExternalLink className="w-4 h-4 ml-2" />
+                   </Button>
+                   <h3 className="text-xl font-bold">موقع المحل على الخريطة</h3>
+                </div>
+                <div className="w-full h-[400px] rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl relative group">
+                  <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d110052.41738221876!2d-9.61585255!3d30.4220365!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xdb3b6e910243257%3A0x6972076046e7f864!2sAgadir%2C%20Morocco!5e0!3m2!1sen!2s!4v1710345678901!5m2!1sen!2s" 
+                    width="100%" 
+                    height="100%" 
+                    style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%)' }} 
+                    allowFullScreen={true} 
+                    loading="lazy" 
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="موقع Gift Shop Agadir"
+                  ></iframe>
+                </div>
+              </div>
             </div>
           </div>
         </div>
