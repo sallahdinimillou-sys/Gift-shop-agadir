@@ -35,7 +35,7 @@ export function Navbar() {
     )}>
       <nav className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
         
-        {/* Right Side (Visual Right): Icons & Admin */}
+        {/* Visual Right (First in RTL): Icons & Admin */}
         <div className="flex items-center gap-4">
           <Link href="/admin/login" className="hidden sm:block">
             <Button variant="outline" size="sm" className="rounded-full px-6 border-primary/50 text-white hover:bg-primary btn-glow">
@@ -64,7 +64,7 @@ export function Navbar() {
         </div>
 
         {/* Middle: Desktop Nav Links */}
-        <div className="hidden lg:flex items-center space-x-10">
+        <div className="hidden lg:flex items-center gap-10">
           {navLinks.map((link) => (
             <Link 
               key={link.name} 
@@ -76,7 +76,7 @@ export function Navbar() {
           ))}
         </div>
 
-        {/* Left Side (Visual Left): Logo */}
+        {/* Visual Left (Last in RTL): Logo */}
         <div className="flex justify-end">
           <Link href="/" className="flex items-center">
             <span className="text-xl md:text-2xl font-black text-gradient-primary animate-text-glow uppercase tracking-tighter">

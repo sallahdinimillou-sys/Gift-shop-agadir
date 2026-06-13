@@ -1,3 +1,4 @@
+
 import { Navbar } from '@/components/layout/Navbar';
 import { Hero } from '@/components/home/Hero';
 import { ShopSection } from '@/components/home/ShopSection';
@@ -37,7 +38,7 @@ export default function Home() {
       <Hero />
       <ShopSection />
 
-      {/* Why Choose Us */}
+      {/* Why Choose Us - Centered Stats */}
       <section className="py-24 bg-background">
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
