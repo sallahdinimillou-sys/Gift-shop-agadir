@@ -32,10 +32,9 @@ export function Navbar() {
       "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
       isScrolled ? "glass-navbar py-3 border-b border-primary/20 shadow-2xl" : "bg-transparent py-6"
     )}>
-      {/* تم استخدام flex-row-reverse هنا لجعل الشعار في اليسار رغم أن dir=rtl */}
       <nav className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between flex-row-reverse">
         
-        {/* Logo - Always on the LEFT (relative to the viewer) */}
+        {/* Logo - Always on the LEFT relative to the viewer */}
         <Link href="/" className="flex items-center">
           <span className="text-2xl md:text-3xl font-black text-gradient-primary animate-text-glow uppercase tracking-tighter">
             Gift Shop Agadir
