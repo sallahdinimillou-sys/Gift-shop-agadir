@@ -20,46 +20,61 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [pendingToast, setPendingToast] = useState<{ title: string; description: string } | null>(null);
   const { toast } = useToast();
 
-  // Load cart from localStorage on mount
+  // معالجة التنبيهات في useEffect لتجنب خطأ التحديث أثناء التصيير
+  // هذا يضمن أن toast() يتم استدعاؤه بعد اكتمال تحديث الحالة والتصيير
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      try {
-        setItems(JSON.parse(savedCart));
-      } catch (e) {
-        console.error('Failed to parse cart from localStorage', e);
+    if (pendingToast) {
+      toast(pendingToast);
+      setPendingToast(null);
+    }
+  }, [pendingToast, toast]);
+
+  // تحميل السلة من localStorage عند البدء
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedCart = localStorage.getItem('cart');
+      if (savedCart) {
+        try {
+          setItems(JSON.parse(savedCart));
+        } catch (e) {
+          console.error('Failed to parse cart from localStorage', e);
+        }
       }
     }
   }, []);
 
-  // Save cart to localStorage on changes
+  // حفظ السلة في localStorage عند التغيير
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(items));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cart', JSON.stringify(items));
+    }
   }, [items]);
 
   const addToCart = (product: Product) => {
-    setItems((prev) => {
-      const existingItem = prev.find((item) => item.productId === product.id);
-      if (existingItem) {
-        toast({
-          title: "Added another!",
-          description: `Increased quantity of ${product.title} in your cart.`,
-        });
-        return prev.map((item) =>
+    // نحدد ما إذا كان المنتج موجوداً مسبقاً قبل تحديث الحالة لإعداد التنبيه المناسب
+    const existingItem = items.find((item) => item.productId === product.id);
+
+    if (existingItem) {
+      setPendingToast({
+        title: "تمت إضافة قطعة أخرى!",
+        description: `تمت زيادة كمية ${product.title} في سلتك.`,
+      });
+      setItems((prev) =>
+        prev.map((item) =>
           item.productId === product.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
-        );
-      }
-      
-      toast({
-        title: "Added to cart",
-        description: `${product.title} has been added to your cart.`,
+        )
+      );
+    } else {
+      setPendingToast({
+        title: "تمت الإضافة للسلة",
+        description: `تمت إضافة ${product.title} إلى سلتك بنجاح.`,
       });
-
-      return [
+      setItems((prev) => [
         ...prev,
         {
           productId: product.id,
@@ -67,10 +82,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           price: product.price,
           shippingPrice: product.shippingPrice || 0,
           quantity: 1,
-          image: product.images[0],
+          image: product.images?.[0] || '',
         },
-      ];
-    });
+      ]);
+    }
   };
 
   const removeFromCart = (productId: string) => {
