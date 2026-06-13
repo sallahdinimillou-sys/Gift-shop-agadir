@@ -152,13 +152,7 @@ export default function ContactPage() {
 
               {/* خريطة موقع المحل بالإحداثيات الدقيقة */}
               <div className="space-y-4 text-left">
-                <div className="flex flex-row-reverse items-center justify-between">
-                   <h3 className="text-xl font-bold">موقع المحل على الخريطة</h3>
-                   <Button variant="link" className="text-primary p-0 h-auto font-bold flex flex-row-reverse items-center gap-2" onClick={openGoogleMaps}>
-                     <span>فتح في خرائط جوجل</span>
-                     <ExternalLink className="w-4 h-4" />
-                   </Button>
-                </div>
+                <h3 className="text-xl font-bold">موقع المحل على الخريطة</h3>
                 <div className="w-full h-[400px] rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl relative group">
                   <iframe 
                     src={mapUrl} 
@@ -170,6 +164,12 @@ export default function ContactPage() {
                     referrerPolicy="no-referrer-when-downgrade"
                     title="موقع Gift Shop Agadir"
                   ></iframe>
+                </div>
+                <div className="flex justify-start">
+                   <Button variant="link" className="text-primary p-0 h-auto font-bold flex flex-row-reverse items-center gap-2" onClick={openGoogleMaps}>
+                     <span>فتح في خرائط جوجل</span>
+                     <ExternalLink className="w-4 h-4" />
+                   </Button>
                 </div>
               </div>
             </div>
