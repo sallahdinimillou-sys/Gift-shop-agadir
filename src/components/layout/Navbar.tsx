@@ -21,20 +21,20 @@ export function Navbar() {
   }, []);
 
   const navLinks = [
-    { name: 'Home', href: '/' },
-    { name: 'Shop', href: '/#shop' },
-    { name: 'About', href: '/about' },
-    { name: 'Contact', href: '/contact' },
+    { name: 'الرئيسية', href: '/' },
+    { name: 'المتجر', href: '/#shop' },
+    { name: 'حولنا', href: '/about' },
+    { name: 'اتصل بنا', href: '/contact' },
   ];
 
   return (
     <header className={cn(
-      "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-[#C8006E] shadow-lg sticky",
+      "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-[#C8006E]/30 shadow-lg",
       "glass-navbar py-3 px-4 md:px-8"
     )}>
       <nav className="max-w-7xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center group">
-          <span className="text-xl md:text-2xl font-bold text-gradient-primary uppercase tracking-tighter">
+          <span className="text-xl md:text-2xl font-black text-gradient-primary uppercase tracking-tighter">
             Gift Shop Agadir
           </span>
         </Link>
@@ -45,7 +45,7 @@ export function Navbar() {
             <Link 
               key={link.name} 
               href={link.href}
-              className="text-sm font-semibold text-white/90 hover:text-primary transition-all hover:scale-105"
+              className="text-sm font-bold text-white/90 hover:text-primary transition-all hover:scale-105"
             >
               {link.name}
             </Link>
@@ -59,10 +59,10 @@ export function Navbar() {
             </Button>
           </Link>
           <Link href="/cart">
-            <Button variant="ghost" size="icon" className="relative group bg-[#C8006E] hover:bg-[#C8006E]/90 text-white rounded-full shadow-md transition-transform active:scale-95">
+            <Button variant="ghost" size="icon" className="relative group text-white hover:text-primary hover:bg-white/10 rounded-full transition-transform active:scale-95 shadow-none">
               <ShoppingBag className="w-5 h-5" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-black ring-2 ring-[#1a1a3e] animate-in zoom-in">
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white ring-2 ring-[#1a1a3e] animate-in zoom-in">
                   {cartCount}
                 </span>
               )}
@@ -71,7 +71,7 @@ export function Navbar() {
           <Link href="/admin/login" className="hidden sm:block">
             <Button variant="outline" size="sm" className="border-[#C8006E] text-white hover:bg-[#C8006E] hover:text-white rounded-full px-5 transition-all">
               <User className="w-4 h-4 mr-2" />
-              Admin
+              الإدارة
             </Button>
           </Link>
           <Button 
@@ -87,11 +87,11 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 top-0 bg-[#1a1a3e]/98 backdrop-blur-xl z-[60] p-8 flex flex-col space-y-8 pt-24 animate-in slide-in-from-top duration-300">
+        <div className="md:hidden fixed inset-0 top-0 bg-[#1a1a3e]/98 backdrop-blur-xl z-[60] p-8 flex flex-col space-y-8 pt-24 animate-in slide-in-from-top duration-300 text-right">
           <Button 
             variant="ghost" 
             size="icon" 
-            className="absolute top-6 right-6 text-white"
+            className="absolute top-6 left-6 text-white"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             <X className="w-10 h-10" />
@@ -109,7 +109,7 @@ export function Navbar() {
           <div className="pt-4 space-y-4">
             <Link href="/admin/login" onClick={() => setIsMobileMenuOpen(false)}>
                <Button className="w-full bg-[#C8006E] hover:bg-[#C8006E]/90 h-14 rounded-2xl text-lg font-bold shadow-lg shadow-[#C8006E]/20">
-                 Admin Dashboard
+                 لوحة التحكم
                </Button>
             </Link>
           </div>
