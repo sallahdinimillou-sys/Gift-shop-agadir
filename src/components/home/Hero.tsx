@@ -41,11 +41,11 @@ export function Hero() {
             transition={{ duration: 0.8 }}
             className="space-y-4"
           >
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tighter text-left">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tighter text-left uppercase">
               Celebrating <br /> 
               <span className="text-gradient-primary animate-text-glow">Every Victory</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed font-medium ml-auto pt-2 text-left">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed font-medium pt-2 text-right">
               الوجهة الأولى في أكادير للكؤوس والجوائز الفاخرة والهدايا المخصصة الراقية. صُنعت بشغف، وقُدمت بتميز.
             </p>
             
