@@ -1,8 +1,10 @@
 
 "use client"
 
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { BUSINESS_INFO } from '@/lib/constants';
+import { cn } from '@/lib/utils';
 
 const WhatsAppIcon = () => (
   <svg 
@@ -17,15 +19,30 @@ const WhatsAppIcon = () => (
 );
 
 export function WhatsAppButton() {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // إظهار الأيقونة بعد التمرير لمسافة 300 بكسل
+      setIsVisible(window.scrollY > 300);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const openWhatsApp = () => {
-    const message = encodeURIComponent("Hello Gift Shop Agadir! I'm interested in your products.");
+    const message = encodeURIComponent("مرحباً Gift Shop Agadir! أنا مهتم بتشكيلتكم الفاخرة.");
     window.open(`https://wa.me/${BUSINESS_INFO.whatsapp.replace('+', '')}?text=${message}`, '_blank');
   };
 
   return (
-    <div className="fixed bottom-8 right-8 z-40 group">
+    <div className={cn(
+      "fixed bottom-8 right-8 z-40 group transition-all duration-500",
+      isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"
+    )}>
       <div className="absolute -top-12 right-0 bg-white text-black px-4 py-2 rounded-lg text-sm font-bold opacity-0 group-hover:opacity-100 transition-all shadow-2xl translate-y-2 group-hover:translate-y-0 whitespace-nowrap pointer-events-none">
-        Chat with us!
+        تحدث معنا الآن!
       </div>
       <Button 
         onClick={openWhatsApp}

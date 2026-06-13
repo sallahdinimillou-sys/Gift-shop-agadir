@@ -1,3 +1,4 @@
+
 "use client"
 
 import { motion } from 'framer-motion';
@@ -17,7 +18,7 @@ export function Hero() {
   };
 
   return (
-    <section className="relative min-h-[85vh] w-full flex items-center pt-28 pb-16 overflow-hidden">
+    <section className="relative min-h-[80vh] w-full flex items-center pt-24 pb-16 overflow-hidden">
       <div className="absolute inset-0 z-0">
         {heroImg && (
           <Image
@@ -38,9 +39,9 @@ export function Hero() {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="space-y-6"
+            className="space-y-4"
           >
-            <span className="text-primary font-bold tracking-[0.2em] uppercase block animate-pulse text-[10px] md:text-xs whitespace-nowrap">
+            <span className="text-primary font-bold tracking-[0.2em] uppercase block animate-pulse text-[9px] md:text-[11px] whitespace-nowrap">
               Collection Exclusive de Luxe
             </span>
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tighter">
@@ -51,7 +52,7 @@ export function Hero() {
               الوجهة الأولى في أكادير للكؤوس والجوائز الفاخرة والهدايا المخصصة الراقية. صُنعت بشغف، وقُدمت بتميز.
             </p>
             
-            <div className="flex flex-col sm:flex-row-reverse gap-4 pt-4 justify-start">
+            <div className="flex flex-col sm:flex-row-reverse gap-4 pt-6 justify-start">
               <Link href="/#shop">
                 <Button size="lg" className="rounded-full h-14 px-10 text-lg font-black btn-glow">
                   تصفح المتجر

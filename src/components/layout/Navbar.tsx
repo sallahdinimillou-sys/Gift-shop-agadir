@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from 'next/link';
@@ -59,7 +60,7 @@ export function Navbar() {
         {/* Icons/Admin - Right (relative to viewer) */}
         <div className="flex items-center gap-4 flex-row-reverse">
           <Link href="/cart">
-            <Button variant="ghost" size="icon" className="relative text-white hover:text-primary rounded-full shadow-none active:scale-95">
+            <Button variant="ghost" size="icon" className="relative text-white hover:text-primary rounded-full shadow-none active:scale-95 p-0">
               <ShoppingBag className="w-6 h-6" />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white ring-2 ring-background">
