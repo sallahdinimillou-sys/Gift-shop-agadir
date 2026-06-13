@@ -18,7 +18,7 @@ export function Hero() {
   };
 
   return (
-    <section className="relative min-h-[80vh] w-full flex items-center pt-24 pb-16 overflow-hidden">
+    <section className="relative min-h-[70vh] w-full flex items-start pt-20 pb-16 overflow-hidden">
       <div className="absolute inset-0 z-0">
         {heroImg && (
           <Image
@@ -33,7 +33,7 @@ export function Hero() {
         <div className="absolute inset-0 bg-gradient-to-l from-background via-background/40 to-transparent" />
       </div>
 
-      <div className="container mx-auto px-6 md:px-12 z-10 text-right">
+      <div className="container mx-auto px-6 md:px-12 z-10 text-right mt-12 md:mt-20">
         <div className="max-w-5xl ml-auto">
           <motion.div
             initial={{ opacity: 0, x: 30 }}
@@ -41,7 +41,7 @@ export function Hero() {
             transition={{ duration: 0.8 }}
             className="space-y-4"
           >
-            <span className="text-primary font-bold tracking-[0.2em] uppercase block animate-pulse text-[9px] md:text-[11px] whitespace-nowrap">
+            <span className="text-primary font-bold tracking-[0.2em] uppercase block animate-pulse text-[8px] md:text-[10px] whitespace-nowrap">
               Collection Exclusive de Luxe
             </span>
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tighter">

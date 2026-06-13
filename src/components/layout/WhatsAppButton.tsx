@@ -23,7 +23,6 @@ export function WhatsAppButton() {
 
   useEffect(() => {
     const handleScroll = () => {
-      // إظهار الأيقونة بعد التمرير لمسافة 300 بكسل
       setIsVisible(window.scrollY > 300);
     };
 
@@ -38,10 +37,10 @@ export function WhatsAppButton() {
 
   return (
     <div className={cn(
-      "fixed bottom-8 right-8 z-40 group transition-all duration-500",
+      "fixed bottom-8 left-8 z-40 group transition-all duration-500",
       isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"
     )}>
-      <div className="absolute -top-12 right-0 bg-white text-black px-4 py-2 rounded-lg text-sm font-bold opacity-0 group-hover:opacity-100 transition-all shadow-2xl translate-y-2 group-hover:translate-y-0 whitespace-nowrap pointer-events-none">
+      <div className="absolute -top-12 left-0 bg-white text-black px-4 py-2 rounded-lg text-sm font-bold opacity-0 group-hover:opacity-100 transition-all shadow-2xl translate-y-2 group-hover:translate-y-0 whitespace-nowrap pointer-events-none">
         تحدث معنا الآن!
       </div>
       <Button 
