@@ -34,15 +34,17 @@ export function Navbar() {
     )}>
       <nav className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between flex-row-reverse">
         
-        {/* Logo - Always on the LEFT relative to the viewer */}
-        <Link href="/" className="flex items-center">
-          <span className="text-2xl md:text-3xl font-black text-gradient-primary animate-text-glow uppercase tracking-tighter">
-            Gift Shop Agadir
-          </span>
-        </Link>
+        {/* Logo - Always on the LEFT relative to the viewer even in RTL */}
+        <div className="flex-1 flex justify-start">
+          <Link href="/" className="flex items-center">
+            <span className="text-xl md:text-2xl font-black text-gradient-primary animate-text-glow uppercase tracking-tighter">
+              Gift Shop Agadir
+            </span>
+          </Link>
+        </div>
 
         {/* Desktop Nav - Middle */}
-        <div className="hidden lg:flex items-center space-x-10 space-x-reverse">
+        <div className="hidden lg:flex items-center space-x-10 space-x-reverse mx-8">
           {navLinks.map((link) => (
             <Link 
               key={link.name} 
@@ -54,7 +56,7 @@ export function Navbar() {
           ))}
         </div>
 
-        {/* Icons/Admin - Right */}
+        {/* Icons/Admin - Right relative to the viewer */}
         <div className="flex items-center gap-4 flex-row-reverse">
           <Link href="/cart">
             <Button variant="ghost" size="icon" className="relative text-white hover:text-primary rounded-full shadow-none active:scale-95">
