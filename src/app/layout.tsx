@@ -1,4 +1,3 @@
-
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
@@ -6,8 +5,8 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { CartProvider } from '@/context/CartContext';
 
 export const metadata: Metadata = {
-  title: 'Gift Shop Agadir | Luxury Trophies & Personalized Gifts',
-  description: 'The premier destination for trophies, awards, and personalized gifts in Agadir, Morocco. Celebrating your special moments with luxury and elegance.',
+  title: 'Gift Shop Agadir | Trophées de Luxe & Cadeaux Personnalisés',
+  description: 'La destination phare pour les trophées, les récompenses et les cadeaux personnalisés à Agadir, Maroc.',
   openGraph: {
     title: 'Gift Shop Agadir',
     description: 'Luxury Trophies & Personalized Gifts in Agadir.',
@@ -30,7 +29,9 @@ export default function RootLayout({
       <body className="font-arabic antialiased selection:bg-primary selection:text-white">
         <FirebaseClientProvider>
           <CartProvider>
-            {children}
+            <div className="flex flex-col min-h-screen">
+              {children}
+            </div>
             <Toaster />
           </CartProvider>
         </FirebaseClientProvider>

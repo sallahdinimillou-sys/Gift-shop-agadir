@@ -1,4 +1,3 @@
-
 "use client"
 
 import Link from 'next/link';
@@ -23,9 +22,9 @@ export function Navbar() {
 
   const navLinks = [
     { name: 'الرئيسية', href: '/' },
-    { name: 'المتجر', href: '/#shop' },
-    { name: 'من نحن', href: '/about' },
-    { name: 'اتصل بنا', href: '/contact' },
+    { name: 'Notre Collection', href: '/#shop' },
+    { name: 'À Propos', href: '/about' },
+    { name: 'Contact', href: '/contact' },
   ];
 
   return (
@@ -55,7 +54,7 @@ export function Navbar() {
 
         <div className="flex items-center gap-4">
           <Link href="/cart">
-            <Button variant="ghost" size="icon" className="relative text-white hover:text-primary rounded-full">
+            <Button variant="ghost" size="icon" className="relative text-white hover:text-primary rounded-full shadow-none active:scale-95">
               <ShoppingBag className="w-6 h-6" />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white ring-2 ring-background">
@@ -65,15 +64,15 @@ export function Navbar() {
             </Button>
           </Link>
           <Link href="/admin/login" className="hidden sm:block">
-            <Button variant="outline" size="sm" className="rounded-full px-6 border-primary/50 text-white hover:bg-primary btn-glow-primary">
+            <Button variant="outline" size="sm" className="rounded-full px-6 border-primary/50 text-white hover:bg-primary btn-glow">
               <User className="w-4 h-4 ml-2" />
-              لوحة التحكم
+              Administration
             </Button>
           </Link>
           <Button 
             variant="ghost" 
             size="icon" 
-            className="lg:hidden text-white"
+            className="lg:hidden text-white shadow-none"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
@@ -87,7 +86,7 @@ export function Navbar() {
           <Button 
             variant="ghost" 
             size="icon" 
-            className="absolute top-8 left-8 text-white"
+            className="absolute top-8 left-8 text-white shadow-none"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             <X className="w-10 h-10" />
@@ -103,8 +102,8 @@ export function Navbar() {
             </Link>
           ))}
           <Link href="/admin/login" onClick={() => setIsMobileMenuOpen(false)}>
-             <Button className="w-full h-14 rounded-2xl bg-primary text-xl font-bold btn-glow-primary">
-               لوحة التحكم
+             <Button className="w-full h-14 rounded-2xl bg-primary text-xl font-bold btn-glow">
+               Administration
              </Button>
           </Link>
         </div>

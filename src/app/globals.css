@@ -1,27 +1,26 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 240 40% 6%; /* أغمق للفخامة */
+    --background: 240 40% 6%;
     --foreground: 210 40% 98%;
     --card: 240 40% 10%;
     --card-foreground: 210 40% 98%;
     --popover: 240 40% 6%;
     --popover-foreground: 210 40% 98%;
-    --primary: 327 100% 39%; /* #C8006E وردي فاخر */
+    --primary: 327 100% 39%;
     --primary-foreground: 210 40% 98%;
     --secondary: 240 40% 15%;
     --secondary-foreground: 210 40% 98%;
     --muted: 240 30% 15%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 47 95% 53%; /* ذهبي */
+    --accent: 47 95% 53%;
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
-    --border: 327 100% 39%; 
+    --border: 327 100% 39%;
     --input: 240 40% 15%;
     --ring: 327 100% 39%;
     --radius: 1.5rem;
@@ -69,12 +68,12 @@
     50% { box-shadow: 0 0 30px rgba(200, 0, 110, 0.6); }
   }
 
-  .btn-glow-primary {
+  .btn-glow {
     animation: pulse-glow-primary 3s infinite ease-in-out;
     @apply transition-all duration-300;
   }
   
-  .btn-glow-primary:hover {
+  .btn-glow:hover {
     animation: none;
     box-shadow: 0 0 40px rgba(200, 0, 110, 0.8);
     @apply scale-[1.05];
