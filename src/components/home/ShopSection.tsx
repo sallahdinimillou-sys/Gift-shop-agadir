@@ -4,16 +4,9 @@ import { useState, useMemo, useEffect } from 'react';
 import { ProductCard } from '@/components/shop/ProductCard';
 import { useFirestore, useCollection } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
-import { CATEGORIES, BUSINESS_INFO } from '@/lib/constants';
-import { Button } from '@/components/ui/button';
+import { BUSINESS_INFO } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
-import { Search, Filter, ShoppingCart, MessageCircle, ShieldCheck, Truck, Clock, PackageSearch } from 'lucide-react';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
+import { Search, ShoppingCart, MessageCircle, ShieldCheck, Truck, Clock, PackageSearch } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -22,6 +15,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 import { cn } from '@/lib/utils';
@@ -32,7 +26,6 @@ const CACHE_KEY = 'gift_shop_products_cache';
 export function ShopSection() {
   const firestore = useFirestore();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [cachedData, setCachedData] = useState<Product[]>([]);
@@ -74,11 +67,10 @@ export function ShopSection() {
 
       const title = product.title?.toLowerCase() || '';
       const matchesSearch = title.includes(searchQuery.toLowerCase());
-      const matchesCategory = selectedCategory ? product.categoryId === selectedCategory : true;
       
-      return matchesSearch && matchesCategory;
+      return matchesSearch;
     });
-  }, [searchQuery, selectedCategory, displayData]);
+  }, [searchQuery, displayData]);
 
   const handleBuyNowWhatsApp = (product: Product) => {
     const message = encodeURIComponent(
@@ -122,9 +114,9 @@ export function ShopSection() {
         {/* Products or Empty State */}
         {filteredProducts.length > 0 ? (
           <>
-            {/* Filters */}
-            <div className="flex flex-col sm:flex-row-reverse gap-4 bg-white/5 p-4 rounded-[2rem] border border-white/10 backdrop-blur-xl">
-              <div className="relative flex-1 group">
+            {/* Search Bar - No Filter Button */}
+            <div className="bg-white/5 p-4 rounded-[2rem] border border-white/10 backdrop-blur-xl">
+              <div className="relative group max-w-3xl mx-auto">
                 <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input 
                   placeholder="ابحث عن هديتك المثالية..." 
@@ -133,23 +125,6 @@ export function ShopSection() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="h-14 rounded-2xl border-white/5 bg-background/50 hover:bg-primary/10 hover:text-primary px-8 text-lg font-medium">
-                    <Filter className="w-5 h-5 ml-2" />
-                    {selectedCategory ? CATEGORIES.find(c => c.id === selectedCategory)?.name : 'تصفية حسب الفئة'}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-56 rounded-2xl border-white/10 bg-card/95 backdrop-blur-2xl">
-                  <DropdownMenuItem onClick={() => setSelectedCategory(null)} className="rounded-xl text-right p-3">جميع الفئات</DropdownMenuItem>
-                  {CATEGORIES.map(cat => (
-                    <DropdownMenuItem key={cat.id} onClick={() => setSelectedCategory(cat.id)} className="rounded-xl text-right p-3">
-                      {cat.name}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
