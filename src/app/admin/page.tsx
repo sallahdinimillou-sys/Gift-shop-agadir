@@ -33,7 +33,7 @@ export default function AdminDashboardPage() {
     );
   }, [products, searchQuery]);
 
-  const handleAddNewProduct = () => {
+  const handleAddNewProduct = async () => {
     if (!firestore) return;
     
     setAddingCount(prev => prev + 1);
@@ -42,7 +42,7 @@ export default function AdminDashboardPage() {
     const randomSuffix = Math.random().toString(36).substring(2, 7);
     
     const newProduct = {
-      title: '',
+      title: 'منتج جديد قيد التجهيز',
       description: '',
       price: 0,
       shippingPrice: 0,
@@ -57,40 +57,39 @@ export default function AdminDashboardPage() {
       published: false
     };
 
-    addDoc(colRef, newProduct)
-      .then(() => {
-        setAddingCount(prev => Math.max(0, prev - 1));
-        toast({
-          title: "✅ تمت الإضافة",
-          description: "تمت إضافة مسودة منتج جديد بنجاح."
-        });
-      })
-      .catch(async (error) => {
-        setAddingCount(prev => Math.max(0, prev - 1));
-        const permissionError = new FirestorePermissionError({
-          path: colRef.path,
-          operation: 'create',
-          requestResourceData: newProduct
-        });
-        errorEmitter.emit('permission-error', permissionError);
+    try {
+      await addDoc(colRef, newProduct);
+      toast({
+        title: "✅ تم إنشاء المسودة",
+        description: "يمكنك الآن تعديل البيانات وإضافة الصور من الأسفل."
       });
+    } catch (error: any) {
+      errorEmitter.emit('permission-error', new FirestorePermissionError({
+        path: colRef.path,
+        operation: 'create',
+        requestResourceData: newProduct
+      }));
+    } finally {
+      setAddingCount(prev => Math.max(0, prev - 1));
+    }
   };
 
   return (
-    <div className="p-8 space-y-10 min-h-screen bg-background/50">
+    <div className="p-8 space-y-10 min-h-screen bg-background/50 text-right" dir="rtl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h1 className="text-4xl font-bold tracking-tighter text-gradient-primary text-right">لوحة التحكم</h1>
-          <p className="text-muted-foreground mt-2 text-right">إدارة مخزون المتجر وتعديل المنتجات وأسعار الشحن في الوقت الفعلي.</p>
+          <h1 className="text-4xl font-bold tracking-tighter text-gradient-primary">لوحة التحكم</h1>
+          <p className="text-muted-foreground mt-2">إدارة المخزون وتحديث الصور والأسعار بشكل دائم وآمن.</p>
         </div>
         <Button 
           onClick={handleAddNewProduct} 
           className="rounded-2xl h-14 px-8 bg-primary hover:bg-primary/90 text-lg font-bold shadow-xl shadow-primary/20 transition-all active:scale-95 flex items-center gap-3"
+          disabled={addingCount > 0}
         >
           {addingCount > 0 ? (
             <>
               <Loader2 className="animate-spin w-5 h-5" />
-              <span>جاري الإضافة ({addingCount})...</span>
+              <span>جاري الإضافة...</span>
             </>
           ) : (
             <>
@@ -101,7 +100,7 @@ export default function AdminDashboardPage() {
         </Button>
       </div>
 
-      <div className="relative group max-w-2xl ml-auto">
+      <div className="relative group max-w-2xl">
         <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
         <Input 
           placeholder="ابحث في المخزون..." 
@@ -114,7 +113,7 @@ export default function AdminDashboardPage() {
       {loading && products?.length === 0 ? (
         <div className="py-32 flex flex-col items-center justify-center gap-4">
           <Loader2 className="w-12 h-12 animate-spin text-primary" />
-          <p className="text-muted-foreground font-medium animate-pulse">جاري جلب البيانات من Firestore...</p>
+          <p className="text-muted-foreground font-medium animate-pulse">جاري جلب البيانات من السحابة...</p>
         </div>
       ) : filteredProducts.length === 0 ? (
         <div className="py-32 flex flex-col items-center justify-center text-center space-y-6 bg-white/5 rounded-[3rem] border-2 border-dashed border-white/10 mx-auto max-w-4xl">
@@ -122,16 +121,16 @@ export default function AdminDashboardPage() {
             <PackageSearch className="w-12 h-12 text-primary" />
           </div>
           <div className="space-y-2">
-            <h3 className="text-2xl font-bold">المخزون فارغ حالياً</h3>
-            <p className="text-muted-foreground">ابدأ بتنظيم متجرك عبر إضافة أول منتج لك باستخدام الزر في الأعلى.</p>
+            <h3 className="text-2xl font-bold">لا يوجد نتائج</h3>
+            <p className="text-muted-foreground">لم نجد أي منتجات تطابق بحثك أو أن المخزون فارغ.</p>
           </div>
           <Button 
             variant="outline" 
             className="rounded-full border-primary text-primary hover:bg-primary hover:text-white px-8 h-12"
             onClick={handleAddNewProduct}
           >
-            <PackagePlus className="w-5 h-5 mr-2" />
-            إضافة أول منتج الآن
+            <PackagePlus className="w-5 h-5 ml-2" />
+            إضافة منتج الآن
           </Button>
         </div>
       ) : (

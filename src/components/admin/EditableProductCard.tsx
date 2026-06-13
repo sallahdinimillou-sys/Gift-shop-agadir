@@ -8,11 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { useFirestore } from '@/firebase';
 import { doc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Trash2, X, Image as ImageIcon, Loader2, Save, UploadCloud, Truck } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Trash2, Image as ImageIcon, Loader2, Save, UploadCloud, Truck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -34,6 +33,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   
   const [formData, setFormData] = useState({
@@ -56,11 +56,10 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
     }
   }, [product, isEditing]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!firestore) return;
     
-    setIsEditing(false);
-    
+    setIsSaving(true);
     const docRef = doc(firestore, 'products', product.id);
     const slug = formData.title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
     
@@ -74,21 +73,23 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
       updatedAt: serverTimestamp(),
     };
 
-    updateDoc(docRef, updatedData)
-      .then(() => {
-        toast({ 
-          title: "✅ تم الحفظ بنجاح", 
-          description: "المنتج الآن ظاهر للعموم في المتجر مع سعر الشحن." 
-        });
-      })
-      .catch(async (error) => {
-        const permissionError = new FirestorePermissionError({
-          path: docRef.path,
-          operation: 'update',
-          requestResourceData: updatedData
-        });
-        errorEmitter.emit('permission-error', permissionError);
+    try {
+      await updateDoc(docRef, updatedData);
+      setIsEditing(false);
+      setIsSaving(false);
+      toast({ 
+        title: "✅ تم الحفظ بنجاح", 
+        description: "المنتج مخزن الآن وبشكل آمن في قاعدة البيانات." 
       });
+    } catch (error: any) {
+      setIsSaving(false);
+      const permissionError = new FirestorePermissionError({
+        path: docRef.path,
+        operation: 'update',
+        requestResourceData: updatedData
+      });
+      errorEmitter.emit('permission-error', permissionError);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -118,28 +119,26 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
         const downloadURL = response.secure_url;
         
         setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
-        setIsUploading(false);
-        setUploadProgress(0);
-
+        
         const docRef = doc(firestore, 'products', product.id);
         const updateData = {
           images: [downloadURL],
           updatedAt: serverTimestamp(),
         };
 
-        updateDoc(docRef, updateData)
-          .then(() => {
-            toast({ title: "✅ تم تحديث الصورة" });
-          })
-          .catch(async (err) => {
-            const permissionError = new FirestorePermissionError({
-              path: docRef.path,
-              operation: 'update',
-              requestResourceData: updateData
-            });
-            errorEmitter.emit('permission-error', permissionError);
-          });
-          
+        try {
+          await updateDoc(docRef, updateData);
+          toast({ title: "✅ تم تحديث وتخزين الصورة" });
+        } catch (err: any) {
+          errorEmitter.emit('permission-error', new FirestorePermissionError({
+            path: docRef.path,
+            operation: 'update',
+            requestResourceData: updateData
+          }));
+        }
+        
+        setIsUploading(false);
+        setUploadProgress(0);
         if (fileInputRef.current) fileInputRef.current.value = '';
       } else {
         toast({ title: "❌ فشل الرفع", variant: "destructive" });
@@ -151,25 +150,23 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
     xhr.send(cloudData);
   };
 
-  const handleDelete = () => {
-    if (!firestore) return;
+  const handleDelete = async () => {
+    if (!firestore || !confirm('هل أنت متأكد من حذف هذا المنتج نهائياً؟')) return;
     
     setIsDeleting(true);
-    
     const docRef = doc(firestore, 'products', product.id);
-    deleteDoc(docRef)
-      .then(() => {
-        setIsDeleting(false);
-        toast({ title: "🗑️ تم الحذف نهائياً" });
-      })
-      .catch(async (error) => {
-        setIsDeleting(false);
-        const permissionError = new FirestorePermissionError({
-          path: docRef.path,
-          operation: 'delete'
-        });
-        errorEmitter.emit('permission-error', permissionError);
-      });
+    
+    try {
+      await deleteDoc(docRef);
+      toast({ title: "🗑️ تم الحذف نهائياً" });
+    } catch (error: any) {
+      errorEmitter.emit('permission-error', new FirestorePermissionError({
+        path: docRef.path,
+        operation: 'delete'
+      }));
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -191,7 +188,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
               ) : (
                 <>
                   <UploadCloud className="w-12 h-12 text-primary" />
-                  <span className="text-white text-xs font-bold uppercase tracking-widest">تغيير الصورة</span>
+                  <span className="text-white text-xs font-bold uppercase tracking-widest text-center">تغيير الصورة</span>
                 </>
               )}
             </div>
@@ -218,7 +215,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
           <button 
             onClick={(e) => { e.stopPropagation(); handleDelete(); }} 
             className="absolute top-5 right-5 z-30 bg-destructive text-white p-2.5 rounded-2xl shadow-xl hover:scale-110 active:scale-95 transition-all"
-            title="حذف المنتج"
+            disabled={isDeleting}
           >
             {isDeleting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
           </button>
@@ -275,8 +272,9 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
             </div>
 
             {isEditing && (
-              <Button size="sm" onClick={handleSave} className="w-full rounded-xl bg-primary font-bold mt-2">
-                <Save className="w-4 h-4 mr-2" /> حفظ التغييرات
+              <Button size="sm" onClick={handleSave} className="w-full rounded-xl bg-primary font-bold mt-2" disabled={isSaving}>
+                {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+                حفظ وتخزين البيانات
               </Button>
             )}
           </div>
