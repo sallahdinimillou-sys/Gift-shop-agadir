@@ -37,7 +37,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
   
   const [formData, setFormData] = useState({
     title: product.title || '',
-    price: product.price || 0,
+    price: product.price === 0 ? '' : product.price.toString(),
     description: product.description || '',
     imageUrl: product.images?.[0] || '',
   });
@@ -46,7 +46,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
     if (!isEditing) {
       setFormData({
         title: product.title || '',
-        price: product.price || 0,
+        price: product.price === 0 ? '' : product.price.toString(),
         description: product.description || '',
         imageUrl: product.images?.[0] || '',
       });
@@ -56,7 +56,6 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
   const handleSave = () => {
     if (!firestore) return;
     
-    // إغلاق وضع التعديل فوراً لتحسين الاستجابة البصرية
     setIsEditing(false);
     
     const docRef = doc(firestore, 'products', product.id);
@@ -64,7 +63,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
     
     const updatedData = {
       title: formData.title,
-      price: Number(formData.price),
+      price: formData.price === '' ? 0 : Number(formData.price),
       description: formData.description,
       slug: slug || product.slug,
       published: true, 
@@ -114,7 +113,6 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
         const response = JSON.parse(xhr.responseText);
         const downloadURL = response.secure_url;
         
-        // عرض الصورة فوراً وإخفاء شريط التحميل
         setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
         setIsUploading(false);
         setUploadProgress(0);
@@ -152,7 +150,6 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
   const handleDelete = () => {
     if (!firestore) return;
     
-    // الحذف فوري ومباشر دون تأكيد كما طلب العميل
     setIsDeleting(true);
     
     const docRef = doc(firestore, 'products', product.id);
@@ -244,8 +241,9 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
                 type="number"
                 disabled={!isEditing}
                 value={formData.price}
-                onChange={e => setFormData({...formData, price: Number(e.target.value)})}
+                onChange={e => setFormData({...formData, price: e.target.value})}
                 className="w-20 h-8 bg-transparent border-none p-0 focus-visible:ring-0 font-bold text-xl"
+                placeholder="0"
               />
               <span className="text-primary font-bold">MAD</span>
             </div>
