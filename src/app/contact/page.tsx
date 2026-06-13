@@ -20,7 +20,7 @@ export default function ContactPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate API call
+    // محاكاة إرسال الطلب
     setTimeout(() => {
       toast({
         title: "تم إرسال الرسالة!",
@@ -40,48 +40,52 @@ export default function ContactPage() {
           <div className="text-center space-y-4">
             <h1 className="text-4xl md:text-6xl font-bold tracking-tighter">تواصل <span className="text-gradient-primary">معنا</span></h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              هل لديك استفسار عن منتج معين أو تحتاج إلى عرض سعر لمجموعة من الجوائز؟ فريقنا هنا لمساعدتك في اختيار الهدية المثالية.
+              هل لديك استفسار عن منتج معين أو ترغب في معرفة المزيد عن تشكيلتنا؟ فريقنا هنا لمساعدتك في اختيار الهدية أو الجائزة المثالية.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Contact Info */}
+            {/* معلومات التواصل */}
             <div className="space-y-8 text-right">
               <div className="space-y-6">
                 <h3 className="text-2xl font-bold">معلومات التواصل</h3>
                 <div className="space-y-6">
-                  <div className="flex flex-row-reverse items-start gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                  {/* الأيقونات في أقصى اليمين والنص بجانبها */}
+                  <div className="flex items-start gap-4 justify-start">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 order-last shadow-inner border border-primary/20">
                       <Phone className="text-primary w-5 h-5" />
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <p className="font-bold">الهاتف والواتساب</p>
                       <p className="text-muted-foreground" dir="ltr">{BUSINESS_INFO.phone}</p>
                     </div>
                   </div>
-                  <div className="flex flex-row-reverse items-start gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+
+                  <div className="flex items-start gap-4 justify-start">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 order-last shadow-inner border border-primary/20">
                       <Mail className="text-primary w-5 h-5" />
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <p className="font-bold">البريد الإلكتروني</p>
                       <p className="text-muted-foreground">{BUSINESS_INFO.email}</p>
                     </div>
                   </div>
-                  <div className="flex flex-row-reverse items-start gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+
+                  <div className="flex items-start gap-4 justify-start">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 order-last shadow-inner border border-primary/20">
                       <MapPin className="text-primary w-5 h-5" />
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <p className="font-bold">موقعنا</p>
                       <p className="text-muted-foreground">{BUSINESS_INFO.address}</p>
                     </div>
                   </div>
-                  <div className="flex flex-row-reverse items-start gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+
+                  <div className="flex items-start gap-4 justify-start">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 order-last shadow-inner border border-primary/20">
                       <Clock className="text-primary w-5 h-5" />
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <p className="font-bold">ساعات العمل</p>
                       <p className="text-muted-foreground">الإثنين - السبت: 9:00 صباحاً - 7:00 مساءً</p>
                     </div>
@@ -89,14 +93,14 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              <div className="p-6 rounded-3xl bg-white/5 border border-white/5 space-y-4">
-                <p className="font-bold flex flex-row-reverse items-center gap-2">
-                  <MessageCircle className="w-5 h-5 text-[#25D366]" />
+              <div className="p-8 rounded-[2rem] bg-white/5 border border-white/10 space-y-4 backdrop-blur-xl">
+                <p className="font-bold flex items-center justify-end gap-2 text-[#25D366]">
                   دردش معنا على واتساب
+                  <MessageCircle className="w-5 h-5 fill-current" />
                 </p>
-                <p className="text-sm text-muted-foreground">احصل على إجابات فورية لاستفساراتك السريعة عبر الواتساب.</p>
+                <p className="text-sm text-muted-foreground">احصل على إجابات فورية لاستفساراتك حول المنتجات المتاحة في المتجر.</p>
                 <Button 
-                  className="w-full bg-[#25D366] hover:bg-[#20ba59] text-white rounded-xl"
+                  className="w-full bg-[#25D366] hover:bg-[#20ba59] text-white rounded-xl h-12 font-bold shadow-lg shadow-green-500/10 transition-all active:scale-95"
                   onClick={() => window.open(`https://wa.me/${BUSINESS_INFO.whatsapp.replace('+', '')}`, '_blank')}
                 >
                   ابدأ المحادثة الآن
@@ -104,34 +108,34 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* Contact Form */}
+            {/* نموذج التواصل */}
             <div className="lg:col-span-2">
-              <Card className="border-white/5 bg-white/5 rounded-3xl overflow-hidden">
+              <Card className="border-white/10 bg-white/5 rounded-[2.5rem] overflow-hidden backdrop-blur-2xl">
                 <CardContent className="p-8 md:p-12">
                   <form onSubmit={handleSubmit} className="space-y-6 text-right">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label htmlFor="name">الاسم الكامل</Label>
-                        <Input id="name" placeholder="الاسم هنا..." required className="h-12 rounded-xl text-right" />
+                        <Label htmlFor="name" className="text-xs font-bold uppercase tracking-widest text-muted-foreground mr-1">الاسم الكامل</Label>
+                        <Input id="name" placeholder="أدخل اسمك هنا..." required className="h-12 rounded-xl text-right bg-white/5 border-white/10" />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="email">البريد الإلكتروني</Label>
-                        <Input id="email" type="email" placeholder="example@mail.com" required className="h-12 rounded-xl text-right" />
+                        <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-muted-foreground mr-1">البريد الإلكتروني</Label>
+                        <Input id="email" type="email" placeholder="example@mail.com" required className="h-12 rounded-xl text-right bg-white/5 border-white/10" />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="subject">الموضوع</Label>
-                      <Input id="subject" placeholder="استفسار عن طلب..." required className="h-12 rounded-xl text-right" />
+                      <Label htmlFor="subject" className="text-xs font-bold uppercase tracking-widest text-muted-foreground mr-1">الموضوع</Label>
+                      <Input id="subject" placeholder="استفسار عن توفر منتج..." required className="h-12 rounded-xl text-right bg-white/5 border-white/10" />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="message">الرسالة</Label>
-                      <Textarea id="message" placeholder="أخبرنا كيف يمكننا مساعدتك..." required className="min-h-[150px] rounded-xl resize-none text-right" />
+                      <Label htmlFor="message" className="text-xs font-bold uppercase tracking-widest text-muted-foreground mr-1">الرسالة</Label>
+                      <Textarea id="message" placeholder="أخبرنا كيف يمكننا مساعدتك..." required className="min-h-[150px] rounded-xl resize-none text-right bg-white/5 border-white/10" />
                     </div>
-                    <Button type="submit" disabled={loading} className="w-full h-14 rounded-xl text-lg font-bold bg-primary hover:bg-primary/90 btn-glow">
+                    <Button type="submit" disabled={loading} className="w-full h-14 rounded-2xl text-lg font-bold bg-primary hover:bg-primary/90 btn-glow">
                       {loading ? "جاري الإرسال..." : (
                         <>
-                          <Send className="w-5 h-5 ml-2" />
                           إرسال الرسالة
+                          <Send className="w-5 h-5 mr-2" />
                         </>
                       )}
                     </Button>
