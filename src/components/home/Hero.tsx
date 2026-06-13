@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
-import NextLink from 'next/link';
+import Link from 'next/link';
 import { ArrowLeft, MessageCircle } from 'lucide-react';
 import { BUSINESS_INFO } from '@/lib/constants';
 
@@ -18,7 +18,7 @@ export function Hero() {
   };
 
   return (
-    <section className="relative min-h-[40vh] w-full flex items-start pt-2 pb-12 overflow-hidden">
+    <section className="relative min-h-[40vh] w-full flex items-start pt-6 pb-12 overflow-hidden">
       <div className="absolute inset-0 z-0">
         {heroImg && (
           <Image
@@ -33,31 +33,29 @@ export function Hero() {
         <div className="absolute inset-0 bg-gradient-to-l from-background via-background/40 to-transparent" />
       </div>
 
-      <div className="container mx-auto px-6 md:px-12 z-10 text-right mt-12 md:mt-14">
+      <div className="container mx-auto px-6 md:px-12 z-10 text-right mt-12 md:mt-20">
         <div className="max-w-5xl ml-auto">
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="space-y-1"
+            className="space-y-4"
           >
-            <div className="pt-1 space-y-4">
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tighter text-right">
-                Celebrating <br /> 
-                <span className="text-gradient-primary animate-text-glow">Every Victory</span>
-              </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed font-medium mr-auto pt-2 text-right">
-                الوجهة الأولى في أكادير للكؤوس والجوائز الفاخرة والهدايا المخصصة الراقية. صُنعت بشغف، وقُدمت بتميز.
-              </p>
-            </div>
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tighter text-right">
+              Celebrating <br /> 
+              <span className="text-gradient-primary animate-text-glow">Every Victory</span>
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed font-medium mr-auto pt-2 text-right">
+              الوجهة الأولى في أكادير للكؤوس والجوائز الفاخرة والهدايا المخصصة الراقية. صُنعت بشغف، وقُدمت بتميز.
+            </p>
             
             <div className="flex flex-col sm:flex-row-reverse gap-4 pt-8 justify-start">
-              <NextLink href="/#shop">
+              <Link href="/#shop">
                 <Button size="lg" className="rounded-full h-16 px-12 text-lg font-black btn-glow">
                   تصفح المتجر
                   <ArrowLeft className="mr-3 w-5 h-5" />
                 </Button>
-              </NextLink>
+              </Link>
               <Button 
                 size="lg" 
                 variant="outline"

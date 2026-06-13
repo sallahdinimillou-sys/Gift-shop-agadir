@@ -12,22 +12,22 @@ export default function Home() {
   const stats = [
     { 
       icon: <Award className="w-8 h-8 text-primary" />, 
-      title: "Qualité Premium", 
+      title: "QUALITÉ PREMIUM", 
       desc: "أفضل المواد وحرفية الخبراء في كل قطعة ننتجها." 
     },
     { 
       icon: <Truck className="w-8 h-8 text-primary" />, 
-      title: "Livraison Rapide", 
+      title: "LIVRAISON RAPIDE", 
       desc: "شحن موثوق وسريع لجميع المدن المغربية بآمان." 
     },
     { 
       icon: <Shield className="w-8 h-8 text-primary" />, 
-      title: "Paiement Sécurisé", 
+      title: "PAIEMENT SÉCURISÉ", 
       desc: "معاملات آمنة تماماً لضمان راحة بالك عند الشراء." 
     },
     { 
       icon: <Star className="w-8 h-8 text-primary" />, 
-      title: "Marque de Confiance", 
+      title: "MARQUE DE CONFIANCE", 
       desc: "الخيار الأول في أكادير للجوائز والهدايا الفاخرة." 
     }
   ];
