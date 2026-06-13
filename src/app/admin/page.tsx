@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useMemo } from 'react';
@@ -5,7 +6,7 @@ import { useFirestore, useCollection } from '@/firebase';
 import { collection, addDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, Loader2, PackageSearch } from 'lucide-react';
+import { Plus, Search, Loader2, PackageSearch, PackagePlus } from 'lucide-react';
 import { Product } from '@/types';
 import { EditableProductCard } from '@/components/admin/EditableProductCard';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -41,8 +42,8 @@ export default function AdminDashboardPage() {
     const randomSuffix = Math.random().toString(36).substring(2, 7);
     
     const newProduct = {
-      title: '', // تم جعلها فارغة كما طلب العميل
-      description: '', // تم جعلها فارغة كما طلب العميل
+      title: '',
+      description: '',
       price: 0,
       images: [],
       createdAt: serverTimestamp(),
@@ -52,7 +53,7 @@ export default function AdminDashboardPage() {
       stockStatus: 'in-stock',
       featured: false,
       bestSeller: false,
-      published: false // يتم إنشاؤه كمسودة غير منشورة
+      published: false
     };
 
     addDoc(colRef, newProduct)
@@ -115,14 +116,22 @@ export default function AdminDashboardPage() {
           <p className="text-muted-foreground font-medium animate-pulse">جاري جلب البيانات من Firestore...</p>
         </div>
       ) : filteredProducts.length === 0 ? (
-        <div className="py-32 text-center space-y-4 bg-white/5 rounded-[3rem] border-2 border-dashed border-white/10">
-          <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-            <PackageSearch className="w-10 h-10 text-primary" />
+        <div className="py-32 flex flex-col items-center justify-center text-center space-y-6 bg-white/5 rounded-[3rem] border-2 border-dashed border-white/10 mx-auto max-w-4xl">
+          <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center">
+            <PackageSearch className="w-12 h-12 text-primary" />
           </div>
-          <div className="space-y-1">
-            <h3 className="text-2xl font-bold">لا توجد منتجات</h3>
-            <p className="text-muted-foreground">ابدأ بإضافة منتج جديد أو قم بتغيير كلمة البحث.</p>
+          <div className="space-y-2">
+            <h3 className="text-2xl font-bold">المخزون فارغ حالياً</h3>
+            <p className="text-muted-foreground">ابدأ بتنظيم متجرك عبر إضافة أول منتج لك باستخدام الزر في الأعلى.</p>
           </div>
+          <Button 
+            variant="outline" 
+            className="rounded-full border-primary text-primary hover:bg-primary hover:text-white px-8 h-12"
+            onClick={handleAddNewProduct}
+          >
+            <PackagePlus className="w-5 h-5 mr-2" />
+            إضافة أول منتج الآن
+          </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 pb-20">

@@ -8,7 +8,7 @@ import { collection, query, orderBy } from 'firebase/firestore';
 import { CATEGORIES, BUSINESS_INFO } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Filter, SlidersHorizontal, ShoppingCart, MessageCircle, ShieldCheck, Truck, Clock, Loader2 } from 'lucide-react';
+import { Search, Filter, SlidersHorizontal, ShoppingCart, MessageCircle, ShieldCheck, Truck, Clock, Loader2, PackageOpen } from 'lucide-react';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -71,9 +71,6 @@ export function ShopSection() {
     const keywords = searchQuery.toLowerCase().trim().split(/\s+/).filter(Boolean);
 
     return displayData.filter(product => {
-      // شروط الظهور للعملاء:
-      // 1. يجب أن يكون تم الضغط على زر الحفظ (published === true)
-      // 2. يجب أن يحتوي على صورة واحدة على الأقل
       const isPublished = product.published === true;
       const hasImage = product.images && product.images.length > 0;
       
@@ -100,7 +97,7 @@ export function ShopSection() {
   };
 
   return (
-    <section id="shop" className="py-24 container mx-auto px-4 md:px-8 scroll-mt-20">
+    <section id="shop" className="py-24 container mx-auto px-4 md:px-8 scroll-mt-20 min-h-[600px]">
       <div className="flex flex-col space-y-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div className="space-y-2">
@@ -166,21 +163,23 @@ export function ShopSection() {
             ))}
           </div>
         ) : (
-          <div className="py-32 text-center space-y-4 bg-white/5 rounded-[3rem] border border-dashed border-white/10">
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-              <ShoppingCart className="w-8 h-8 text-primary/50" />
+          <div className="py-24 flex flex-col items-center justify-center text-center space-y-6 bg-white/5 rounded-[3rem] border-2 border-dashed border-white/10">
+            <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center animate-pulse">
+              <PackageOpen className="w-12 h-12 text-primary/60" />
             </div>
-            <div className="space-y-1">
-              <p className="text-xl font-bold">لا توجد نتائج مطابقة</p>
-              <p className="text-muted-foreground">جرب البحث بكلمات أخرى أو تغيير الفئة.</p>
+            <div className="space-y-2 max-w-sm px-4">
+              <h3 className="text-2xl font-bold">لا توجد منتجات حالياً</h3>
+              <p className="text-muted-foreground">نحن نعمل على إضافة منتجات جديدة ومميزة لمجموعتنا. يرجى زيارتنا لاحقاً أو تغيير معايير البحث.</p>
             </div>
-            <Button 
-              variant="link" 
-              className="text-primary font-bold"
-              onClick={() => { setSearchQuery(''); setSelectedCategory(null); }}
-            >
-              إعادة تعيين الفلاتر
-            </Button>
+            {(searchQuery || selectedCategory) && (
+              <Button 
+                variant="outline" 
+                className="rounded-full border-primary text-primary hover:bg-primary hover:text-white px-8"
+                onClick={() => { setSearchQuery(''); setSelectedCategory(null); }}
+              >
+                مسح جميع الفلاتر
+              </Button>
+            )}
           </div>
         )}
       </div>
