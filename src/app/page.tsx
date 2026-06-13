@@ -9,10 +9,26 @@ import { Star, Shield, Truck, Award } from 'lucide-react';
 
 export default function Home() {
   const stats = [
-    { icon: <Award className="w-8 h-8 text-primary" />, title: "Premium Quality", desc: "Finest materials and expert craftsmanship." },
-    { icon: <Truck className="w-8 h-8 text-primary" />, title: "Fast Delivery", desc: "Reliable shipping across Morocco." },
-    { icon: <Shield className="w-8 h-8 text-primary" />, title: "Secure Payment", desc: "Safe transactions for peace of mind." },
-    { icon: <Star className="w-8 h-8 text-primary" />, title: "Trusted Brand", desc: "Agadir's choice for award solutions." }
+    { 
+      icon: <Award className="w-8 h-8 text-primary" />, 
+      title: "Qualité Premium", 
+      desc: "أفضل المواد وحرفية الخبراء في كل قطعة." 
+    },
+    { 
+      icon: <Truck className="w-8 h-8 text-primary" />, 
+      title: "Livraison Rapide", 
+      desc: "شحن موثوق وسريع لجميع مدن المغرب." 
+    },
+    { 
+      icon: <Shield className="w-8 h-8 text-primary" />, 
+      title: "Paiement Sécurisé", 
+      desc: "معاملات آمنة تماماً لضمان راحة بالك." 
+    },
+    { 
+      icon: <Star className="w-8 h-8 text-primary" />, 
+      title: "Marque de Confiance", 
+      desc: "اختيار أكادير الأول للجوائز والهدايا الفاخرة." 
+    }
   ];
 
   return (
@@ -26,10 +42,12 @@ export default function Home() {
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
             {stats.map((stat, i) => (
-              <div key={i} className="flex flex-col items-center text-center space-y-4 p-8 rounded-3xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5">
-                {stat.icon}
-                <h3 className="text-xl font-bold">{stat.title}</h3>
-                <p className="text-muted-foreground">{stat.desc}</p>
+              <div key={i} className="flex flex-col items-center text-center space-y-4 p-8 rounded-[2.5rem] bg-white/5 hover:bg-white/10 transition-all duration-300 border border-white/5 group hover:border-primary/30">
+                <div className="p-4 rounded-3xl bg-primary/10 group-hover:scale-110 transition-transform duration-300">
+                  {stat.icon}
+                </div>
+                <h3 className="text-xl font-bold font-sans uppercase tracking-tighter">{stat.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{stat.desc}</p>
               </div>
             ))}
           </div>
@@ -38,17 +56,23 @@ export default function Home() {
 
       {/* Featured CTA */}
       <section className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 z-0 bg-primary/10" />
+        <div className="absolute inset-0 z-0 bg-primary/5" />
         <div className="container mx-auto px-4 md:px-8 relative z-10 text-center">
           <div className="max-w-3xl mx-auto space-y-8">
-            <h2 className="text-4xl md:text-6xl font-bold tracking-tighter">Ready to Create Something <span className="text-gradient-primary">Unique?</span></h2>
-            <p className="text-xl text-muted-foreground">Whether it's for a corporate event, a wedding, or a personal milestone, our AI-powered personalization tool helps you find the perfect words.</p>
-            <div className="flex flex-wrap justify-center gap-4">
+            <h2 className="text-4xl md:text-6xl font-bold tracking-tighter">
+              Ready to Create Something <span className="text-gradient-primary animate-text-glow italic">Unique?</span>
+            </h2>
+            <p className="text-xl text-muted-foreground">سواء كان ذلك لحدث شركة، أو حفل زفاف، أو ذكرى شخصية، نساعدك في صياغة أجمل الكلمات.</p>
+            <div className="flex flex-wrap justify-center gap-4 pt-4">
               <Link href="/#shop">
-                <Button size="lg" className="bg-primary hover:bg-primary/90 rounded-full h-14 px-8 text-lg">Shop Custom Gifts</Button>
+                <Button size="lg" className="bg-primary hover:bg-primary/90 rounded-full h-16 px-10 text-lg font-bold btn-glow">
+                  تصفح المتجر
+                </Button>
               </Link>
               <Link href="/personalization-ai">
-                <Button size="lg" variant="outline" className="rounded-full h-14 px-8 text-lg border-primary text-primary hover:bg-primary hover:text-white">Try AI Assistant</Button>
+                <Button size="lg" variant="outline" className="rounded-full h-16 px-10 text-lg font-bold border-primary text-primary hover:bg-primary hover:text-white">
+                  المساعد الذكي
+                </Button>
               </Link>
             </div>
           </div>
