@@ -23,9 +23,9 @@ export function Navbar() {
 
   const navLinks = [
     { name: 'الرئيسية', href: '/' },
-    { name: 'Notre Collection', href: '/#shop' },
-    { name: 'À Propos', href: '/about' },
-    { name: 'Contact', href: '/contact' },
+    { name: 'مجموعتنا', href: '/#shop' },
+    { name: 'من نحن', href: '/about' },
+    { name: 'تواصل معنا', href: '/contact' },
   ];
 
   return (
