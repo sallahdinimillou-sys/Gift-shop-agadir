@@ -6,7 +6,6 @@ import { ShoppingBag, Menu, X, Search, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useCart } from '@/context/CartContext';
-import Image from 'next/image';
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -34,17 +33,8 @@ export function Navbar() {
       "glass-navbar py-3 px-4 md:px-8"
     )}>
       <nav className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link href="/" className="flex items-center space-x-3 group">
-          <div className="relative w-10 h-10 md:w-12 md:h-12 overflow-hidden rounded-lg">
-            <Image 
-              src="/logo.png" 
-              alt="Gift Shop Agadir Logo" 
-              fill 
-              className="object-contain transition-transform group-hover:scale-105"
-              priority
-            />
-          </div>
-          <span className="text-xl md:text-2xl font-bold text-gradient-primary uppercase tracking-tighter hidden sm:block">
+        <Link href="/" className="flex items-center group">
+          <span className="text-xl md:text-2xl font-bold text-gradient-primary uppercase tracking-tighter">
             Gift Shop Agadir
           </span>
         </Link>
