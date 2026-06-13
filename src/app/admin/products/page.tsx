@@ -60,6 +60,7 @@ export default function AdminProductsPage() {
     title: '',
     description: '',
     price: '',
+    shippingPrice: '',
     imageUrl: '',
     categoryId: 'trophies',
     featured: false,
@@ -79,6 +80,7 @@ export default function AdminProductsPage() {
       title: '',
       description: '',
       price: '',
+      shippingPrice: '',
       imageUrl: '',
       categoryId: 'trophies',
       featured: false,
@@ -93,6 +95,7 @@ export default function AdminProductsPage() {
       title: product.title,
       description: product.description,
       price: product.price.toString(),
+      shippingPrice: product.shippingPrice === 0 ? '' : product.shippingPrice?.toString() || '',
       imageUrl: product.images?.[0] || '',
       categoryId: product.categoryId,
       featured: product.featured || false,
@@ -109,13 +112,14 @@ export default function AdminProductsPage() {
     const productData = {
       title: formData.title,
       description: formData.description,
-      price: parseFloat(formData.price),
+      price: parseFloat(formData.price) || 0,
+      shippingPrice: parseFloat(formData.shippingPrice) || 0,
       images: [formData.imageUrl],
       categoryId: formData.categoryId,
       featured: formData.featured,
       bestSeller: formData.bestSeller,
       updatedAt: serverTimestamp(),
-      published: true // تفعيل النشر تلقائياً عند الحفظ
+      published: true 
     };
 
     try {
@@ -151,7 +155,6 @@ export default function AdminProductsPage() {
       }
       setIsDialogOpen(false);
     } catch (error: any) {
-      // Errors are handled by the global listener
     } finally {
       setIsSubmitting(false);
     }
@@ -204,6 +207,7 @@ export default function AdminProductsPage() {
               <TableHead>الاسم</TableHead>
               <TableHead>الفئة</TableHead>
               <TableHead>السعر</TableHead>
+              <TableHead>الشحن</TableHead>
               <TableHead>مميز/الأكثر مبيعاً</TableHead>
               <TableHead className="text-right">الإجراءات</TableHead>
             </TableRow>
@@ -211,13 +215,13 @@ export default function AdminProductsPage() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-48 text-center">
+                <TableCell colSpan={7} className="h-48 text-center">
                   <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
                 </TableCell>
               </TableRow>
             ) : filteredProducts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-48 text-center text-muted-foreground">
+                <TableCell colSpan={7} className="h-48 text-center text-muted-foreground">
                   لا توجد منتجات حالياً. ابدأ بإضافة أول منتج لك.
                 </TableCell>
               </TableRow>
@@ -238,6 +242,7 @@ export default function AdminProductsPage() {
                   <TableCell className="font-medium">{product.title}</TableCell>
                   <TableCell className="capitalize">{product.categoryId?.replace('-', ' ')}</TableCell>
                   <TableCell>{product.price?.toFixed(2)} MAD</TableCell>
+                  <TableCell>{product.shippingPrice?.toFixed(2)} MAD</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       {product.featured && <Check className="w-4 h-4 text-primary" title="Featured" />}
@@ -292,6 +297,18 @@ export default function AdminProductsPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
+                <Label htmlFor="shippingPrice">مصاريف الشحن (MAD)</Label>
+                <Input 
+                  id="shippingPrice" 
+                  type="number" 
+                  step="0.01"
+                  value={formData.shippingPrice} 
+                  onChange={e => setFormData({...formData, shippingPrice: e.target.value})}
+                  placeholder="0"
+                  className="rounded-xl h-12"
+                />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="category">الفئة</Label>
                 <Select 
                   value={formData.categoryId} 
@@ -307,7 +324,9 @@ export default function AdminProductsPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex items-center gap-6 pt-8">
+            </div>
+
+            <div className="flex items-center gap-6">
                  <label className="flex items-center gap-2 cursor-pointer">
                    <input 
                     type="checkbox" 
@@ -326,7 +345,6 @@ export default function AdminProductsPage() {
                    />
                    <span className="text-sm">الأكثر مبيعاً</span>
                  </label>
-              </div>
             </div>
 
             <div className="space-y-2">

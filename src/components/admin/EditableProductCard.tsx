@@ -39,7 +39,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
   const [formData, setFormData] = useState({
     title: product.title || '',
     price: product.price === 0 ? '' : product.price.toString(),
-    shippingPrice: product.shippingPrice?.toString() || '0',
+    shippingPrice: product.shippingPrice === 0 ? '' : product.shippingPrice?.toString() || '',
     description: product.description || '',
     imageUrl: product.images?.[0] || '',
   });
@@ -49,7 +49,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
       setFormData({
         title: product.title || '',
         price: product.price === 0 ? '' : product.price.toString(),
-        shippingPrice: product.shippingPrice?.toString() || '0',
+        shippingPrice: product.shippingPrice === 0 ? '' : product.shippingPrice?.toString() || '',
         description: product.description || '',
         imageUrl: product.images?.[0] || '',
       });
