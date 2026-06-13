@@ -1,4 +1,3 @@
-
 "use client"
 
 import { Navbar } from '@/components/layout/Navbar';
@@ -13,8 +12,8 @@ import { BUSINESS_INFO } from '@/lib/constants';
 export default function CartPage() {
   const { items, cartTotal, removeFromCart, updateQuantity } = useCart();
   
-  const shipping = items.length > 0 ? 50.00 : 0;
-  const total = cartTotal + shipping;
+  // تم إزالة مصاريف الشحن بناءً على طلب المستخدم
+  const total = cartTotal;
 
   const handleWhatsAppCheckout = () => {
     if (items.length === 0) return;
@@ -24,14 +23,14 @@ export default function CartPage() {
       .join('\n');
     
     const message = encodeURIComponent(
-      `مرحباً Gift Shop Agadir!\n\nأود تقديم طلب للمنتجات التالية:\n\n${itemsList}\n\n*المجموع الفرعي:* ${cartTotal.toFixed(2)} درهم\n*مصاريف الشحن:* ${shipping.toFixed(2)} درهم\n*الإجمالي:* ${total.toFixed(2)} درهم\n\nيرجى تأكيد الطلب وإبلاغي بالخطوات التالية للدفع والتسليم.`
+      `مرحباً Gift Shop Agadir!\n\nأود تقديم طلب للمنتجات التالية:\n\n${itemsList}\n\n*الإجمالي:* ${total.toFixed(2)} درهم\n\nيرجى تأكيد الطلب وإبلاغي بالخطوات التالية للدفع والتسليم.`
     );
 
     window.open(`https://wa.me/${BUSINESS_INFO.whatsapp.replace('+', '')}?text=${message}`, '_blank');
   };
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background text-right" dir="rtl">
       <Navbar />
       
       <div className="pt-32 pb-24 container mx-auto px-4 md:px-8">
@@ -106,10 +105,7 @@ export default function CartPage() {
                       <span className="text-muted-foreground">المجموع الفرعي</span>
                       <span className="font-bold">{cartTotal.toFixed(2)} درهم</span>
                     </div>
-                    <div className="flex justify-between items-center flex-row-reverse">
-                      <span className="text-muted-foreground">مصاريف الشحن</span>
-                      <span className="font-bold">{shipping.toFixed(2)} درهم</span>
-                    </div>
+                    {/* تم حذف سطر مصاريف الشحن */}
                     <div className="border-t border-white/10 pt-6 flex justify-between items-center flex-row-reverse">
                       <span className="text-xl font-bold">الإجمالي</span>
                       <span className="text-2xl font-black text-gradient-primary animate-text-glow">{total.toFixed(2)} درهم</span>
