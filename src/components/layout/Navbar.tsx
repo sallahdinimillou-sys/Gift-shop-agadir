@@ -33,19 +33,38 @@ export function Navbar() {
       "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
       isScrolled ? "glass-navbar py-2 border-b border-primary/20 shadow-2xl" : "bg-transparent py-4"
     )}>
-      <nav className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between flex-row-reverse">
+      <nav className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
         
-        {/* Logo - Force it to the LEFT (relative to viewer) in RTL */}
-        <div className="flex-1 flex justify-start">
-          <Link href="/" className="flex items-center">
-            <span className="text-xl md:text-2xl font-black text-gradient-primary animate-text-glow uppercase tracking-tighter">
-              Gift Shop Agadir
-            </span>
+        {/* Right Side (Visual Right in RTL): Icons & Admin */}
+        <div className="flex items-center gap-4 flex-row-reverse">
+          <Link href="/admin/login" className="hidden sm:block">
+            <Button variant="outline" size="sm" className="rounded-full px-6 border-primary/50 text-white hover:bg-primary btn-glow">
+              <User className="w-4 h-4 ml-2" />
+              لوحة التحكم
+            </Button>
           </Link>
+          <Link href="/cart">
+            <Button variant="ghost" size="icon" className="relative text-white hover:text-primary rounded-full shadow-none active:scale-95 p-0">
+              <ShoppingBag className="w-6 h-6" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white ring-2 ring-background">
+                  {cartCount}
+                </span>
+              )}
+            </Button>
+          </Link>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="lg:hidden text-white shadow-none"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
+          </Button>
         </div>
 
-        {/* Desktop Nav - Middle */}
-        <div className="hidden lg:flex items-center space-x-10 space-x-reverse mx-8">
+        {/* Middle: Desktop Nav Links */}
+        <div className="hidden lg:flex items-center space-x-10 space-x-reverse">
           {navLinks.map((link) => (
             <Link 
               key={link.name} 
@@ -57,32 +76,13 @@ export function Navbar() {
           ))}
         </div>
 
-        {/* Icons/Admin - Right (relative to viewer) */}
-        <div className="flex items-center gap-4 flex-row-reverse">
-          <Link href="/cart">
-            <Button variant="ghost" size="icon" className="relative text-white hover:text-primary rounded-full shadow-none active:scale-95 p-0">
-              <ShoppingBag className="w-6 h-6" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white ring-2 ring-background">
-                  {cartCount}
-                </span>
-              )}
-            </Button>
+        {/* Left Side (Visual Left in RTL): Logo */}
+        <div className="flex justify-start">
+          <Link href="/" className="flex items-center">
+            <span className="text-xl md:text-2xl font-black text-gradient-primary animate-text-glow uppercase tracking-tighter">
+              Gift Shop Agadir
+            </span>
           </Link>
-          <Link href="/admin/login" className="hidden sm:block">
-            <Button variant="outline" size="sm" className="rounded-full px-6 border-primary/50 text-white hover:bg-primary btn-glow">
-              <User className="w-4 h-4 ml-2" />
-              الإدارة
-            </Button>
-          </Link>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="lg:hidden text-white shadow-none"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
-          </Button>
         </div>
       </nav>
 

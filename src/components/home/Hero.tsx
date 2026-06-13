@@ -5,7 +5,8 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from 'lucide-react';
+import NextLink from 'next/link';
 import { ArrowLeft, MessageCircle } from 'lucide-react';
 import { BUSINESS_INFO } from '@/lib/constants';
 
@@ -18,7 +19,7 @@ export function Hero() {
   };
 
   return (
-    <section className="relative min-h-[70vh] w-full flex items-start pt-20 pb-16 overflow-hidden">
+    <section className="relative min-h-[60vh] w-full flex items-start pt-16 pb-12 overflow-hidden">
       <div className="absolute inset-0 z-0">
         {heroImg && (
           <Image
@@ -33,7 +34,7 @@ export function Hero() {
         <div className="absolute inset-0 bg-gradient-to-l from-background via-background/40 to-transparent" />
       </div>
 
-      <div className="container mx-auto px-6 md:px-12 z-10 text-right mt-12 md:mt-20">
+      <div className="container mx-auto px-6 md:px-12 z-10 text-right mt-12 md:mt-16">
         <div className="max-w-5xl ml-auto">
           <motion.div
             initial={{ opacity: 0, x: 30 }}
@@ -41,7 +42,7 @@ export function Hero() {
             transition={{ duration: 0.8 }}
             className="space-y-4"
           >
-            <span className="text-primary font-bold tracking-[0.2em] uppercase block animate-pulse text-[8px] md:text-[10px] whitespace-nowrap">
+            <span className="text-primary font-bold tracking-[0.2em] uppercase block animate-pulse text-[7px] md:text-[9px] whitespace-nowrap opacity-90">
               Collection Exclusive de Luxe
             </span>
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tighter">
@@ -53,12 +54,12 @@ export function Hero() {
             </p>
             
             <div className="flex flex-col sm:flex-row-reverse gap-4 pt-6 justify-start">
-              <Link href="/#shop">
+              <NextLink href="/#shop">
                 <Button size="lg" className="rounded-full h-14 px-10 text-lg font-black btn-glow">
                   تصفح المتجر
                   <ArrowLeft className="mr-3 w-5 h-5" />
                 </Button>
-              </Link>
+              </NextLink>
               <Button 
                 size="lg" 
                 variant="outline"
