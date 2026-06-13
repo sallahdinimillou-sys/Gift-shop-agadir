@@ -1,12 +1,13 @@
+
 "use client"
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { ProductCard } from '@/components/shop/ProductCard';
 import { useFirestore, useCollection } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { BUSINESS_INFO } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
-import { Search, ShoppingCart, MessageCircle, ShieldCheck, Truck, Clock, PackageSearch } from 'lucide-react';
+import { Search, ShoppingCart, MessageCircle, ShieldCheck, Truck, Clock, PackageSearch, Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -21,27 +22,14 @@ import { useCart } from '@/context/CartContext';
 import { cn } from '@/lib/utils';
 import { Product } from '@/types';
 
-const CACHE_KEY = 'gift_shop_products_cache';
-
 export function ShopSection() {
   const firestore = useFirestore();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [cachedData, setCachedData] = useState<Product[]>([]);
   const { addToCart } = useCart();
 
-  useEffect(() => {
-    const saved = localStorage.getItem(CACHE_KEY);
-    if (saved) {
-      try {
-        setCachedData(JSON.parse(saved));
-      } catch (e) {
-        console.error("Error reading cache", e);
-      }
-    }
-  }, []);
-
+  // جلب البيانات مباشرة من Firestore لضمان المزامنة بين جميع الأجهزة
   const productsQuery = useMemo(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'products'), orderBy('createdAt', 'desc'));
@@ -49,17 +37,10 @@ export function ShopSection() {
 
   const { data: products, loading } = useCollection<Product>(productsQuery);
 
-  useEffect(() => {
-    if (products && products.length > 0) {
-      localStorage.setItem(CACHE_KEY, JSON.stringify(products));
-      setCachedData(products);
-    }
-  }, [products]);
-
-  const displayData = products || cachedData || [];
-
   const filteredProducts = useMemo(() => {
-    return displayData.filter(product => {
+    if (!products) return [];
+    return products.filter(product => {
+      // شروط الظهور: يجب أن يكون منشوراً ويحتوي على صورة واحدة على الأقل
       const isPublished = product.published === true;
       const hasImage = product.images && product.images.length > 0;
       
@@ -70,7 +51,7 @@ export function ShopSection() {
       
       return matchesSearch;
     });
-  }, [searchQuery, displayData]);
+  }, [searchQuery, products]);
 
   const handleBuyNowWhatsApp = (product: Product) => {
     const message = encodeURIComponent(
@@ -98,47 +79,48 @@ export function ShopSection() {
             </p>
           </div>
           
-          {filteredProducts.length > 0 && (
-            <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-8 py-3 rounded-full backdrop-blur-md">
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
-              </span>
-              <span className="text-sm font-bold text-white/90">
-                {loading ? "جاري التحديث..." : `${filteredProducts.length} منتج متاح`}
-              </span>
-            </div>
-          )}
+          <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-8 py-3 rounded-full backdrop-blur-md">
+            <span className="relative flex h-3 w-3">
+              <span className={cn("absolute inline-flex h-full w-full rounded-full opacity-75", loading ? "bg-yellow-500 animate-pulse" : "bg-primary animate-ping")}></span>
+              <span className={cn("relative inline-flex rounded-full h-3 w-3", loading ? "bg-yellow-500" : "bg-primary")}></span>
+            </span>
+            <span className="text-sm font-bold text-white/90">
+              {loading ? "جاري مزامنة البيانات..." : `${filteredProducts.length} منتج متاح الآن`}
+            </span>
+          </div>
         </div>
 
-        {/* Products or Empty State */}
-        {filteredProducts.length > 0 ? (
-          <>
-            {/* Search Bar - No Filter Button */}
-            <div className="bg-white/5 p-4 rounded-[2rem] border border-white/10 backdrop-blur-xl">
-              <div className="relative group max-w-3xl mx-auto">
-                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                <Input 
-                  placeholder="ابحث عن هديتك المثالية..." 
-                  className="pr-12 h-14 bg-background/50 rounded-2xl border-white/5 focus:border-primary transition-all text-right text-lg"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
+        {/* Search Bar */}
+        <div className="bg-white/5 p-4 rounded-[2rem] border border-white/10 backdrop-blur-xl">
+          <div className="relative group max-w-3xl mx-auto">
+            <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            <Input 
+              placeholder="ابحث عن هديتك المثالية..." 
+              className="pr-12 h-14 bg-background/50 rounded-2xl border-white/5 focus:border-primary transition-all text-right text-lg"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-              {filteredProducts.map((product, index) => (
-                <ProductCard 
-                  key={product.id} 
-                  product={product} 
-                  onViewDetails={openProductModal}
-                  priority={index < 4}
-                />
-              ))}
-            </div>
-          </>
-        ) : !loading && (
+        {/* Products Grid */}
+        {loading && filteredProducts.length === 0 ? (
+          <div className="py-32 flex flex-col items-center justify-center gap-4">
+            <Loader2 className="w-12 h-12 animate-spin text-primary" />
+            <p className="text-muted-foreground font-medium animate-pulse">جاري جلب أحدث المنتجات من السحابة...</p>
+          </div>
+        ) : filteredProducts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+            {filteredProducts.map((product, index) => (
+              <ProductCard 
+                key={product.id} 
+                product={product} 
+                onViewDetails={openProductModal}
+                priority={index < 4}
+              />
+            ))}
+          </div>
+        ) : (
           <div className="py-20 flex flex-col items-center justify-center text-center px-4">
             <div className="relative p-12 md:p-16 rounded-[3rem] border-2 border-dashed border-primary/20 bg-card/30 backdrop-blur-sm max-w-2xl w-full shadow-2xl overflow-hidden group">
               <div className="relative z-10 flex flex-col items-center space-y-6">
@@ -147,10 +129,10 @@ export function ShopSection() {
                 </div>
                 <div className="space-y-2">
                   <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-white/90 font-arabic">
-                    لا توجد منتجات حالياً
+                    {searchQuery ? "لا توجد نتائج لبحثك" : "لا توجد منتجات حالياً"}
                   </h3>
                   <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto leading-relaxed">
-                    نحن نعمل على تجهيز مجموعة استثنائية من الهدايا والجوائز الفاخرة. ترقبوا الإطلاق قريباً.
+                    {searchQuery ? "جرب البحث بكلمات أخرى أو تصفح المجموعة كاملة." : "نحن نعمل على تجهيز مجموعة استثنائية من الهدايا والجوائز الفاخرة. ترقبوا الإطلاق قريباً."}
                   </p>
                 </div>
               </div>

@@ -63,6 +63,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
     const docRef = doc(firestore, 'products', product.id);
     const slug = formData.title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
     
+    // التأكد من حفظ جميع البيانات بما في ذلك الصورة المنشورة
     const updatedData = {
       title: formData.title,
       price: formData.price === '' ? 0 : Number(formData.price),
@@ -70,6 +71,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
       description: formData.description,
       slug: slug || product.slug,
       published: true, 
+      images: formData.imageUrl ? [formData.imageUrl] : product.images,
       updatedAt: serverTimestamp(),
     };
 
@@ -78,8 +80,8 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
       setIsEditing(false);
       setIsSaving(false);
       toast({ 
-        title: "✅ تم الحفظ بنجاح", 
-        description: "المنتج مخزن الآن وبشكل آمن في قاعدة البيانات." 
+        title: "✅ تم الحفظ في السحابة", 
+        description: "المنتج متاح الآن على جميع الأجهزة." 
       });
     } catch (error: any) {
       setIsSaving(false);
@@ -120,6 +122,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
         
         setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
         
+        // تحديث رابط الصورة فوراً في Firestore لضمان عدم ضياعه
         const docRef = doc(firestore, 'products', product.id);
         const updateData = {
           images: [downloadURL],
@@ -128,7 +131,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
 
         try {
           await updateDoc(docRef, updateData);
-          toast({ title: "✅ تم تحديث وتخزين الصورة" });
+          toast({ title: "✅ تم تحديث الصورة في السحابة" });
         } catch (err: any) {
           errorEmitter.emit('permission-error', new FirestorePermissionError({
             path: docRef.path,
@@ -151,14 +154,14 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
   };
 
   const handleDelete = async () => {
-    if (!firestore || !confirm('هل أنت متأكد من حذف هذا المنتج نهائياً؟')) return;
+    if (!firestore || !confirm('هل أنت متأكد من حذف هذا المنتج نهائياً من جميع الأجهزة؟')) return;
     
     setIsDeleting(true);
     const docRef = doc(firestore, 'products', product.id);
     
     try {
       await deleteDoc(docRef);
-      toast({ title: "🗑️ تم الحذف نهائياً" });
+      toast({ title: "🗑️ تم الحذف من السحابة" });
     } catch (error: any) {
       errorEmitter.emit('permission-error', new FirestorePermissionError({
         path: docRef.path,
@@ -274,7 +277,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
             {isEditing && (
               <Button size="sm" onClick={handleSave} className="w-full rounded-xl bg-primary font-bold mt-2" disabled={isSaving}>
                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-                حفظ وتخزين البيانات
+                تحديث وحفظ في السحابة
               </Button>
             )}
           </div>
