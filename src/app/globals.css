@@ -49,13 +49,20 @@
   }
 
   /* Glowing Effects for Buttons */
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 15px rgba(200, 0, 110, 0.4); }
+    50% { box-shadow: 0 0 25px rgba(200, 0, 110, 0.6); }
+  }
+
   .btn-glow-primary {
-    box-shadow: 0 0 15px rgba(200, 0, 110, 0.4);
+    animation: pulse-glow 3s infinite ease-in-out;
     @apply transition-all duration-300;
   }
+  
   .btn-glow-primary:hover {
-    box-shadow: 0 0 25px rgba(200, 0, 110, 0.7), 0 0 50px rgba(200, 0, 110, 0.3);
-    @apply scale-[1.03];
+    animation: none;
+    box-shadow: 0 0 30px rgba(200, 0, 110, 0.8), 0 0 60px rgba(200, 0, 110, 0.4);
+    @apply scale-[1.05] brightness-110;
   }
 
   .btn-glow-accent {
@@ -68,11 +75,11 @@
   }
 
   .btn-glow-white {
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
     @apply transition-all duration-300;
   }
   .btn-glow-white:hover {
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
     @apply scale-[1.03];
   }
 
