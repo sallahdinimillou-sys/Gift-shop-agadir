@@ -63,16 +63,11 @@ export default function Home() {
             <h2 className="text-4xl md:text-6xl font-bold tracking-tighter">
               Ready to Create Something <span className="text-gradient-primary animate-text-glow italic">Unique?</span>
             </h2>
-            <p className="text-xl text-muted-foreground">سواء كان ذلك لحدث شركة، أو حفل زفاف، أو ذكرى شخصية، نساعدك في صياغة أجمل الكلمات.</p>
+            <p className="text-xl text-muted-foreground">سواء كان ذلك لحدث رياضي، أو حفل تكريم، أو ذكرى خاصة، نحن هنا لنساعدك في اختيار الأفضل.</p>
             <div className="flex flex-wrap justify-center gap-4 pt-4">
               <Link href="/#shop">
-                <Button size="lg" className="bg-primary hover:bg-primary/90 rounded-full h-16 px-10 text-lg font-bold btn-glow">
+                <Button size="lg" className="bg-primary hover:bg-primary/90 rounded-full h-16 px-14 text-lg font-bold btn-glow">
                   تصفح المتجر
-                </Button>
-              </Link>
-              <Link href="/personalization-ai">
-                <Button size="lg" variant="outline" className="rounded-full h-16 px-10 text-lg font-bold border-primary text-primary hover:bg-primary hover:text-white">
-                  المساعد الذكي
                 </Button>
               </Link>
             </div>
