@@ -30,7 +30,7 @@ export function Hero() {
   };
 
   return (
-    <section className="relative h-screen w-full flex items-center overflow-hidden">
+    <section className="relative min-h-screen w-full flex items-center pt-32 pb-20 overflow-hidden">
       {/* Background with overlay */}
       <div className="absolute inset-0 z-0">
         {heroImg && (
@@ -53,28 +53,28 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <span className="text-primary font-semibold tracking-widest uppercase mb-4 block">
+            <span className="text-primary font-bold tracking-[0.2em] uppercase mb-6 block animate-pulse">
               Exclusive Luxury Collection
             </span>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-6 tracking-tighter">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] mb-8 tracking-tighter">
               Celebrating <br /> 
               <span className="text-gradient-primary animate-text-glow">Every Victory</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-xl leading-relaxed">
+            <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-xl leading-relaxed">
               Agadir's premier destination for high-end trophies, awards, and personalized luxury gifts. Crafted with passion, delivered with excellence.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-6">
               <Link href="/#shop">
-                <Button size="lg" className="bg-primary hover:bg-primary/90 text-white px-8 h-14 text-lg rounded-full shadow-lg">
+                <Button size="lg" className="bg-primary hover:bg-primary/90 text-white px-10 h-16 text-xl rounded-full shadow-2xl btn-glow-primary">
                   Explore Shop
-                  <ArrowRight className="ml-2 w-5 h-5" />
+                  <ArrowRight className="ml-2 w-6 h-6" />
                 </Button>
               </Link>
               <Button 
                 size="lg" 
                 onClick={openWhatsApp}
-                className="bg-[#25D366] hover:bg-[#20ba59] text-white px-8 h-14 text-lg rounded-full animate-whatsapp-glow transition-transform hover:scale-105"
+                className="bg-[#25D366] hover:bg-[#20ba59] text-white px-10 h-16 text-xl rounded-full animate-whatsapp-glow transition-transform hover:scale-105"
               >
                 <WhatsAppIcon />
                 Chat on WhatsApp
