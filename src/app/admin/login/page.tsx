@@ -24,8 +24,6 @@ export default function AdminLoginPage() {
   const auth = useAuth();
   const { user, isLoading: userLoading } = useUser();
 
-  // ملاحظة: قمنا بإزالة التحويل التلقائي لضمان طلب البيانات في كل مرة كما طلب المستخدم
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!auth) {
