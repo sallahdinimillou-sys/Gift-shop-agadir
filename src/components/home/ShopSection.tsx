@@ -96,58 +96,62 @@ export function ShopSection() {
     setActiveImageIndex(0);
   };
 
+  // الحالة الفارغة: لا يوجد منتجات في قاعدة البيانات ولا يوجد كاش
+  const isEmpty = !loading && displayData.length === 0;
+  // حالة لا توجد نتائج للبحث: توجد منتجات ولكن الفلتر أخفاها
+  const noResults = !loading && displayData.length > 0 && filteredProducts.length === 0;
+
   return (
-    <section id="shop" className="py-24 container mx-auto px-4 md:px-8 scroll-mt-20 min-h-[600px]">
+    <section id="shop" className="py-12 md:py-24 container mx-auto px-4 md:px-8 scroll-mt-20 min-h-[400px]">
       <div className="flex flex-col space-y-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-          <div className="space-y-2">
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tighter leading-none">مجموعتنا <span className="text-gradient-primary">الفاخرة</span></h2>
-            <p className="text-muted-foreground max-w-lg">اكتشف أرقى التذكارات والهدايا المخصصة التي صُنعت لتخليد لحظاتكم الخاصة.</p>
+          <div className="space-y-2 text-right md:text-right w-full md:w-auto">
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tighter leading-none">مجموعتنا <span className="text-gradient-primary">الفاخرة</span></h2>
+            <p className="text-muted-foreground max-w-lg mx-auto md:mr-0">اكتشف أرقى التذكارات والهدايا المخصصة التي صُنعت لتخليد لحظاتكم الخاصة.</p>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium bg-white/5 px-4 py-1.5 rounded-full border border-white/5">
-            {loading && displayData.length === 0 ? (
-              <span className="flex items-center gap-2"><Loader2 className="w-3 h-3 animate-spin" /> جاري التحميل...</span>
-            ) : (
-              `عرض ${filteredProducts.length} منتج`
-            )}
-          </div>
+          {!isEmpty && (
+            <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground font-medium bg-white/5 px-4 py-1.5 rounded-full border border-white/5">
+              {loading ? (
+                <span className="flex items-center gap-2"><Loader2 className="w-3 h-3 animate-spin" /> جاري التحديث...</span>
+              ) : (
+                `عرض ${filteredProducts.length} منتج`
+              )}
+            </div>
+          )}
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 bg-white/5 p-4 rounded-3xl border border-white/5 backdrop-blur-sm">
-          <div className="relative flex-1 group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-            <Input 
-              placeholder="ابحث عن هديتك المثالية..." 
-              className="pl-10 h-11 bg-background/50 rounded-xl border-white/10 focus:border-primary transition-all"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+        {!isEmpty && (
+          <div className="flex flex-col sm:flex-row gap-4 bg-white/5 p-4 rounded-3xl border border-white/5 backdrop-blur-sm">
+            <div className="relative flex-1 group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+              <Input 
+                placeholder="ابحث عن هديتك المثالية..." 
+                className="pl-10 h-11 bg-background/50 rounded-xl border-white/10 focus:border-primary transition-all text-right pr-4"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            
+            <div className="flex gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="h-11 rounded-xl border-white/10 hover:bg-white/10">
+                    <Filter className="w-4 h-4 mr-2" />
+                    {selectedCategory ? CATEGORIES.find(c => c.id === selectedCategory)?.name : 'الفئات'}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 rounded-xl border-white/10 bg-card/90 backdrop-blur-xl">
+                  <DropdownMenuItem onClick={() => setSelectedCategory(null)} className="rounded-lg text-right">جميع الفئات</DropdownMenuItem>
+                  {CATEGORIES.map(cat => (
+                    <DropdownMenuItem key={cat.id} onClick={() => setSelectedCategory(cat.id)} className="rounded-lg text-right">
+                      {cat.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
-          
-          <div className="flex gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="h-11 rounded-xl border-white/10 hover:bg-white/10">
-                  <Filter className="w-4 h-4 mr-2" />
-                  {selectedCategory ? CATEGORIES.find(c => c.id === selectedCategory)?.name : 'الفئات'}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 rounded-xl border-white/10 bg-card/90 backdrop-blur-xl">
-                <DropdownMenuItem onClick={() => setSelectedCategory(null)} className="rounded-lg">جميع الفئات</DropdownMenuItem>
-                {CATEGORIES.map(cat => (
-                  <DropdownMenuItem key={cat.id} onClick={() => setSelectedCategory(cat.id)} className="rounded-lg">
-                    {cat.name}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <Button variant="outline" className="h-11 rounded-xl border-white/10 hover:bg-white/10 hidden sm:flex">
-              <SlidersHorizontal className="w-4 h-4 mr-2" />
-              ترتيب
-            </Button>
-          </div>
-        </div>
+        )}
 
         {loading && displayData.length === 0 ? (
           <ProductSkeleton />
@@ -163,15 +167,21 @@ export function ShopSection() {
             ))}
           </div>
         ) : (
-          <div className="py-24 flex flex-col items-center justify-center text-center space-y-6 bg-white/5 rounded-[3rem] border-2 border-dashed border-white/10">
-            <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center animate-pulse">
-              <PackageOpen className="w-12 h-12 text-primary/60" />
+          <div className="py-20 flex flex-col items-center justify-center text-center space-y-6 bg-white/5 rounded-[3rem] border-2 border-dashed border-white/10">
+            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center">
+              <PackageOpen className="w-10 h-10 text-primary/60" />
             </div>
             <div className="space-y-2 max-w-sm px-4">
-              <h3 className="text-2xl font-bold">لا توجد منتجات حالياً</h3>
-              <p className="text-muted-foreground">نحن نعمل على إضافة منتجات جديدة ومميزة لمجموعتنا. يرجى زيارتنا لاحقاً أو تغيير معايير البحث.</p>
+              <h3 className="text-2xl font-bold">
+                {isEmpty ? "المتجر فارغ حالياً" : "لا توجد نتائج لمطابقة بحثك"}
+              </h3>
+              <p className="text-muted-foreground">
+                {isEmpty 
+                  ? "نحن بصدد تجهيز منتجاتنا الفاخرة لكم. ترقبوا الإطلاق قريباً!" 
+                  : "جرب تغيير كلمات البحث أو اختر فئة مختلفة للعثور على ما تبحث عنه."}
+              </p>
             </div>
-            {(searchQuery || selectedCategory) && (
+            {(searchQuery || selectedCategory) && !isEmpty && (
               <Button 
                 variant="outline" 
                 className="rounded-full border-primary text-primary hover:bg-primary hover:text-white px-8"
@@ -224,31 +234,31 @@ export function ShopSection() {
                       {selectedProduct.categoryId?.replace('-', ' ') || 'عام'}
                     </Badge>
                   </div>
-                  <DialogTitle className="text-3xl lg:text-4xl font-bold tracking-tighter leading-tight">
+                  <DialogTitle className="text-3xl lg:text-4xl font-bold tracking-tighter leading-tight text-right">
                     {selectedProduct.title}
                   </DialogTitle>
-                  <div className="text-3xl font-bold text-gradient-primary">
+                  <div className="text-3xl font-bold text-gradient-primary text-right">
                     {selectedProduct.price > 0 ? `${selectedProduct.price.toFixed(2)} MAD` : "اتصل للاستفسار"}
                   </div>
-                  <DialogDescription className="text-muted-foreground text-lg leading-relaxed whitespace-pre-wrap">
+                  <DialogDescription className="text-muted-foreground text-lg leading-relaxed whitespace-pre-wrap text-right">
                     {selectedProduct.description}
                   </DialogDescription>
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex flex-col sm:flex-row-reverse gap-4">
                     <Button 
                       className="flex-1 h-14 rounded-xl text-lg font-bold bg-primary hover:bg-primary/90 transition-transform active:scale-95"
                       onClick={() => addToCart(selectedProduct)}
                     >
-                      <ShoppingCart className="w-5 h-5 mr-3" />
+                      <ShoppingCart className="w-5 h-5 ml-3" />
                       أضف للسلة
                     </Button>
                     <Button 
                       className="flex-1 h-14 rounded-xl text-lg font-bold bg-[#25D366] hover:bg-[#20ba59] text-white shadow-xl shadow-green-500/20 transition-transform active:scale-95"
                       onClick={() => handleBuyNowWhatsApp(selectedProduct)}
                     >
-                      <MessageCircle className="w-5 h-5 mr-3 fill-current" />
+                      <MessageCircle className="w-5 h-5 ml-3 fill-current" />
                       اطلب الآن
                     </Button>
                   </div>
