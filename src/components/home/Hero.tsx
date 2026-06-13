@@ -1,4 +1,3 @@
-
 "use client"
 
 import { motion } from 'framer-motion';
@@ -59,7 +58,7 @@ export function Hero() {
             </span>
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-6 tracking-tighter">
               Celebrating <br /> 
-              <span className="text-gradient-primary">Every Victory</span>
+              <span className="text-gradient-primary animate-text-glow">Every Victory</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-xl leading-relaxed">
               Agadir's premier destination for high-end trophies, awards, and personalized luxury gifts. Crafted with passion, delivered with excellence.

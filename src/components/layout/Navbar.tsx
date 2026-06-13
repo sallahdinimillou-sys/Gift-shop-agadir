@@ -34,7 +34,7 @@ export function Navbar() {
     )}>
       <nav className="max-w-7xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center group">
-          <span className="text-xl md:text-2xl font-black text-gradient-primary uppercase tracking-tighter">
+          <span className="text-xl md:text-2xl font-black text-gradient-primary animate-text-glow uppercase tracking-tighter">
             Gift Shop Agadir
           </span>
         </Link>

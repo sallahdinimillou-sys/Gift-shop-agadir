@@ -48,6 +48,20 @@
     @apply bg-clip-text text-transparent bg-gradient-to-r from-[#C8006E] to-[#FF8C00];
   }
 
+  /* Text Glow Animation */
+  @keyframes text-glow {
+    0%, 100% {
+      text-shadow: 0 0 10px rgba(200, 0, 110, 0.3), 0 0 20px rgba(200, 0, 110, 0.1);
+    }
+    50% {
+      text-shadow: 0 0 15px rgba(200, 0, 110, 0.6), 0 0 30px rgba(255, 140, 0, 0.3);
+    }
+  }
+
+  .animate-text-glow {
+    animation: text-glow 3s infinite ease-in-out;
+  }
+
   /* Glowing Effects for Buttons */
   @keyframes pulse-glow-primary {
     0%, 100% { box-shadow: 0 0 15px rgba(200, 0, 110, 0.4); }
