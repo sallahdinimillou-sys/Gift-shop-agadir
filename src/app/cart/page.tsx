@@ -19,11 +19,20 @@ export default function CartPage() {
     if (items.length === 0) return;
 
     const itemsList = items
-      .map((item) => `- ${item.title} (العدد: ${item.quantity}) - ${item.price * item.quantity} درهم (شحن: ${item.shippingPrice * item.quantity} درهم)`)
-      .join('\n');
+      .map((item) => `📦 *${item.title}*\n   الكمية: ${item.quantity}\n   الثمن: ${(item.price * item.quantity).toFixed(2)} درهم`)
+      .join('\n\n');
     
     const message = encodeURIComponent(
-      `مرحباً Gift Shop Agadir!\n\nأود تقديم طلب للمنتجات التالية:\n\n${itemsList}\n\n*مجموع المنتجات:* ${cartTotal.toFixed(2)} درهم\n*مجموع الشحن:* ${shippingTotal.toFixed(2)} درهم\n*الإجمالي النهائي:* ${total.toFixed(2)} درهم\n\nيرجى تأكيد الطلب وإبلاغي بالخطوات التالية للدفع والتسليم.`
+      `🌟 *طلب جديد من Gift Shop Agadir* 🌟\n\n` +
+      `*المنتجات المطلوبة:*\n` +
+      `--------------------------\n` +
+      `${itemsList}\n` +
+      `--------------------------\n\n` +
+      `💰 *ملخص الحساب:*\n` +
+      `- مجموع المنتجات: ${cartTotal.toFixed(2)} درهم\n` +
+      `- مجموع الشحن: ${shippingTotal.toFixed(2)} درهم\n` +
+      `✨ *الإجمالي النهائي: ${total.toFixed(2)} درهم* ✨\n\n` +
+      `يرجى تأكيد الطلب وإبلاغي بالخطوات التالية للدفع والتسليم. شكراً لكم!`
     );
 
     window.open(`https://wa.me/${BUSINESS_INFO.whatsapp.replace('+', '')}?text=${message}`, '_blank');
@@ -164,3 +173,4 @@ export default function CartPage() {
     </main>
   );
 }
+
