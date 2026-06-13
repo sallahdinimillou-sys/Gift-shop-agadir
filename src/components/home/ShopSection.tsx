@@ -8,7 +8,7 @@ import { collection, query, orderBy } from 'firebase/firestore';
 import { CATEGORIES, BUSINESS_INFO } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Filter, ShoppingCart, MessageCircle, ShieldCheck, Truck, Clock, Loader2, PackageOpen, Sparkles } from 'lucide-react';
+import { Search, Filter, ShoppingCart, MessageCircle, ShieldCheck, Truck, Clock } from 'lucide-react';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -27,7 +27,6 @@ import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 import { cn } from '@/lib/utils';
 import { Product } from '@/types';
-import { ProductSkeleton } from '@/components/shop/ProductSkeleton';
 
 const CACHE_KEY = 'gift_shop_products_cache';
 
@@ -110,7 +109,7 @@ export function ShopSection() {
             </p>
           </div>
           
-          {!isEmpty && (
+          {filteredProducts.length > 0 && (
             <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-6 py-2 rounded-full backdrop-blur-md">
               <span className="relative flex h-3 w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -123,8 +122,8 @@ export function ShopSection() {
           )}
         </div>
 
-        {/* Filters and Search - Hidden if empty to maintain elegance */}
-        {!isEmpty && (
+        {/* Filters and Search - Hidden if no products are available to keep UI clean */}
+        {filteredProducts.length > 0 && (
           <div className="flex flex-col sm:flex-row-reverse gap-4 bg-white/5 p-4 rounded-[2rem] border border-white/10 backdrop-blur-xl">
             <div className="relative flex-1 group">
               <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -155,9 +154,11 @@ export function ShopSection() {
           </div>
         )}
 
-        {/* Products Grid or Empty State */}
+        {/* Products Grid or Simple Message */}
         {loading && displayData.length === 0 ? (
-          <ProductSkeleton />
+          <div className="py-32 flex items-center justify-center">
+            <p className="text-xl md:text-2xl font-medium text-muted-foreground animate-pulse">لا توجد منتجات حالياً</p>
+          </div>
         ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
             {filteredProducts.map((product, index) => (
@@ -170,37 +171,8 @@ export function ShopSection() {
             ))}
           </div>
         ) : (
-          <div className="py-24 flex flex-col items-center justify-center text-center space-y-8 bg-gradient-to-b from-white/5 to-transparent rounded-[3.5rem] border-2 border-dashed border-white/10 mx-auto w-full max-w-5xl">
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary/20 blur-[50px] rounded-full scale-150 animate-pulse" />
-              <div className="relative w-28 h-28 bg-card border border-primary/20 rounded-[2.5rem] flex items-center justify-center rotate-3 shadow-2xl">
-                <PackageOpen className="w-14 h-14 text-primary" />
-              </div>
-              <div className="absolute -top-4 -right-4 w-10 h-10 bg-accent rounded-full flex items-center justify-center shadow-lg animate-bounce">
-                <Sparkles className="w-5 h-5 text-black" />
-              </div>
-            </div>
-            
-            <div className="space-y-4 max-w-md px-6">
-              <h3 className="text-3xl font-bold tracking-tighter">
-                {isEmpty ? "نحن نجهز لكم الأفضل" : "لا توجد نتائج لمطابقة بحثك"}
-              </h3>
-              <p className="text-muted-foreground text-lg leading-relaxed">
-                {isEmpty 
-                  ? "متجرنا قيد التحديث بمجموعة جديدة وفاخرة من الهدايا والجوائز. ترقبوا الإطلاق قريباً جداً لتجربة تسوق استثنائية." 
-                  : "جرب تغيير كلمات البحث أو اختر فئة مختلفة للعثور على ما تبحث عنه في مجموعتنا."}
-              </p>
-            </div>
-
-            {(searchQuery || selectedCategory) && !isEmpty && (
-              <Button 
-                variant="outline" 
-                className="rounded-full border-primary/50 text-primary hover:bg-primary hover:text-white px-10 h-14 text-lg font-bold transition-all"
-                onClick={() => { setSearchQuery(''); setSelectedCategory(null); }}
-              >
-                إظهار جميع المنتجات
-              </Button>
-            )}
+          <div className="py-32 flex items-center justify-center">
+            <p className="text-xl md:text-2xl font-medium text-muted-foreground">لا توجد منتجات حالياً</p>
           </div>
         )}
       </div>
