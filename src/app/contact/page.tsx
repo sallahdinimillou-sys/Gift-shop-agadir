@@ -52,7 +52,7 @@ export default function ContactPage() {
                 <div className="space-y-6">
                   {/* الأيقونات في أقصى اليمين والنص بجانبها */}
                   <div className="flex items-start gap-4 justify-start">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 order-last shadow-inner border border-primary/20">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-inner border border-primary/20">
                       <Phone className="text-primary w-5 h-5" />
                     </div>
                     <div className="flex-1">
@@ -62,7 +62,7 @@ export default function ContactPage() {
                   </div>
 
                   <div className="flex items-start gap-4 justify-start">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 order-last shadow-inner border border-primary/20">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-inner border border-primary/20">
                       <Mail className="text-primary w-5 h-5" />
                     </div>
                     <div className="flex-1">
@@ -72,7 +72,7 @@ export default function ContactPage() {
                   </div>
 
                   <div className="flex items-start gap-4 justify-start">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 order-last shadow-inner border border-primary/20">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-inner border border-primary/20">
                       <MapPin className="text-primary w-5 h-5" />
                     </div>
                     <div className="flex-1">
@@ -82,7 +82,7 @@ export default function ContactPage() {
                   </div>
 
                   <div className="flex items-start gap-4 justify-start">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 order-last shadow-inner border border-primary/20">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-inner border border-primary/20">
                       <Clock className="text-primary w-5 h-5" />
                     </div>
                     <div className="flex-1">
@@ -94,10 +94,10 @@ export default function ContactPage() {
               </div>
 
               <div className="p-8 rounded-[2rem] bg-white/5 border border-white/10 space-y-4 backdrop-blur-xl">
-                <p className="font-bold flex items-center justify-end gap-2 text-[#25D366]">
-                  دردش معنا على واتساب
+                <div className="font-bold flex items-center justify-start gap-2 text-[#25D366]">
                   <MessageCircle className="w-5 h-5 fill-current" />
-                </p>
+                  <p>دردش معنا على واتساب</p>
+                </div>
                 <p className="text-sm text-muted-foreground">احصل على إجابات فورية لاستفساراتك حول المنتجات المتاحة في المتجر.</p>
                 <Button 
                   className="w-full bg-[#25D366] hover:bg-[#20ba59] text-white rounded-xl h-12 font-bold shadow-lg shadow-green-500/10 transition-all active:scale-95"
