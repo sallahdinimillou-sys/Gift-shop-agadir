@@ -35,6 +35,10 @@
           "type": "number",
           "description": "Price in MAD."
         },
+        "shippingPrice": {
+          "type": "number",
+          "description": "Shipping cost for this product in MAD."
+        },
         "categoryId": {
           "type": "string",
           "description": "Category ID the product belongs to."
@@ -51,7 +55,7 @@
           "type": "boolean"
         }
       },
-      "required": ["title", "price", "categoryId"]
+      "required": ["title", "price", "shippingPrice", "categoryId"]
     }
   },
   "auth": {

@@ -45,6 +45,7 @@ export default function AdminDashboardPage() {
       title: '',
       description: '',
       price: 0,
+      shippingPrice: 0,
       images: [],
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -79,8 +80,8 @@ export default function AdminDashboardPage() {
     <div className="p-8 space-y-10 min-h-screen bg-background/50">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h1 className="text-4xl font-bold tracking-tighter text-gradient-primary">لوحة التحكم</h1>
-          <p className="text-muted-foreground mt-2">إدارة مخزون المتجر وتعديل المنتجات في الوقت الفعلي.</p>
+          <h1 className="text-4xl font-bold tracking-tighter text-gradient-primary text-right">لوحة التحكم</h1>
+          <p className="text-muted-foreground mt-2 text-right">إدارة مخزون المتجر وتعديل المنتجات وأسعار الشحن في الوقت الفعلي.</p>
         </div>
         <Button 
           onClick={handleAddNewProduct} 
@@ -100,11 +101,11 @@ export default function AdminDashboardPage() {
         </Button>
       </div>
 
-      <div className="relative group max-w-2xl">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+      <div className="relative group max-w-2xl ml-auto">
+        <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
         <Input 
           placeholder="ابحث في المخزون..." 
-          className="pl-12 h-14 bg-white/5 rounded-2xl border-white/10 text-lg focus:ring-primary focus:border-primary"
+          className="pr-12 h-14 bg-white/5 rounded-2xl border-white/10 text-lg focus:ring-primary focus:border-primary text-right"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />

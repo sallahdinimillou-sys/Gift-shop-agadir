@@ -6,6 +6,7 @@ export type Product = {
   description: string;
   shortDescription?: string;
   price: number;
+  shippingPrice: number;
   comparePrice?: number;
   categoryId: string;
   images: string[];
@@ -13,8 +14,8 @@ export type Product = {
   featured: boolean;
   bestSeller: boolean;
   published: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: any;
+  updatedAt: any;
 };
 
 export type Category = {
@@ -40,6 +41,7 @@ export type CartItem = {
   productId: string;
   title: string;
   price: number;
+  shippingPrice: number;
   quantity: number;
   image: string;
 };

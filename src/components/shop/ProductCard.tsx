@@ -5,7 +5,7 @@ import { Product } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Eye, ImageIcon } from 'lucide-react';
+import { ShoppingCart, Eye, ImageIcon, Truck } from 'lucide-react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
@@ -19,7 +19,6 @@ interface ProductCardProps {
 export function ProductCard({ product, onViewDetails, priority = false }: ProductCardProps) {
   const { addToCart } = useCart();
   
-  // استخدام صورة بديلة إذا لم تكن هناك صور للمنتج
   const mainImage = product.images?.[0] || 'https://placehold.co/600x600?text=قريباً+بالمتجر';
 
   return (
@@ -76,8 +75,8 @@ export function ProductCard({ product, onViewDetails, priority = false }: Produc
             </Button>
           </div>
         </div>
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-2">
+        <CardContent className="p-6 text-right">
+          <div className="flex items-center justify-between mb-2 flex-row-reverse">
             <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-bold">GIFT SHOP AGADIR</p>
             {(!product.images || product.images.length === 0) && (
               <Badge variant="outline" className="text-[8px] h-4 border-white/10 text-muted-foreground flex gap-1 items-center px-1">
@@ -86,12 +85,17 @@ export function ProductCard({ product, onViewDetails, priority = false }: Produc
             )}
           </div>
           <h3 className="text-lg font-bold group-hover:text-primary transition-colors line-clamp-1">{product.title || "منتج جديد"}</h3>
-          <div className="mt-4 flex items-center justify-between">
-            <div className="flex flex-col">
-              <span className="text-xl font-bold text-gradient-primary">
-                {product.price > 0 ? `${product.price.toFixed(2)} MAD` : "اتصل للثمن"}
-              </span>
+          <div className="mt-4 space-y-1">
+            <div className="text-xl font-bold text-gradient-primary">
+              {product.price > 0 ? `${product.price.toFixed(2)} MAD` : "اتصل للثمن"}
             </div>
+            {product.shippingPrice > 0 && (
+              <div className="flex items-center justify-end gap-1 text-xs font-bold text-accent">
+                <span>{product.shippingPrice.toFixed(2)} MAD</span>
+                <span className="opacity-80">مصاريف الشحن:</span>
+                <Truck className="w-3 h-3" />
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

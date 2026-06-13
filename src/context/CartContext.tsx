@@ -13,6 +13,7 @@ interface CartContextType {
   clearCart: () => void;
   cartCount: number;
   cartTotal: number;
+  shippingTotal: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -64,6 +65,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           productId: product.id,
           title: product.title,
           price: product.price,
+          shippingPrice: product.shippingPrice || 0,
           quantity: 1,
           image: product.images[0],
         },
@@ -91,6 +93,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
   const cartTotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const shippingTotal = items.reduce((acc, item) => acc + (item.shippingPrice * item.quantity), 0);
 
   return (
     <CartContext.Provider
@@ -102,6 +105,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         clearCart,
         cartCount,
         cartTotal,
+        shippingTotal,
       }}
     >
       {children}

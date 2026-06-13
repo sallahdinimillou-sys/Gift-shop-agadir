@@ -56,23 +56,23 @@ export default function ProductDetailPage() {
 
   const handleBuyNowWhatsApp = () => {
     const message = encodeURIComponent(
-      `مرحباً Gift Shop Agadir!\n\nأرغب في طلب هذا المنتج: *${product.title}*.\n\n*الثمن:* ${product.price.toFixed(2)} MAD\n\nهل هذا المنتج متوفر حالياً؟`
+      `مرحباً Gift Shop Agadir!\n\nأرغب في طلب هذا المنتج: *${product.title}*.\n\n*الثمن:* ${product.price.toFixed(2)} MAD\n*الشحن:* ${product.shippingPrice.toFixed(2)} MAD\n\nهل هذا المنتج متوفر حالياً؟`
     );
     window.open(`https://wa.me/${BUSINESS_INFO.whatsapp.replace('+', '')}?text=${message}`, '_blank');
   };
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background text-right" dir="rtl">
       <Navbar />
       
       <div className="pt-32 pb-24 container mx-auto px-4 md:px-8">
         <div className="max-w-7xl mx-auto">
-          <nav className="flex items-center space-x-2 text-sm text-muted-foreground mb-8">
-            <Link href="/" className="hover:text-primary transition-colors">الرئيسية</Link>
+          <nav className="flex items-center space-x-2 text-sm text-muted-foreground mb-8 justify-end">
+            <span className="text-foreground font-medium">{product.title}</span>
             <span>/</span>
             <Link href="/#shop" className="hover:text-primary transition-colors">المجموعة</Link>
             <span>/</span>
-            <span className="text-foreground font-medium">{product.title}</span>
+            <Link href="/" className="hover:text-primary transition-colors">الرئيسية</Link>
           </nav>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
@@ -109,7 +109,7 @@ export default function ProductDetailPage() {
 
             <div className="flex flex-col h-full py-2">
               <div className="space-y-6">
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 justify-start">
                   {product.featured && <Badge className="bg-primary hover:bg-primary font-bold">مميز</Badge>}
                   {product.bestSeller && <Badge className="bg-accent text-black hover:bg-accent font-bold">الأكثر مبيعاً</Badge>}
                   <Badge variant="outline" className="border-white/20 backdrop-blur-sm uppercase tracking-wider text-[10px]">
@@ -121,10 +121,16 @@ export default function ProductDetailPage() {
                   {product.title}
                 </h1>
 
-                <div className="flex items-baseline gap-4 pt-2">
-                  <span className="text-4xl font-bold text-gradient-primary">
+                <div className="space-y-2 pt-2">
+                  <div className="text-4xl font-bold text-gradient-primary">
                     {product.price.toFixed(2)} MAD
-                  </span>
+                  </div>
+                  {product.shippingPrice > 0 && (
+                    <div className="flex items-center gap-2 text-accent font-bold text-lg">
+                      <Truck className="w-5 h-5" />
+                      <span>مصاريف الشحن: {product.shippingPrice.toFixed(2)} MAD</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="prose prose-invert max-w-none">
@@ -142,7 +148,7 @@ export default function ProductDetailPage() {
                     className="flex-1 border-primary text-primary hover:bg-primary/10 h-16 rounded-2xl text-lg font-bold transition-all hover:scale-[1.02]"
                     onClick={() => addToCart(product)}
                   >
-                    <ShoppingCart className="w-5 h-5 mr-3" />
+                    <ShoppingCart className="w-5 h-5 ml-3" />
                     أضف للسلة
                   </Button>
                   <Button 
@@ -150,7 +156,7 @@ export default function ProductDetailPage() {
                     className="flex-1 bg-[#25D366] hover:bg-[#20ba59] h-16 rounded-2xl text-lg font-bold text-white shadow-xl shadow-green-500/20 transition-all hover:scale-[1.02]"
                     onClick={handleBuyNowWhatsApp}
                   >
-                    <MessageCircle className="w-5 h-5 mr-3 fill-current" />
+                    <MessageCircle className="w-5 h-5 ml-3 fill-current" />
                     اطلب عبر الواتساب
                   </Button>
                 </div>

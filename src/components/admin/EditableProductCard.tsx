@@ -8,10 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { useFirestore } from '@/firebase';
 import { doc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Trash2, X, Image as ImageIcon, Loader2, Save, UploadCloud } from 'lucide-react';
+import { Check, Trash2, X, Image as ImageIcon, Loader2, Save, UploadCloud, Truck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -38,6 +39,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
   const [formData, setFormData] = useState({
     title: product.title || '',
     price: product.price === 0 ? '' : product.price.toString(),
+    shippingPrice: product.shippingPrice?.toString() || '0',
     description: product.description || '',
     imageUrl: product.images?.[0] || '',
   });
@@ -47,6 +49,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
       setFormData({
         title: product.title || '',
         price: product.price === 0 ? '' : product.price.toString(),
+        shippingPrice: product.shippingPrice?.toString() || '0',
         description: product.description || '',
         imageUrl: product.images?.[0] || '',
       });
@@ -64,6 +67,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
     const updatedData = {
       title: formData.title,
       price: formData.price === '' ? 0 : Number(formData.price),
+      shippingPrice: formData.shippingPrice === '' ? 0 : Number(formData.shippingPrice),
       description: formData.description,
       slug: slug || product.slug,
       published: true, 
@@ -74,7 +78,7 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
       .then(() => {
         toast({ 
           title: "✅ تم الحفظ بنجاح", 
-          description: "المنتج الآن ظاهر للعموم في المتجر." 
+          description: "المنتج الآن ظاهر للعموم في المتجر مع سعر الشحن." 
         });
       })
       .catch(async (error) => {
@@ -220,36 +224,59 @@ export function EditableProductCard({ product }: EditableProductCardProps) {
           </button>
         </div>
 
-        <CardContent className="p-7 space-y-5">
+        <CardContent className="p-7 space-y-4">
           <Input 
             disabled={!isEditing}
             value={formData.title}
             onChange={e => setFormData({...formData, title: e.target.value})}
-            className={cn("text-lg font-bold bg-transparent border-none p-0 h-auto focus-visible:ring-0", !isEditing && "cursor-default")}
+            className={cn("text-lg font-bold bg-transparent border-none p-0 h-auto focus-visible:ring-0 text-right", !isEditing && "cursor-default")}
             placeholder="اسم المنتج"
           />
           <Textarea 
             disabled={!isEditing}
             value={formData.description}
             onChange={e => setFormData({...formData, description: e.target.value})}
-            className={cn("text-sm bg-transparent border-none p-0 h-auto resize-none min-h-[60px] focus-visible:ring-0", !isEditing && "cursor-default")}
+            className={cn("text-sm bg-transparent border-none p-0 h-auto resize-none min-h-[60px] focus-visible:ring-0 text-right", !isEditing && "cursor-default")}
             placeholder="وصف المنتج"
           />
-          <div className="pt-5 border-t border-white/5 flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              <Input 
-                type="number"
-                disabled={!isEditing}
-                value={formData.price}
-                onChange={e => setFormData({...formData, price: e.target.value})}
-                className="w-20 h-8 bg-transparent border-none p-0 focus-visible:ring-0 font-bold text-xl"
-                placeholder="0"
-              />
-              <span className="text-primary font-bold">MAD</span>
+          
+          <div className="pt-4 border-t border-white/5 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1">
+                <Input 
+                  type="number"
+                  disabled={!isEditing}
+                  value={formData.price}
+                  onChange={e => setFormData({...formData, price: e.target.value})}
+                  className="w-20 h-8 bg-transparent border-none p-0 focus-visible:ring-0 font-bold text-xl"
+                  placeholder="0"
+                />
+                <span className="text-primary font-bold">MAD</span>
+              </div>
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">الثمن</span>
             </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1">
+                <Input 
+                  type="number"
+                  disabled={!isEditing}
+                  value={formData.shippingPrice}
+                  onChange={e => setFormData({...formData, shippingPrice: e.target.value})}
+                  className="w-20 h-8 bg-transparent border-none p-0 focus-visible:ring-0 font-bold text-lg text-accent"
+                  placeholder="0"
+                />
+                <span className="text-accent font-bold">MAD</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">الشحن</span>
+                <Truck className="w-3 h-3 text-muted-foreground" />
+              </div>
+            </div>
+
             {isEditing && (
-              <Button size="sm" onClick={handleSave} className="rounded-xl px-6 bg-primary font-bold">
-                <Save className="w-4 h-4 mr-2" /> حفظ
+              <Button size="sm" onClick={handleSave} className="w-full rounded-xl bg-primary font-bold mt-2">
+                <Save className="w-4 h-4 mr-2" /> حفظ التغييرات
               </Button>
             )}
           </div>

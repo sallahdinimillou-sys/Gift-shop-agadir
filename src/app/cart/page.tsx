@@ -1,29 +1,29 @@
+
 "use client"
 
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
-import { ShoppingBag, ArrowRight, Trash2, Plus, Minus, MessageCircle } from 'lucide-react';
+import { ShoppingBag, ArrowRight, Trash2, Plus, Minus, MessageCircle, Truck } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 import { BUSINESS_INFO } from '@/lib/constants';
 
 export default function CartPage() {
-  const { items, cartTotal, removeFromCart, updateQuantity } = useCart();
+  const { items, cartTotal, shippingTotal, removeFromCart, updateQuantity } = useCart();
   
-  // تم إزالة مصاريف الشحن بناءً على طلب المستخدم
-  const total = cartTotal;
+  const total = cartTotal + shippingTotal;
 
   const handleWhatsAppCheckout = () => {
     if (items.length === 0) return;
 
     const itemsList = items
-      .map((item) => `- ${item.title} (العدد: ${item.quantity}) - ${item.price * item.quantity} درهم`)
+      .map((item) => `- ${item.title} (العدد: ${item.quantity}) - ${item.price * item.quantity} درهم (شحن: ${item.shippingPrice * item.quantity} درهم)`)
       .join('\n');
     
     const message = encodeURIComponent(
-      `مرحباً Gift Shop Agadir!\n\nأود تقديم طلب للمنتجات التالية:\n\n${itemsList}\n\n*الإجمالي:* ${total.toFixed(2)} درهم\n\nيرجى تأكيد الطلب وإبلاغي بالخطوات التالية للدفع والتسليم.`
+      `مرحباً Gift Shop Agadir!\n\nأود تقديم طلب للمنتجات التالية:\n\n${itemsList}\n\n*مجموع المنتجات:* ${cartTotal.toFixed(2)} درهم\n*مجموع الشحن:* ${shippingTotal.toFixed(2)} درهم\n*الإجمالي النهائي:* ${total.toFixed(2)} درهم\n\nيرجى تأكيد الطلب وإبلاغي بالخطوات التالية للدفع والتسليم.`
     );
 
     window.open(`https://wa.me/${BUSINESS_INFO.whatsapp.replace('+', '')}?text=${message}`, '_blank');
@@ -57,7 +57,15 @@ export default function CartPage() {
                     </div>
                     <div className="flex-1 space-y-2 text-center sm:text-right">
                       <h3 className="font-bold text-xl">{item.title}</h3>
-                      <p className="text-primary font-bold text-lg">{item.price.toFixed(2)} درهم</p>
+                      <div className="flex flex-col gap-1">
+                        <p className="text-primary font-bold text-lg">{item.price.toFixed(2)} درهم</p>
+                        {item.shippingPrice > 0 && (
+                          <p className="text-accent text-sm font-bold flex items-center justify-center sm:justify-start gap-1">
+                            <Truck className="w-3 h-3" />
+                            شحن: {item.shippingPrice.toFixed(2)} درهم للقطعة
+                          </p>
+                        )}
+                      </div>
                     </div>
                     
                     <div className="flex items-center gap-4">
@@ -102,12 +110,18 @@ export default function CartPage() {
                   
                   <div className="space-y-4 text-right">
                     <div className="flex justify-between items-center flex-row-reverse">
-                      <span className="text-muted-foreground">المجموع الفرعي</span>
+                      <span className="text-muted-foreground">مجموع المنتجات</span>
                       <span className="font-bold">{cartTotal.toFixed(2)} درهم</span>
                     </div>
-                    {/* تم حذف سطر مصاريف الشحن */}
+                    <div className="flex justify-between items-center flex-row-reverse text-accent">
+                      <span className="font-bold flex items-center gap-1">
+                        <Truck className="w-4 h-4" />
+                        مجموع الشحن
+                      </span>
+                      <span className="font-bold">{shippingTotal.toFixed(2)} درهم</span>
+                    </div>
                     <div className="border-t border-white/10 pt-6 flex justify-between items-center flex-row-reverse">
-                      <span className="text-xl font-bold">الإجمالي</span>
+                      <span className="text-xl font-bold">الإجمالي النهائي</span>
                       <span className="text-2xl font-black text-gradient-primary animate-text-glow">{total.toFixed(2)} درهم</span>
                     </div>
                   </div>
