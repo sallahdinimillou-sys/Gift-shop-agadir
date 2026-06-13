@@ -30,11 +30,11 @@ export function Navbar() {
   return (
     <header className={cn(
       "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-      isScrolled ? "glass-navbar py-3 border-b border-primary/20 shadow-2xl" : "bg-transparent py-6"
+      isScrolled ? "glass-navbar py-2 border-b border-primary/20 shadow-2xl" : "bg-transparent py-4"
     )}>
       <nav className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between flex-row-reverse">
         
-        {/* Logo - Always on the LEFT relative to the viewer even in RTL */}
+        {/* Logo - Force it to the LEFT (relative to viewer) in RTL */}
         <div className="flex-1 flex justify-start">
           <Link href="/" className="flex items-center">
             <span className="text-xl md:text-2xl font-black text-gradient-primary animate-text-glow uppercase tracking-tighter">
@@ -56,7 +56,7 @@ export function Navbar() {
           ))}
         </div>
 
-        {/* Icons/Admin - Right relative to the viewer */}
+        {/* Icons/Admin - Right (relative to viewer) */}
         <div className="flex items-center gap-4 flex-row-reverse">
           <Link href="/cart">
             <Button variant="ghost" size="icon" className="relative text-white hover:text-primary rounded-full shadow-none active:scale-95">
@@ -69,7 +69,7 @@ export function Navbar() {
             </Button>
           </Link>
           <Link href="/admin/login" className="hidden sm:block">
-            <Button variant="outline" size="sm" className="rounded-full px-6 border-primary/50 text-white hover:bg-primary">
+            <Button variant="outline" size="sm" className="rounded-full px-6 border-primary/50 text-white hover:bg-primary btn-glow">
               <User className="w-4 h-4 ml-2" />
               الإدارة
             </Button>
@@ -107,7 +107,7 @@ export function Navbar() {
             </Link>
           ))}
           <Link href="/admin/login" onClick={() => setIsMobileMenuOpen(false)}>
-             <Button className="w-full h-14 rounded-2xl bg-primary text-xl font-bold">
+             <Button className="w-full h-14 rounded-2xl bg-primary text-xl font-bold btn-glow">
                لوحة التحكم
              </Button>
           </Link>
