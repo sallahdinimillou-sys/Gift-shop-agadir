@@ -1,8 +1,7 @@
 
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import Image from 'next/image';
-import { Award, Heart, Shield, Trophy } from 'lucide-react';
+import { Award, Heart, Shield, Trophy, Star } from 'lucide-react';
 
 export default function AboutPage() {
   return (
@@ -24,19 +23,23 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Story Section */}
+      {/* Story Section - Replaced image with glowing icon */}
       <section className="py-24 bg-background border-y border-white/5">
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="relative aspect-square rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl">
-              <Image 
-                src="https://picsum.photos/seed/gift-shop-story/1000/1000" 
-                alt="متجرنا" 
-                fill 
-                className="object-cover"
-                data-ai-hint="gift shop interior"
-              />
+            {/* Large Glowing Icon instead of Image */}
+            <div className="relative aspect-square rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl bg-card/30 flex items-center justify-center group">
+              <div className="absolute inset-0 bg-primary/5 blur-3xl rounded-full animate-pulse" />
+              <div className="relative z-10 flex flex-col items-center space-y-4">
+                <Trophy className="w-48 h-48 text-primary animate-text-glow transition-transform duration-700 group-hover:scale-110" />
+                <div className="flex gap-2">
+                   <Star className="w-6 h-6 text-accent fill-current animate-bounce delay-100" />
+                   <Star className="w-8 h-8 text-accent fill-current animate-bounce" />
+                   <Star className="w-6 h-6 text-accent fill-current animate-bounce delay-200" />
+                </div>
+              </div>
             </div>
+            
             <div className="space-y-8 text-right">
               <div className="space-y-6">
                 <h2 className="text-3xl md:text-4xl font-bold">قصتنا</h2>
