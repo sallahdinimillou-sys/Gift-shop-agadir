@@ -1,36 +1,35 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 222.2 84% 4.9%;
+    --background: 240 40% 17%; /* #1a1a3e */
     --foreground: 210 40% 98%;
-    --card: 222.2 84% 6.9%;
+    --card: 240 40% 20%;
     --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
+    --popover: 240 40% 17%;
     --popover-foreground: 210 40% 98%;
-    --primary: 341 78% 48%; /* #D81E5B Magenta */
+    --primary: 327 100% 39%; /* #C8006E Hot Pink */
     --primary-foreground: 210 40% 98%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 47 95% 53%; /* #FACC15 Golden Yellow */
+    --accent: 47 95% 53%; /* #FACC15 Golden/Orange */
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
+    --border: 327 100% 39%; /* Hot pink borders by default for some elements */
     --input: 217.2 32.6% 17.5%;
-    --ring: 341 78% 48%;
+    --ring: 327 100% 39%;
     --radius: 0.75rem;
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border/20;
   }
   body {
     @apply bg-background text-foreground;
@@ -39,15 +38,14 @@
 }
 
 @layer utilities {
-  .glass {
-    background: rgba(15, 23, 42, 0.7);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+  .glass-navbar {
+    background: rgba(26, 26, 62, 0.85); /* #1a1a3e with opacity */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   .text-gradient-primary {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#D81E5B] to-[#FACC15];
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#C8006E] to-[#FF8C00];
   }
 
   @keyframes whatsapp-glow {
