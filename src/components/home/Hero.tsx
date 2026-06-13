@@ -41,9 +41,6 @@ export function Hero() {
             transition={{ duration: 0.8 }}
             className="space-y-1"
           >
-            <span className="text-primary font-bold tracking-[0.05em] uppercase block text-[10px] md:text-[12px] whitespace-nowrap opacity-90 animate-pulse text-right">
-              Collection Exclusive de Luxe
-            </span>
             <div className="pt-1 space-y-4">
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tighter text-right">
                 Celebrating <br /> 

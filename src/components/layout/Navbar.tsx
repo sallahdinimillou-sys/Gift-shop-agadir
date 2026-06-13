@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from 'next/link';
@@ -34,7 +35,29 @@ export function Navbar() {
     )}>
       <nav className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
         
-        {/* Right Side (Visual Right in RTL): Icons & Admin */}
+        {/* Left Side (Visual Left): Logo */}
+        <div className="flex justify-start">
+          <Link href="/" className="flex items-center">
+            <span className="text-xl md:text-2xl font-black text-gradient-primary animate-text-glow uppercase tracking-tighter">
+              Gift Shop Agadir
+            </span>
+          </Link>
+        </div>
+
+        {/* Middle: Desktop Nav Links */}
+        <div className="hidden lg:flex items-center space-x-10 space-x-reverse">
+          {navLinks.map((link) => (
+            <Link 
+              key={link.name} 
+              href={link.href}
+              className="text-base font-bold text-white/90 hover:text-primary transition-all hover:scale-105"
+            >
+              {link.name}
+            </Link>
+          ))}
+        </div>
+
+        {/* Right Side (Visual Right): Icons & Admin */}
         <div className="flex items-center gap-4 flex-row-reverse">
           <Link href="/admin/login" className="hidden sm:block">
             <Button variant="outline" size="sm" className="rounded-full px-6 border-primary/50 text-white hover:bg-primary btn-glow">
@@ -60,28 +83,6 @@ export function Navbar() {
           >
             {isMobileMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
           </Button>
-        </div>
-
-        {/* Middle: Desktop Nav Links */}
-        <div className="hidden lg:flex items-center space-x-10 space-x-reverse">
-          {navLinks.map((link) => (
-            <Link 
-              key={link.name} 
-              href={link.href}
-              className="text-base font-bold text-white/90 hover:text-primary transition-all hover:scale-105"
-            >
-              {link.name}
-            </Link>
-          ))}
-        </div>
-
-        {/* Left Side (Visual Left in RTL): Logo */}
-        <div className="flex justify-start">
-          <Link href="/" className="flex items-center">
-            <span className="text-xl md:text-2xl font-black text-gradient-primary animate-text-glow uppercase tracking-tighter">
-              Gift Shop Agadir
-            </span>
-          </Link>
         </div>
       </nav>
 
