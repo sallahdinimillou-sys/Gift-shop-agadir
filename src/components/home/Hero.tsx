@@ -1,3 +1,4 @@
+
 "use client"
 
 import { motion } from 'framer-motion';
@@ -17,7 +18,7 @@ export function Hero() {
   };
 
   return (
-    <section className="relative min-h-[50vh] w-full flex items-start pt-6 pb-12 overflow-hidden">
+    <section className="relative min-h-[50vh] w-full flex items-start pt-4 pb-12 overflow-hidden">
       <div className="absolute inset-0 z-0">
         {heroImg && (
           <Image
@@ -32,23 +33,23 @@ export function Hero() {
         <div className="absolute inset-0 bg-gradient-to-l from-background via-background/40 to-transparent" />
       </div>
 
-      <div className="container mx-auto px-6 md:px-12 z-10 text-right mt-16 md:mt-20">
+      <div className="container mx-auto px-6 md:px-12 z-10 text-right mt-12 md:mt-16">
         <div className="max-w-5xl ml-auto">
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="space-y-2"
+            className="space-y-1"
           >
-            <span className="text-primary font-bold tracking-[0.1em] uppercase block text-[12px] md:text-[14px] whitespace-nowrap opacity-90 animate-pulse">
+            <span className="text-primary font-bold tracking-[0.1em] uppercase block text-[11px] md:text-[13px] whitespace-nowrap opacity-90 animate-pulse">
               Collection Exclusive de Luxe
             </span>
-            <div className="pt-4 space-y-4">
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tighter">
+            <div className="pt-2 space-y-4">
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tighter text-right">
                 Celebrating <br /> 
                 <span className="text-gradient-primary animate-text-glow">Every Victory</span>
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed font-medium mr-auto pt-2">
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed font-medium mr-auto pt-2 text-right">
                 الوجهة الأولى في أكادير للكؤوس والجوائز الفاخرة والهدايا المخصصة الراقية. صُنعت بشغف، وقُدمت بتميز.
               </p>
             </div>
@@ -64,7 +65,7 @@ export function Hero() {
                 size="lg" 
                 variant="outline"
                 onClick={openWhatsApp}
-                className="rounded-full h-16 px-12 text-lg font-black border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all animate-whatsapp-glow shadow-green-500/20"
+                className="rounded-full h-16 px-12 text-lg font-black border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all shadow-green-500/20"
               >
                 <MessageCircle className="ml-3 w-5 h-5" />
                 اطلب عبر الواتساب

@@ -5,17 +5,17 @@ import { BUSINESS_INFO } from '@/lib/constants';
 
 export function Footer() {
   return (
-    <footer className="bg-background border-t border-white/5 pt-20 pb-10">
+    <footer className="bg-background border-t border-white/5 pt-20 pb-10 text-left">
       <div className="container mx-auto px-4 md:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           <div className="space-y-6">
-            <Link href="/" className="text-2xl font-bold text-gradient-primary tracking-tighter uppercase">
+            <Link href="/" className="text-2xl font-bold text-gradient-primary animate-text-glow tracking-tighter uppercase inline-block">
               Gift Shop Agadir
             </Link>
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="text-muted-foreground leading-relaxed max-w-xs">
               Your premier luxury gift destination in Agadir. Specializing in awards, trophies, and unforgettable personalized keepsakes.
             </p>
-            <div className="flex space-x-4">
+            <div className="flex justify-start space-x-4 rtl:space-x-reverse">
               <a href={BUSINESS_INFO.social.facebook} target="_blank" className="p-2 bg-white/5 hover:bg-primary/20 rounded-full transition-colors">
                 <Facebook className="w-5 h-5" />
               </a>
@@ -47,15 +47,15 @@ export function Footer() {
           <div>
             <h4 className="text-lg font-bold mb-6">Store Info</h4>
             <ul className="space-y-4">
-              <li className="flex items-start space-x-3 text-muted-foreground">
+              <li className="flex items-start space-x-3 text-muted-foreground rtl:space-x-reverse">
                 <MapPin className="w-5 h-5 text-primary shrink-0" />
                 <span>Agadir, Morocco <br/> (Near Main Square)</span>
               </li>
-              <li className="flex items-center space-x-3 text-muted-foreground">
+              <li className="flex items-center space-x-3 text-muted-foreground rtl:space-x-reverse">
                 <Phone className="w-5 h-5 text-primary shrink-0" />
                 <span>{BUSINESS_INFO.phone}</span>
               </li>
-              <li className="flex items-center space-x-3 text-muted-foreground">
+              <li className="flex items-center space-x-3 text-muted-foreground rtl:space-x-reverse">
                 <Mail className="w-5 h-5 text-primary shrink-0" />
                 <span>{BUSINESS_INFO.email}</span>
               </li>
@@ -63,7 +63,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground space-y-4 md:space-y-0">
+        <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground space-y-4 md:space-y-0 text-left">
           <p>© {new Date().getFullYear()} Gift Shop Agadir. All Rights Reserved.</p>
           <p>Designed for Excellence.</p>
         </div>

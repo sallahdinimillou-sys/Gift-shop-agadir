@@ -1,3 +1,4 @@
+
 import { Navbar } from '@/components/layout/Navbar';
 import { Hero } from '@/components/home/Hero';
 import { ShopSection } from '@/components/home/ShopSection';
@@ -46,8 +47,8 @@ export default function Home() {
                 <div className="p-4 rounded-3xl bg-primary/10 group-hover:scale-110 transition-transform duration-300">
                   {stat.icon}
                 </div>
-                <h3 className="text-xl font-bold font-sans uppercase tracking-tighter">{stat.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{stat.desc}</p>
+                <h3 className="text-xl font-bold font-sans uppercase tracking-tighter text-right w-full">{stat.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed text-right w-full">{stat.desc}</p>
               </div>
             ))}
           </div>
