@@ -28,7 +28,6 @@ export function Footer() {
           <div className="text-left">
             {/* تم حذف العنوان "روابط سريعة" بناءً على طلب المستخدم */}
             <ul className="space-y-4 text-left pt-2">
-              <li><Link href="/shop" className="text-muted-foreground hover:text-primary transition-colors">جميع المنتجات</Link></li>
               <li><Link href="/about" className="text-muted-foreground hover:text-primary transition-colors">قصتنا</Link></li>
               <li><Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors">تواصل معنا</Link></li>
             </ul>
