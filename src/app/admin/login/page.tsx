@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Lock, Mail, Loader2, ShieldCheck, ArrowLeft, LogOut } from 'lucide-react';
+import { Lock, Mail, Loader2, ShieldCheck, ArrowRight, LogOut } from 'lucide-react';
 import { useAuth, useUser } from '@/firebase';
 import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence, signOut } from 'firebase/auth';
 
@@ -33,7 +33,7 @@ export default function AdminLoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!auth) {
-      toast({ title: "Error", description: "Firebase is not initialized.", variant: "destructive" });
+      toast({ title: "خطأ", description: "لم يتم تهيئة نظام التحقق.", variant: "destructive" });
       return;
     }
 
@@ -44,24 +44,24 @@ export default function AdminLoginPage() {
       const loggedUser = userCredential.user;
       
       if (loggedUser.email?.toLowerCase() === AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
-        toast({ title: "Access Granted", description: "Welcome to the administration panel." });
+        toast({ title: "تم السماح بالدخول", description: "مرحباً بك في لوحة الإدارة." });
         router.push('/admin');
       } else {
         await signOut(auth);
         toast({ 
-          title: "Unauthorized", 
-          description: "This account is not permitted to access this area.", 
+          title: "غير مصرح لك", 
+          description: "هذا الحساب لا يملك صلاحيات الوصول لهذه المنطقة.", 
           variant: "destructive" 
         });
       }
     } catch (error: any) {
       console.error("Login Error:", error);
-      let message = "An error occurred during authentication.";
+      let message = "حدث خطأ أثناء عملية التحقق.";
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-email') {
-        message = "The email or password you entered is incorrect.";
+        message = "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
       }
       toast({ 
-        title: "Login Failed", 
+        title: "فشل تسجيل الدخول", 
         description: message, 
         variant: "destructive" 
       });
@@ -73,7 +73,7 @@ export default function AdminLoginPage() {
   const handleForceLogout = async () => {
     if (auth) {
       await signOut(auth);
-      toast({ title: "Logged Out", description: "You have been signed out. Please log in again." });
+      toast({ title: "تم تسجيل الخروج", description: "لقد تم إنهاء الجلسة الحالية بنجاح." });
     }
   };
 
@@ -86,7 +86,8 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+    <main className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden text-right" dir="rtl">
+      {/* Background Glows */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-[10%] left-[10%] w-[30%] h-[30%] bg-primary/20 blur-[100px] rounded-full" />
         <div className="absolute bottom-[10%] right-[10%] w-[30%] h-[30%] bg-accent/20 blur-[100px] rounded-full" />
@@ -101,10 +102,10 @@ export default function AdminLoginPage() {
           </div>
           <div className="space-y-1">
             <CardTitle className="text-3xl font-bold uppercase tracking-tighter text-gradient-primary">
-              Admin Portal
+              بوابة الإدارة
             </CardTitle>
-            <CardDescription className="text-sm font-medium">
-              Secure Administration Access
+            <CardDescription className="text-sm font-medium text-muted-foreground">
+              دخول آمن لمنطقة إدارة المتجر
             </CardDescription>
           </div>
         </CardHeader>
@@ -112,14 +113,14 @@ export default function AdminLoginPage() {
         <CardContent className="px-8 pb-10">
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Email</Label>
+              <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-muted-foreground mr-1">البريد الإلكتروني</Label>
               <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input 
                   id="email" 
                   type="email" 
                   placeholder="admin@example.com"
-                  className="pl-12 h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-primary focus:border-primary transition-all"
+                  className="pr-12 h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-primary focus:border-primary transition-all text-right"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   required
@@ -128,14 +129,14 @@ export default function AdminLoginPage() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Password</Label>
+              <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-muted-foreground mr-1">كلمة المرور</Label>
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input 
                   id="password" 
                   type="password" 
                   placeholder="••••••••"
-                  className="pl-12 h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-primary focus:border-primary transition-all"
+                  className="pr-12 h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-primary focus:border-primary transition-all text-right"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
@@ -144,13 +145,13 @@ export default function AdminLoginPage() {
             </div>
 
             <div className="space-y-3">
-              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 h-14 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20 transition-all active:scale-95" disabled={loading}>
+              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 h-14 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20 transition-all active:scale-95 flex items-center justify-center gap-3" disabled={loading}>
                 {loading ? (
-                  <span className="flex items-center gap-2">
+                  <>
                     <Loader2 className="animate-spin w-5 h-5" />
-                    Authenticating...
-                  </span>
-                ) : "Sign In"}
+                    <span>جاري التحقق...</span>
+                  </>
+                ) : "تسجيل الدخول"}
               </Button>
 
               {user && (
@@ -160,16 +161,16 @@ export default function AdminLoginPage() {
                   className="w-full h-14 rounded-2xl border-destructive/20 text-destructive hover:bg-destructive/10"
                   onClick={handleForceLogout}
                 >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Logout Current Session
+                  <LogOut className="w-4 h-4 ml-2" />
+                  تسجيل الخروج من الجلسة الحالية
                 </Button>
               )}
             </div>
 
-            <Button variant="ghost" className="w-full h-10 rounded-xl text-muted-foreground" asChild>
+            <Button variant="ghost" className="w-full h-10 rounded-xl text-muted-foreground hover:text-primary transition-colors" asChild>
               <Link href="/">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Return to Homepage
+                <ArrowRight className="w-4 h-4 ml-2" />
+                العودة إلى الصفحة الرئيسية
               </Link>
             </Button>
           </form>
