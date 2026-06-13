@@ -40,70 +40,70 @@ export default function ContactPage() {
   const mapUrl = `https://maps.google.com/maps?q=${BUSINESS_INFO.coordinates.lat},${BUSINESS_INFO.coordinates.lng}&z=15&output=embed`;
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen text-left" dir="rtl">
       <Navbar />
       
       <div className="pt-32 pb-24 container mx-auto px-4 md:px-8">
         <div className="max-w-6xl mx-auto space-y-16">
-          <div className="text-center space-y-4">
+          <div className="text-left space-y-4">
             <h1 className="text-4xl md:text-6xl font-bold tracking-tighter">تواصل <span className="text-gradient-primary">معنا</span></h1>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            <p className="text-muted-foreground text-lg max-w-2xl">
               هل لديك استفسار عن منتج معين أو ترغب في معرفة المزيد عن تشكيلتنا؟ فريقنا هنا لمساعدتك في اختيار الهدية أو الجائزة المثالية.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* معلومات التواصل */}
-            <div className="space-y-8 text-right">
+            <div className="space-y-8 text-left">
               <div className="space-y-6">
                 <h3 className="text-2xl font-bold">معلومات التواصل</h3>
                 <div className="space-y-6">
-                  <div className="flex items-start gap-4 justify-start">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-inner border border-primary/20">
-                      <Phone className="text-primary w-5 h-5" />
-                    </div>
-                    <div className="flex-1">
+                  <div className="flex flex-row-reverse items-start gap-4 justify-start">
+                    <div className="flex-1 text-left">
                       <p className="font-bold">الهاتف والواتساب</p>
                       <p className="text-muted-foreground" dir="ltr">{BUSINESS_INFO.phone}</p>
                     </div>
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-inner border border-primary/20">
+                      <Phone className="text-primary w-5 h-5" />
+                    </div>
                   </div>
 
-                  <div className="flex items-start gap-4 justify-start">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-inner border border-primary/20">
-                      <Mail className="text-primary w-5 h-5" />
-                    </div>
-                    <div className="flex-1">
+                  <div className="flex flex-row-reverse items-start gap-4 justify-start">
+                    <div className="flex-1 text-left">
                       <p className="font-bold">البريد الإلكتروني</p>
                       <p className="text-muted-foreground">{BUSINESS_INFO.email}</p>
                     </div>
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-inner border border-primary/20">
+                      <Mail className="text-primary w-5 h-5" />
+                    </div>
                   </div>
 
-                  <div className="flex items-start gap-4 justify-start">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-inner border border-primary/20">
-                      <MapPin className="text-primary w-5 h-5" />
-                    </div>
-                    <div className="flex-1">
+                  <div className="flex flex-row-reverse items-start gap-4 justify-start">
+                    <div className="flex-1 text-left">
                       <p className="font-bold">موقعنا</p>
                       <p className="text-muted-foreground">{BUSINESS_INFO.address}</p>
                     </div>
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-inner border border-primary/20">
+                      <MapPin className="text-primary w-5 h-5" />
+                    </div>
                   </div>
 
-                  <div className="flex items-start gap-4 justify-start">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-inner border border-primary/20">
-                      <Clock className="text-primary w-5 h-5" />
-                    </div>
-                    <div className="flex-1">
+                  <div className="flex flex-row-reverse items-start gap-4 justify-start">
+                    <div className="flex-1 text-left">
                       <p className="font-bold">ساعات العمل</p>
                       <p className="text-muted-foreground">الإثنين - السبت: 9:00 صباحاً - 7:00 مساءً</p>
+                    </div>
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 shadow-inner border border-primary/20">
+                      <Clock className="text-primary w-5 h-5" />
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="p-8 rounded-[2rem] bg-white/5 border border-white/10 space-y-4 backdrop-blur-xl">
-                <div className="font-bold flex items-center justify-start gap-2 text-[#25D366]">
-                  <MessageCircle className="w-5 h-5 fill-current" />
+                <div className="font-bold flex flex-row-reverse items-center justify-start gap-2 text-[#25D366]">
                   <p>دردش معنا على واتساب</p>
+                  <MessageCircle className="w-5 h-5 fill-current" />
                 </div>
                 <p className="text-sm text-muted-foreground">احصل على إجابات فورية لاستفساراتك حول المنتجات المتاحة في المتجر.</p>
                 <Button 
@@ -119,31 +119,31 @@ export default function ContactPage() {
             <div className="lg:col-span-2 space-y-8">
               <Card className="border-white/10 bg-white/5 rounded-[2.5rem] overflow-hidden backdrop-blur-2xl">
                 <CardContent className="p-8 md:p-12">
-                  <form onSubmit={handleSubmit} className="space-y-6 text-right">
+                  <form onSubmit={handleSubmit} className="space-y-6 text-left">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label htmlFor="name" className="text-xs font-bold uppercase tracking-widest text-muted-foreground mr-1">الاسم الكامل</Label>
-                        <Input id="name" placeholder="أدخل اسمك هنا..." required className="h-12 rounded-xl text-right bg-white/5 border-white/10" />
+                        <Label htmlFor="name" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">الاسم الكامل</Label>
+                        <Input id="name" placeholder="أدخل اسمك هنا..." required className="h-12 rounded-xl text-left bg-white/5 border-white/10" />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-muted-foreground mr-1">البريد الإلكتروني</Label>
-                        <Input id="email" type="email" placeholder="example@mail.com" required className="h-12 rounded-xl text-right bg-white/5 border-white/10" />
+                        <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">البريد الإلكتروني</Label>
+                        <Input id="email" type="email" placeholder="example@mail.com" required className="h-12 rounded-xl text-left bg-white/5 border-white/10" />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="subject" className="text-xs font-bold uppercase tracking-widest text-muted-foreground mr-1">الموضوع</Label>
-                      <Input id="subject" placeholder="استفسار عن توفر منتج..." required className="h-12 rounded-xl text-right bg-white/5 border-white/10" />
+                      <Label htmlFor="subject" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">الموضوع</Label>
+                      <Input id="subject" placeholder="استفسار عن توفر منتج..." required className="h-12 rounded-xl text-left bg-white/5 border-white/10" />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="message" className="text-xs font-bold uppercase tracking-widest text-muted-foreground mr-1">الرسالة</Label>
-                      <Textarea id="message" placeholder="أخبرنا كيف يمكننا مساعدتك..." required className="min-h-[150px] rounded-xl resize-none text-right bg-white/5 border-white/10" />
+                      <Label htmlFor="message" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">الرسالة</Label>
+                      <Textarea id="message" placeholder="أخبرنا كيف يمكننا مساعدتك..." required className="min-h-[150px] rounded-xl resize-none text-left bg-white/5 border-white/10" />
                     </div>
                     <Button type="submit" disabled={loading} className="w-full h-14 rounded-2xl text-lg font-bold bg-primary hover:bg-primary/90 btn-glow">
                       {loading ? "جاري الإرسال..." : (
-                        <>
-                          إرسال الرسالة
-                          <Send className="w-5 h-5 mr-2" />
-                        </>
+                        <div className="flex items-center gap-2">
+                          <span>إرسال الرسالة</span>
+                          <Send className="w-5 h-5" />
+                        </div>
                       )}
                     </Button>
                   </form>
@@ -151,13 +151,13 @@ export default function ContactPage() {
               </Card>
 
               {/* خريطة موقع المحل بالإحداثيات الدقيقة */}
-              <div className="space-y-4 text-right">
-                <div className="flex items-center justify-between">
-                   <Button variant="link" className="text-primary p-0 h-auto font-bold" onClick={openGoogleMaps}>
-                     فتح في خرائط جوجل
-                     <ExternalLink className="w-4 h-4 ml-2" />
-                   </Button>
+              <div className="space-y-4 text-left">
+                <div className="flex flex-row-reverse items-center justify-between">
                    <h3 className="text-xl font-bold">موقع المحل على الخريطة</h3>
+                   <Button variant="link" className="text-primary p-0 h-auto font-bold flex flex-row-reverse items-center gap-2" onClick={openGoogleMaps}>
+                     <span>فتح في خرائط جوجل</span>
+                     <ExternalLink className="w-4 h-4" />
+                   </Button>
                 </div>
                 <div className="w-full h-[400px] rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl relative group">
                   <iframe 
