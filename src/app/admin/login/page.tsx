@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Lock, Mail, Loader2, ShieldCheck, ArrowRight, LogOut } from 'lucide-react';
 import { useAuth, useUser } from '@/firebase';
-import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence, signOut } from 'firebase/auth';
+import { signInWithEmailAndPassword, setPersistence, browserSessionPersistence, signOut } from 'firebase/auth';
 
 const AUTHORIZED_ADMIN_EMAIL = 'sallahdinimillou@gmail.com';
 
@@ -24,11 +24,7 @@ export default function AdminLoginPage() {
   const auth = useAuth();
   const { user, isLoading: userLoading } = useUser();
 
-  useEffect(() => {
-    if (!userLoading && user && user.email?.toLowerCase() === AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
-      router.push('/admin');
-    }
-  }, [user, userLoading, router]);
+  // ملاحظة: قمنا بإزالة التحويل التلقائي لضمان طلب البيانات في كل مرة كما طلب المستخدم
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +35,8 @@ export default function AdminLoginPage() {
 
     setLoading(true);
     try {
-      await setPersistence(auth, browserLocalPersistence);
+      // نستخدم browserSessionPersistence لضمان طلب البيانات في كل مرة يتم فيها فتح المتصفح
+      await setPersistence(auth, browserSessionPersistence);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const loggedUser = userCredential.user;
       
@@ -105,7 +102,7 @@ export default function AdminLoginPage() {
               بوابة الإدارة
             </CardTitle>
             <CardDescription className="text-sm font-medium text-muted-foreground">
-              دخول آمن لمنطقة إدارة المتجر
+              يرجى إدخال بيانات الاعتماد للوصول
             </CardDescription>
           </div>
         </CardHeader>
