@@ -36,6 +36,9 @@ export default function ContactPage() {
     window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`, '_blank');
   };
 
+  // رابط الخريطة باستخدام الإحداثيات الدقيقة
+  const mapUrl = `https://maps.google.com/maps?q=${BUSINESS_INFO.coordinates.lat},${BUSINESS_INFO.coordinates.lng}&z=15&output=embed`;
+
   return (
     <main className="min-h-screen">
       <Navbar />
@@ -147,7 +150,7 @@ export default function ContactPage() {
                 </CardContent>
               </Card>
 
-              {/* خريطة موقع المحل */}
+              {/* خريطة موقع المحل بالإحداثيات الدقيقة */}
               <div className="space-y-4 text-right">
                 <div className="flex items-center justify-between">
                    <Button variant="link" className="text-primary p-0 h-auto font-bold" onClick={openGoogleMaps}>
@@ -158,7 +161,7 @@ export default function ContactPage() {
                 </div>
                 <div className="w-full h-[400px] rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl relative group">
                   <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d110052.41738221876!2d-9.61585255!3d30.4220365!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xdb3b6e910243257%3A0x6972076046e7f864!2sAgadir%2C%20Morocco!5e0!3m2!1sen!2s!4v1710345678901!5m2!1sen!2s" 
+                    src={mapUrl} 
                     width="100%" 
                     height="100%" 
                     style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%)' }} 
