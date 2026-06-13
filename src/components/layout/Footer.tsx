@@ -15,7 +15,7 @@ export function Footer() {
             <p className="text-muted-foreground leading-relaxed max-w-xs text-left">
               Your premier luxury gift destination in Agadir. Specializing in awards, trophies, and unforgettable personalized keepsakes.
             </p>
-            <div className="flex justify-start space-x-4">
+            <div className="flex justify-end gap-4">
               <a href={BUSINESS_INFO.social.facebook} target="_blank" className="p-2 bg-white/5 hover:bg-primary/20 rounded-full transition-colors">
                 <Facebook className="w-5 h-5" />
               </a>
@@ -47,17 +47,17 @@ export function Footer() {
           <div className="text-left">
             <h4 className="text-lg font-bold mb-6">Store Info</h4>
             <ul className="space-y-4 text-left">
-              <li className="flex items-start space-x-3 text-muted-foreground">
+              <li className="flex flex-row-reverse items-start justify-start gap-3 text-muted-foreground">
+                <span className="text-left flex-1">Agadir, Morocco <br/> (Near Main Square)</span>
                 <MapPin className="w-5 h-5 text-primary shrink-0" />
-                <span className="text-left">Agadir, Morocco <br/> (Near Main Square)</span>
               </li>
-              <li className="flex items-center space-x-3 text-muted-foreground">
+              <li className="flex flex-row-reverse items-center justify-start gap-3 text-muted-foreground">
+                <span className="text-left flex-1">{BUSINESS_INFO.phone}</span>
                 <Phone className="w-5 h-5 text-primary shrink-0" />
-                <span className="text-left">{BUSINESS_INFO.phone}</span>
               </li>
-              <li className="flex items-center space-x-3 text-muted-foreground">
+              <li className="flex flex-row-reverse items-center justify-start gap-3 text-muted-foreground">
+                <span className="text-left flex-1">{BUSINESS_INFO.email}</span>
                 <Mail className="w-5 h-5 text-primary shrink-0" />
-                <span className="text-left">{BUSINESS_INFO.email}</span>
               </li>
             </ul>
           </div>
