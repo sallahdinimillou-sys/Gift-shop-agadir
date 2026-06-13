@@ -13,22 +13,22 @@ export default function Home() {
     { 
       icon: <Award className="w-8 h-8 text-primary" />, 
       title: "Qualité Premium", 
-      desc: "أفضل المواد وحرفية الخبراء في كل قطعة." 
+      desc: "أفضل المواد وحرفية الخبراء في كل قطعة ننتجها." 
     },
     { 
       icon: <Truck className="w-8 h-8 text-primary" />, 
       title: "Livraison Rapide", 
-      desc: "شحن موثوق وسريع لجميع مدن المغرب." 
+      desc: "شحن موثوق وسريع لجميع المدن المغربية بآمان." 
     },
     { 
       icon: <Shield className="w-8 h-8 text-primary" />, 
       title: "Paiement Sécurisé", 
-      desc: "معاملات آمنة تماماً لضمان راحة بالك." 
+      desc: "معاملات آمنة تماماً لضمان راحة بالك عند الشراء." 
     },
     { 
       icon: <Star className="w-8 h-8 text-primary" />, 
       title: "Marque de Confiance", 
-      desc: "اختيار أكادير الأول للجوائز والهدايا الفاخرة." 
+      desc: "الخيار الأول في أكادير للجوائز والهدايا الفاخرة." 
     }
   ];
 
@@ -44,11 +44,11 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
             {stats.map((stat, i) => (
               <div key={i} className="flex flex-col items-center text-center space-y-4 p-8 rounded-[2.5rem] bg-white/5 hover:bg-white/10 transition-all duration-300 border border-white/5 group hover:border-primary/30">
-                <div className="p-4 rounded-3xl bg-primary/10 group-hover:scale-110 transition-transform duration-300">
+                <div className="p-4 rounded-3xl bg-primary/10 group-hover:scale-110 transition-transform duration-300 flex items-center justify-center">
                   {stat.icon}
                 </div>
-                <h3 className="text-xl font-bold font-sans uppercase tracking-tighter text-right w-full">{stat.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed text-right w-full">{stat.desc}</p>
+                <h3 className="text-xl font-bold font-sans uppercase tracking-tighter text-center w-full">{stat.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed text-center w-full">{stat.desc}</p>
               </div>
             ))}
           </div>

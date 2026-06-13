@@ -18,7 +18,7 @@ export function Hero() {
   };
 
   return (
-    <section className="relative min-h-[50vh] w-full flex items-start pt-4 pb-12 overflow-hidden">
+    <section className="relative min-h-[40vh] w-full flex items-start pt-2 pb-12 overflow-hidden">
       <div className="absolute inset-0 z-0">
         {heroImg && (
           <Image
@@ -33,7 +33,7 @@ export function Hero() {
         <div className="absolute inset-0 bg-gradient-to-l from-background via-background/40 to-transparent" />
       </div>
 
-      <div className="container mx-auto px-6 md:px-12 z-10 text-right mt-12 md:mt-16">
+      <div className="container mx-auto px-6 md:px-12 z-10 text-right mt-12 md:mt-14">
         <div className="max-w-5xl ml-auto">
           <motion.div
             initial={{ opacity: 0, x: 30 }}
@@ -41,10 +41,10 @@ export function Hero() {
             transition={{ duration: 0.8 }}
             className="space-y-1"
           >
-            <span className="text-primary font-bold tracking-[0.1em] uppercase block text-[11px] md:text-[13px] whitespace-nowrap opacity-90 animate-pulse">
+            <span className="text-primary font-bold tracking-[0.05em] uppercase block text-[10px] md:text-[12px] whitespace-nowrap opacity-90 animate-pulse text-right">
               Collection Exclusive de Luxe
             </span>
-            <div className="pt-2 space-y-4">
+            <div className="pt-1 space-y-4">
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tighter text-right">
                 Celebrating <br /> 
                 <span className="text-gradient-primary animate-text-glow">Every Victory</span>
