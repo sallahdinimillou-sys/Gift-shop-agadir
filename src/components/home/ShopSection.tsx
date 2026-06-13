@@ -8,7 +8,7 @@ import { collection, query, orderBy } from 'firebase/firestore';
 import { CATEGORIES, BUSINESS_INFO } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Filter, SlidersHorizontal, ShoppingCart, MessageCircle, ShieldCheck, Truck, Clock, Loader2, PackageOpen } from 'lucide-react';
+import { Search, Filter, ShoppingCart, MessageCircle, ShieldCheck, Truck, Clock, Loader2, PackageOpen, Sparkles } from 'lucide-react';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -68,8 +68,6 @@ export function ShopSection() {
   const displayData = products || cachedData || [];
 
   const filteredProducts = useMemo(() => {
-    const keywords = searchQuery.toLowerCase().trim().split(/\s+/).filter(Boolean);
-
     return displayData.filter(product => {
       const isPublished = product.published === true;
       const hasImage = product.images && product.images.length > 0;
@@ -77,7 +75,7 @@ export function ShopSection() {
       if (!isPublished || !hasImage) return false;
 
       const title = product.title?.toLowerCase() || '';
-      const matchesSearch = keywords.length === 0 || keywords.every(keyword => title.includes(keyword));
+      const matchesSearch = title.includes(searchQuery.toLowerCase());
       const matchesCategory = selectedCategory ? product.categoryId === selectedCategory : true;
       
       return matchesSearch && matchesCategory;
@@ -96,67 +94,72 @@ export function ShopSection() {
     setActiveImageIndex(0);
   };
 
-  // الحالة الفارغة: لا يوجد منتجات في قاعدة البيانات ولا يوجد كاش
   const isEmpty = !loading && displayData.length === 0;
-  // حالة لا توجد نتائج للبحث: توجد منتجات ولكن الفلتر أخفاها
-  const noResults = !loading && displayData.length > 0 && filteredProducts.length === 0;
 
   return (
-    <section id="shop" className="py-12 md:py-24 container mx-auto px-4 md:px-8 scroll-mt-20 min-h-[400px]">
-      <div className="flex flex-col space-y-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-          <div className="space-y-2 text-right md:text-right w-full md:w-auto">
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tighter leading-none">مجموعتنا <span className="text-gradient-primary">الفاخرة</span></h2>
-            <p className="text-muted-foreground max-w-lg mx-auto md:mr-0">اكتشف أرقى التذكارات والهدايا المخصصة التي صُنعت لتخليد لحظاتكم الخاصة.</p>
+    <section id="shop" className="py-16 md:py-24 container mx-auto px-4 md:px-8 scroll-mt-20">
+      <div className="flex flex-col space-y-12">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-right">
+          <div className="space-y-4 max-w-2xl">
+            <h2 className="text-4xl md:text-6xl font-bold tracking-tighter leading-tight">
+              مجموعتنا <span className="text-gradient-primary">الفاخرة</span>
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              اكتشف أرقى التذكارات والهدايا المخصصة التي صُنعت لتخليد لحظاتكم الخاصة بكل حب وإتقان.
+            </p>
           </div>
+          
           {!isEmpty && (
-            <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground font-medium bg-white/5 px-4 py-1.5 rounded-full border border-white/5">
-              {loading ? (
-                <span className="flex items-center gap-2"><Loader2 className="w-3 h-3 animate-spin" /> جاري التحديث...</span>
-              ) : (
-                `عرض ${filteredProducts.length} منتج`
-              )}
+            <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-6 py-2 rounded-full backdrop-blur-md">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+              </span>
+              <span className="text-sm font-bold text-white/90">
+                {loading ? "جاري التحديث..." : `${filteredProducts.length} منتج متوفر`}
+              </span>
             </div>
           )}
         </div>
 
+        {/* Filters and Search - Hidden if empty to maintain elegance */}
         {!isEmpty && (
-          <div className="flex flex-col sm:flex-row gap-4 bg-white/5 p-4 rounded-3xl border border-white/5 backdrop-blur-sm">
+          <div className="flex flex-col sm:flex-row-reverse gap-4 bg-white/5 p-4 rounded-[2rem] border border-white/10 backdrop-blur-xl">
             <div className="relative flex-1 group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+              <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
               <Input 
                 placeholder="ابحث عن هديتك المثالية..." 
-                className="pl-10 h-11 bg-background/50 rounded-xl border-white/10 focus:border-primary transition-all text-right pr-4"
+                className="pr-12 h-14 bg-background/50 rounded-2xl border-white/5 focus:border-primary transition-all text-right text-lg"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
             
-            <div className="flex gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="h-11 rounded-xl border-white/10 hover:bg-white/10">
-                    <Filter className="w-4 h-4 mr-2" />
-                    {selectedCategory ? CATEGORIES.find(c => c.id === selectedCategory)?.name : 'الفئات'}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 rounded-xl border-white/10 bg-card/90 backdrop-blur-xl">
-                  <DropdownMenuItem onClick={() => setSelectedCategory(null)} className="rounded-lg text-right">جميع الفئات</DropdownMenuItem>
-                  {CATEGORIES.map(cat => (
-                    <DropdownMenuItem key={cat.id} onClick={() => setSelectedCategory(cat.id)} className="rounded-lg text-right">
-                      {cat.name}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="h-14 rounded-2xl border-white/5 bg-background/50 hover:bg-primary/10 hover:text-primary px-8 text-lg font-medium">
+                  <Filter className="w-5 h-5 ml-2" />
+                  {selectedCategory ? CATEGORIES.find(c => c.id === selectedCategory)?.name : 'تصفية حسب الفئة'}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56 rounded-2xl border-white/10 bg-card/95 backdrop-blur-2xl">
+                <DropdownMenuItem onClick={() => setSelectedCategory(null)} className="rounded-xl text-right p-3">جميع الفئات</DropdownMenuItem>
+                {CATEGORIES.map(cat => (
+                  <DropdownMenuItem key={cat.id} onClick={() => setSelectedCategory(cat.id)} className="rounded-xl text-right p-3">
+                    {cat.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
 
+        {/* Products Grid or Empty State */}
         {loading && displayData.length === 0 ? (
           <ProductSkeleton />
         ) : filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
             {filteredProducts.map((product, index) => (
               <ProductCard 
                 key={product.id} 
@@ -167,56 +170,66 @@ export function ShopSection() {
             ))}
           </div>
         ) : (
-          <div className="py-20 flex flex-col items-center justify-center text-center space-y-6 bg-white/5 rounded-[3rem] border-2 border-dashed border-white/10">
-            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center">
-              <PackageOpen className="w-10 h-10 text-primary/60" />
+          <div className="py-24 flex flex-col items-center justify-center text-center space-y-8 bg-gradient-to-b from-white/5 to-transparent rounded-[3.5rem] border-2 border-dashed border-white/10 mx-auto w-full max-w-5xl">
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/20 blur-[50px] rounded-full scale-150 animate-pulse" />
+              <div className="relative w-28 h-28 bg-card border border-primary/20 rounded-[2.5rem] flex items-center justify-center rotate-3 shadow-2xl">
+                <PackageOpen className="w-14 h-14 text-primary" />
+              </div>
+              <div className="absolute -top-4 -right-4 w-10 h-10 bg-accent rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                <Sparkles className="w-5 h-5 text-black" />
+              </div>
             </div>
-            <div className="space-y-2 max-w-sm px-4">
-              <h3 className="text-2xl font-bold">
-                {isEmpty ? "المتجر فارغ حالياً" : "لا توجد نتائج لمطابقة بحثك"}
+            
+            <div className="space-y-4 max-w-md px-6">
+              <h3 className="text-3xl font-bold tracking-tighter">
+                {isEmpty ? "نحن نجهز لكم الأفضل" : "لا توجد نتائج لمطابقة بحثك"}
               </h3>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground text-lg leading-relaxed">
                 {isEmpty 
-                  ? "نحن بصدد تجهيز منتجاتنا الفاخرة لكم. ترقبوا الإطلاق قريباً!" 
-                  : "جرب تغيير كلمات البحث أو اختر فئة مختلفة للعثور على ما تبحث عنه."}
+                  ? "متجرنا قيد التحديث بمجموعة جديدة وفاخرة من الهدايا والجوائز. ترقبوا الإطلاق قريباً جداً لتجربة تسوق استثنائية." 
+                  : "جرب تغيير كلمات البحث أو اختر فئة مختلفة للعثور على ما تبحث عنه في مجموعتنا."}
               </p>
             </div>
+
             {(searchQuery || selectedCategory) && !isEmpty && (
               <Button 
                 variant="outline" 
-                className="rounded-full border-primary text-primary hover:bg-primary hover:text-white px-8"
+                className="rounded-full border-primary/50 text-primary hover:bg-primary hover:text-white px-10 h-14 text-lg font-bold transition-all"
                 onClick={() => { setSearchQuery(''); setSelectedCategory(null); }}
               >
-                مسح جميع الفلاتر
+                إظهار جميع المنتجات
               </Button>
             )}
           </div>
         )}
       </div>
 
+      {/* Product Detail Modal */}
       <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
-        <DialogContent className="max-w-5xl p-0 overflow-hidden bg-background border-white/10 rounded-[2rem] shadow-2xl">
+        <DialogContent className="max-w-5xl p-0 overflow-hidden bg-background border-white/10 rounded-[2.5rem] shadow-2xl">
           {selectedProduct && (
             <div className="flex flex-col lg:flex-row h-full max-h-[90vh] overflow-y-auto">
-              <div className="lg:w-1/2 bg-card p-6 flex flex-col gap-4">
-                <div className="relative aspect-square rounded-2xl overflow-hidden bg-background border border-white/5">
+              {/* Image Column */}
+              <div className="lg:w-1/2 bg-card p-8 flex flex-col gap-6">
+                <div className="relative aspect-square rounded-[2rem] overflow-hidden bg-background border border-white/5 shadow-inner">
                   <Image 
                     src={selectedProduct.images?.[activeImageIndex] || ''} 
                     alt={selectedProduct.title} 
                     fill
-                    className="object-cover animate-in fade-in duration-500"
+                    className="object-cover animate-in fade-in zoom-in duration-500"
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
                 </div>
                 {selectedProduct.images && selectedProduct.images.length > 1 && (
-                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                  <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide justify-center">
                     {selectedProduct.images.map((img, i) => (
                       <button 
                         key={i} 
                         onClick={() => setActiveImageIndex(i)}
                         className={cn(
-                          "relative w-20 h-20 rounded-xl overflow-hidden border-2 shrink-0 transition-all",
-                          activeImageIndex === i ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"
+                          "relative w-20 h-20 rounded-2xl overflow-hidden border-2 shrink-0 transition-all",
+                          activeImageIndex === i ? "border-primary scale-110 shadow-lg" : "border-transparent opacity-40 hover:opacity-100"
                         )}
                       >
                         <Image src={img} alt="" fill className="object-cover" sizes="80px" />
@@ -226,18 +239,19 @@ export function ShopSection() {
                 )}
               </div>
 
-              <div className="lg:w-1/2 p-8 lg:p-12 space-y-8 flex flex-col justify-center">
-                <div className="space-y-4 text-right">
+              {/* Content Column */}
+              <div className="lg:w-1/2 p-8 lg:p-14 space-y-10 flex flex-col justify-center">
+                <div className="space-y-6 text-right">
                   <div className="flex flex-wrap gap-2 justify-end">
-                    {selectedProduct.featured && <Badge className="bg-primary font-bold">منتج مميز</Badge>}
-                    <Badge variant="outline" className="border-white/20 uppercase tracking-widest text-[10px]">
+                    {selectedProduct.featured && <Badge className="bg-primary px-4 py-1 rounded-full font-bold">منتج حصري</Badge>}
+                    <Badge variant="outline" className="border-white/20 bg-white/5 backdrop-blur-md px-4 py-1 rounded-full uppercase tracking-widest text-[10px] font-bold">
                       {selectedProduct.categoryId?.replace('-', ' ') || 'عام'}
                     </Badge>
                   </div>
-                  <DialogTitle className="text-3xl lg:text-4xl font-bold tracking-tighter leading-tight text-right">
+                  <DialogTitle className="text-4xl lg:text-5xl font-bold tracking-tighter leading-tight text-right">
                     {selectedProduct.title}
                   </DialogTitle>
-                  <div className="text-3xl font-bold text-gradient-primary text-right">
+                  <div className="text-4xl font-black text-gradient-primary text-right">
                     {selectedProduct.price > 0 ? `${selectedProduct.price.toFixed(2)} MAD` : "اتصل للاستفسار"}
                   </div>
                   <DialogDescription className="text-muted-foreground text-lg leading-relaxed whitespace-pre-wrap text-right">
@@ -245,36 +259,43 @@ export function ShopSection() {
                   </DialogDescription>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <div className="flex flex-col sm:flex-row-reverse gap-4">
                     <Button 
-                      className="flex-1 h-14 rounded-xl text-lg font-bold bg-primary hover:bg-primary/90 transition-transform active:scale-95"
+                      className="flex-1 h-16 rounded-2xl text-xl font-bold bg-primary hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-primary/20"
                       onClick={() => addToCart(selectedProduct)}
                     >
-                      <ShoppingCart className="w-5 h-5 ml-3" />
+                      <ShoppingCart className="w-6 h-6 ml-3" />
                       أضف للسلة
                     </Button>
                     <Button 
-                      className="flex-1 h-14 rounded-xl text-lg font-bold bg-[#25D366] hover:bg-[#20ba59] text-white shadow-xl shadow-green-500/20 transition-transform active:scale-95"
+                      className="flex-1 h-16 rounded-2xl text-xl font-bold bg-[#25D366] hover:bg-[#20ba59] text-white shadow-xl shadow-green-500/20 transition-all hover:scale-[1.02] active:scale-95"
                       onClick={() => handleBuyNowWhatsApp(selectedProduct)}
                     >
-                      <MessageCircle className="w-5 h-5 ml-3 fill-current" />
+                      <MessageCircle className="w-6 h-6 ml-3 fill-current" />
                       اطلب الآن
                     </Button>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 pt-6 border-t border-white/5">
-                    <div className="flex flex-col items-center text-center gap-1">
-                      <ShieldCheck className="w-5 h-5 text-primary" />
-                      <span className="text-[10px] text-muted-foreground uppercase font-bold">جودة</span>
+                  {/* Trust Badges */}
+                  <div className="grid grid-cols-3 gap-4 pt-8 border-t border-white/10">
+                    <div className="flex flex-col items-center text-center gap-2 group">
+                      <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center transition-colors group-hover:bg-primary/20">
+                        <ShieldCheck className="w-6 h-6 text-primary" />
+                      </div>
+                      <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">أصلي 100%</span>
                     </div>
-                    <div className="flex flex-col items-center text-center gap-1">
-                      <Truck className="w-5 h-5 text-primary" />
-                      <span className="text-[10px] text-muted-foreground uppercase font-bold">توصيل</span>
+                    <div className="flex flex-col items-center text-center gap-2 group">
+                      <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center transition-colors group-hover:bg-primary/20">
+                        <Truck className="w-6 h-6 text-primary" />
+                      </div>
+                      <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">توصيل سريع</span>
                     </div>
-                    <div className="flex flex-col items-center text-center gap-1">
-                      <Clock className="w-5 h-5 text-primary" />
-                      <span className="text-[10px] text-muted-foreground uppercase font-bold">دعم</span>
+                    <div className="flex flex-col items-center text-center gap-2 group">
+                      <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center transition-colors group-hover:bg-primary/20">
+                        <Clock className="w-6 h-6 text-primary" />
+                      </div>
+                      <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">دعم فني</span>
                     </div>
                   </div>
                 </div>
