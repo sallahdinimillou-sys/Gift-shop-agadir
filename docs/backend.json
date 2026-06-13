@@ -14,9 +14,13 @@
           "type": "string",
           "enum": ["admin", "customer"],
           "description": "The user's role in the system."
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
         }
       },
-      "required": ["role"]
+      "required": ["role", "email"]
     },
     "Product": {
       "title": "Product",
@@ -53,6 +57,18 @@
         },
         "bestSeller": {
           "type": "boolean"
+        },
+        "published": {
+          "type": "boolean"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "object"
+        },
+        "updatedAt": {
+          "type": "object"
         }
       },
       "required": ["title", "price", "shippingPrice", "categoryId"]
@@ -64,11 +80,11 @@
   "firestore": {
     "/users/{userId}": {
       "schema": "UserProfile",
-      "description": "Collection of user profiles containing roles and metadata."
+      "description": "Collection of user profiles. Access restricted to the user themselves and admin."
     },
     "/products/{productId}": {
       "schema": "Product",
-      "description": "Collection of products managed by the admin."
+      "description": "Public products. Write access restricted to the admin (sallahdinimillou@gmail.com)."
     }
   }
 }
