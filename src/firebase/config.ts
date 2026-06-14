@@ -1,4 +1,5 @@
 export const firebaseConfig = {
+  // يرجى استبدال هذه القيم ببيانات مشروعك الجديد من Firebase Console
   apiKey: "AIzaSyDJ1PGFpWNYWMEU9mCgwtIXvhRgq8a7iU0",
   authDomain: "studio-5960586148-e8e89.firebaseapp.com",
   projectId: "studio-5960586148-e8e89",
